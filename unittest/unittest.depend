@@ -1,0 +1,119 @@
+# depslib dependency file v1.0
+1362435500 source:/home/sylvain/Development/projects/mariadb++/unittest/date_time.cpp
+	"test.hpp"
+
+1362435818 /home/sylvain/Development/projects/mariadb++/unittest/test.hpp
+	<string>
+	<mariadb++/mariadb++.hpp>
+
+1362527273 /home/sylvain/Development/projects/mariadb++/include/mariadb++/mariadb++.hpp
+	"connection.hpp"
+	"concurrency.hpp"
+	"exceptions.hpp"
+
+1362441472 /home/sylvain/Development/projects/mariadb++/include/mariadb++/connection.hpp
+	<string>
+	"account.hpp"
+	"statement.hpp"
+	"transaction.hpp"
+	"save_point.hpp"
+	"result_set.hpp"
+
+1362251908 /home/sylvain/Development/projects/mariadb++/include/mariadb++/account.hpp
+	<memory>
+	<string>
+	<map>
+	"types.hpp"
+
+1361753053 /home/sylvain/Development/projects/mariadb++/include/mariadb++/types.hpp
+	<memory>
+
+1362191154 /home/sylvain/Development/projects/mariadb++/include/mariadb++/statement.hpp
+	"last_error.hpp"
+	"result_set.hpp"
+
+1361417031 /home/sylvain/Development/projects/mariadb++/include/mariadb++/last_error.hpp
+	<string>
+	"types.hpp"
+
+1362443913 /home/sylvain/Development/projects/mariadb++/include/mariadb++/result_set.hpp
+	<mysql.h>
+	<memory>
+	<map>
+	"data.hpp"
+	"date_time.hpp"
+	"decimal.hpp"
+	"last_error.hpp"
+
+1361844181 /home/sylvain/Development/projects/mariadb++/mariadb-native-client/include/mysql.h
+	<sys/types.h>
+	<winsock2.h>
+	<WinSock2.h>
+	"mysql_com.h"
+	"mysql_version.h"
+	"my_list.h"
+	<my_stmt.h>
+
+1361844181 /home/sylvain/Development/projects/mariadb++/mariadb-native-client/include/mysql_com.h
+
+1361850862 /home/sylvain/Development/projects/mariadb++/mariadb-native-client/include/mysql_version.h
+	<custom_conf.h>
+
+1361844181 /home/sylvain/Development/projects/mariadb++/mariadb-native-client/include/my_list.h
+
+1361844181 /home/sylvain/Development/projects/mariadb++/mariadb-native-client/include/my_stmt.h
+
+1361901080 /home/sylvain/Development/projects/mariadb++/include/mariadb++/data.hpp
+	<boost/iostreams/stream.hpp>
+	"types.hpp"
+
+1362434855 /home/sylvain/Development/projects/mariadb++/include/mariadb++/date_time.hpp
+	<iostream>
+	"time.hpp"
+
+1362435389 /home/sylvain/Development/projects/mariadb++/include/mariadb++/time.hpp
+	<iostream>
+	<mysql.h>
+	"time_span.hpp"
+
+1361656652 /home/sylvain/Development/projects/mariadb++/include/mariadb++/time_span.hpp
+	<sstream>
+	"types.hpp"
+
+1362248696 /home/sylvain/Development/projects/mariadb++/include/mariadb++/decimal.hpp
+	<string>
+	"types.hpp"
+
+1362443780 /home/sylvain/Development/projects/mariadb++/include/mariadb++/transaction.hpp
+	<vector>
+	"save_point.hpp"
+	"types.hpp"
+
+1362442143 /home/sylvain/Development/projects/mariadb++/include/mariadb++/save_point.hpp
+	"types.hpp"
+
+1362532366 /home/sylvain/Development/projects/mariadb++/include/mariadb++/concurrency.hpp
+	<vector>
+	<mariadb++/statement.hpp>
+
+1361497673 /home/sylvain/Development/projects/mariadb++/include/mariadb++/exceptions.hpp
+	<string>
+	"types.hpp"
+
+1362522902 source:/home/sylvain/Development/projects/mariadb++/unittest/main.cpp
+	<getopt.h>
+	<iostream>
+	"test.hpp"
+
+1361844181 /home/sylvain/Development/projects/mariadb++/mariadb-native-client/include/getopt.h
+
+1362521443 source:/home/sylvain/Development/projects/mariadb++/unittest/test.cpp
+	"test.hpp"
+
+1362359032 source:/home/sylvain/Development/projects/mariadb++/unittest/decimal.cpp
+	"test.hpp"
+
+1362529630 source:/home/sylvain/Development/projects/mariadb++/unittest/database.cpp
+	<thread>
+	"test.hpp"
+

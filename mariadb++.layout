@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Debug64" />
+	<File name="include/mariadb++/account.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="937" topLine="23" />
+	</File>
+	<File name="include/mariadb++/concurrency.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="566" topLine="41" />
+	</File>
+	<File name="include/mariadb++/connection.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="436" topLine="1" />
+	</File>
+	<File name="include/mariadb++/data.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="2565" topLine="141" />
+	</File>
+	<File name="include/mariadb++/date_time.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="2502" topLine="59" />
+	</File>
+	<File name="include/mariadb++/decimal.hpp" open="0" top="0" tabpos="1">
+		<Cursor position="541" topLine="0" />
+	</File>
+	<File name="include/mariadb++/exceptions.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="0" topLine="51" />
+	</File>
+	<File name="include/mariadb++/mariadb++.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="424" topLine="0" />
+	</File>
+	<File name="include/mariadb++/result_set.hpp" open="0" top="0" tabpos="5">
+		<Cursor position="218" topLine="0" />
+	</File>
+	<File name="include/mariadb++/save_point.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="298" topLine="9" />
+	</File>
+	<File name="include/mariadb++/statement.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="1818" topLine="50" />
+	</File>
+	<File name="include/mariadb++/time.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="706" topLine="5" />
+	</File>
+	<File name="include/mariadb++/time_span.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="1368" topLine="22" />
+	</File>
+	<File name="include/mariadb++/transaction.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="728" topLine="15" />
+	</File>
+	<File name="include/mariadb++/types.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="805" topLine="56" />
+	</File>
+	<File name="src/account.cpp" open="0" top="0" tabpos="8">
+		<Cursor position="742" topLine="30" />
+	</File>
+	<File name="src/bind.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="1869" topLine="92" />
+	</File>
+	<File name="src/bind.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="984" topLine="16" />
+	</File>
+	<File name="src/concurrency.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="3567" topLine="148" />
+	</File>
+	<File name="src/connection.cpp" open="0" top="0" tabpos="9">
+		<Cursor position="342" topLine="6" />
+	</File>
+	<File name="src/date_time.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="11080" topLine="581" />
+	</File>
+	<File name="src/decimal.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="4311" topLine="185" />
+	</File>
+	<File name="src/private.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="323" topLine="0" />
+	</File>
+	<File name="src/private.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="1178" topLine="21" />
+	</File>
+	<File name="src/result_set.cpp" open="1" top="0" tabpos="1">
+		<Cursor position="4800" topLine="211" />
+	</File>
+	<File name="src/save_point.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="948" topLine="36" />
+	</File>
+	<File name="src/statement.cpp" open="1" top="1" tabpos="2">
+		<Cursor position="2823" topLine="134" />
+	</File>
+	<File name="src/time.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="6723" topLine="366" />
+	</File>
+	<File name="src/time_span.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="3337" topLine="196" />
+	</File>
+	<File name="src/transaction.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="1466" topLine="20" />
+	</File>
+	<File name="src/worker.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="421" topLine="0" />
+	</File>
+	<File name="src/worker.hpp" open="0" top="0" tabpos="0">
+		<Cursor position="473" topLine="14" />
+	</File>
+</CodeBlocks_layout_file>
