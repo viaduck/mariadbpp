@@ -1,10 +1,8 @@
 //
-//  A M A N A T S U   G A M E S
+//  M A R I A D B + +
 //
-//	Engine : Amanatsu Games
-//	Author : Sylvain Rochette Langlois
-//
-//	Copyright (c) 2007 by Amanatsu Games Inc. All Rights Reserved.
+//	Author   : Sylvain Rochette Langlois
+//	License  : Boost Software License (http://www.boost.org/users/license.html)
 //
 
 #include <mariadb++/time_span.hpp>
