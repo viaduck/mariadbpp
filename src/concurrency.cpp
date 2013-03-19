@@ -224,7 +224,7 @@ handle concurrency::query(statement_ref& statement, bool keep_handle)
 //
 void concurrency::remove(handle handle)
 {
-	map_t::const_iterator w = g_querys_out.find(handle);
+	map_t::iterator w = g_querys_out.find(handle);
 
 	if (w == g_querys_out.end())
 		return;

@@ -25,75 +25,74 @@ namespace mariadb
 		{
 		};
 
-	    //
+		//
 		// Constructor
 		//
 		data():
-            m_count(0),
-            m_size(0),
-            m_data(0)
-        {
-        }
+			m_count(0),
+			m_size(0),
+			m_data(0)
+		{
+		}
 
 		data(u32 count) :
-            m_count(0),
-            m_size(0),
-            m_data(0)
-        {
-            create(count);
-        }
+			m_count(0),
+			m_size(0),
+			m_data(0)
+		{
+			create(count);
+		}
 
 		data(const Type* data, size_t count) :
-            m_count(0),
-            m_size(0),
-            m_data(0)
-        {
-            create(data, count);
-        }
+			m_count(0),
+			m_size(0),
+			m_data(0)
+		{
+			create(data, count);
+		}
 
-        //
+		//
 		// Destructor
 		//
 		virtual ~data()
 		{
-            destroy();
-        }
+			destroy();
+		}
 
-        //
+		//
 		// Create the data
 		//
 		bool create(u32 count)
 		{
-            // destroy old data
-            if (m_data)
-                destroy();
+			if (m_data)
+				destroy();
 
-            m_data = new Type[count];
+			m_data = new Type[count];
 
-            if (m_data == 0)
-                return false;
+			if (m_data == 0)
+				return false;
 
-            m_count    = count;
-            m_size     = sizeof(Type) * count;
-            m_position = 0;
+			m_count    = count;
+			m_size     = sizeof(Type) * count;
+			m_position = 0;
 
-            return true;
-        }
+			return true;
+		}
 
 		bool create(const Type* data, u32 count)
-        {
-            if (create(count))
-            {
-                memcpy(m_data, data, m_size);
-                return true;
-            }
+		{
+			if (create(count))
+			{
+				memcpy(m_data, data, m_size);
+				return true;
+			}
 
-            return false;
-        }
+			return false;
+		}
 
-        bool resize(u32 count)
-        {
-        	if (count > m_count)
+		bool resize(u32 count)
+		{
+			if (count > m_count)
 			{
 				Type* data = new Type[count];
 
@@ -109,40 +108,40 @@ namespace mariadb
 			m_size = sizeof(Type) * count;
 
 			return true;
-        }
+		}
 
-        //
+		//
 		// Destroy
 		//
-        void destroy()
-        {
-            if (m_data)
-                delete [] m_data;
+		void destroy()
+		{
+			if (m_data)
+				delete [] m_data;
 
-            m_data = NULL;
-            m_size = 0;
-            m_count = 0;
-            m_position = 0;
-        }
+			m_data = NULL;
+			m_size = 0;
+			m_count = 0;
+			m_position = 0;
+		}
 
-        //
-        // Convert data to a valid string
-        //
-        std::string string() const
-        {
-        	std::string str;
-        	if (m_size)
+		//
+		// Convert data to a valid string
+		//
+		std::string string() const
+		{
+			std::string str;
+			if (m_size)
 				str.append((const char*)m_data, m_size);
-        	return str;
-        }
+			return str;
+		}
 
-        //
-        // Get data / size
-        //
+		//
+		// Get data / size
+		//
 		inline u32 size() const { return m_size; }
 		inline Type* get() const { return m_data; }
 
-        //
+		//
 		// Operator to access the base directly
 		//
 		inline operator Type*() { return m_data; }
@@ -208,7 +207,7 @@ namespace mariadb
 		Type* m_data;
 	};
 
-	typedef std::shared_ptr< ::mariadb::data<char> > data_ref;
+	typedef MARIADB_STD::shared_ptr< ::mariadb::data<char> > data_ref;
 	typedef boost::iostreams::stream< ::mariadb::data<char> > data_stream;
 }
 

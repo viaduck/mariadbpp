@@ -7,6 +7,7 @@
 
 #include <iomanip>
 #include <sstream>
+#include <limits>
 #include <math.h>
 #include <boost/lexical_cast.hpp>
 #include <mariadb++/decimal.hpp>
@@ -20,7 +21,7 @@ namespace
 	//
 	s64 multiply_divide(s64 value1, s64 value2, s64 divider)
 	{
-		if ((abs(value1) <= INT32_MAX) || (abs(value2) <= INT32_MAX))
+		if ((abs(value1) <= std::numeric_limits<int>::max()) || (abs(value2) <= std::numeric_limits<int>::max()))
 			return round(static_cast<f64>(value1 * value2) / static_cast<f64>(divider));
 
 		return round(static_cast<f64>(value1) * static_cast<f64>(value2) / static_cast<f64>(divider));
