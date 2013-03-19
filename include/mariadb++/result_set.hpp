@@ -9,7 +9,6 @@
 #define _MARIADB_RESULT_SET_HPP_
 
 #include <mysql.h>
-#include <memory>
 #include <map>
 #include "data.hpp"
 #include "date_time.hpp"
@@ -31,6 +30,8 @@ namespace mariadb
 	{
 		friend class connection;
 		friend class statement;
+
+		typedef std::map<std::string, u32> map_indexes_t;
 
 	public:
 		//
@@ -124,11 +125,10 @@ namespace mariadb
 		MYSQL_BIND*        m_my_binds;
 		bind*              m_binds;
 		statement*         m_statement;
-
-		std::map<std::string, u32> m_indexes;
+		map_indexes_t      m_indexes;
 	};
 
-	typedef std::shared_ptr<result_set> result_set_ref;
+	typedef MARIADB_STD::shared_ptr<result_set> result_set_ref;
 }
 
 #endif

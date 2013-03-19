@@ -71,10 +71,10 @@ bool test::create_test_db()
 {
 	try
 	{
-		auto con = connection::create(m_account_setup);
-		auto sta = con->create_statement("SELECT 1 FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?;");
+		connection_ref con = connection::create(m_account_setup);
+		statement_ref sta = con->create_statement("SELECT 1 FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?;");
 		sta->set_string(0, m_account_auto_commit->schema().c_str());
-		auto rs = sta->query();
+		result_set_ref rs = sta->query();
 
 		if (!rs ||
 			!rs->next())

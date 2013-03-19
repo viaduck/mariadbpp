@@ -157,7 +157,7 @@ bool connection::connect()
 	//
 	// Set options
 	//
-	BOOST_FOREACH(auto pair, m_account->options())
+	BOOST_FOREACH(const account::map_options_t::value_type& pair, m_account->options())
 	{
 		if (1 != execute(("SET OPTION " + pair.first + "=" + pair.second).c_str()))
 			MYSQL_ERROR_DISCONNECT(m_mysql);
@@ -213,7 +213,7 @@ s32 connection::execute(const char* query)
 
 	while (true)
 	{
-		auto result = mysql_store_result(m_mysql);
+		MYSQL_RES* result = mysql_store_result(m_mysql);
 
 		if (result)
 			mysql_free_result(result);
@@ -225,7 +225,7 @@ s32 connection::execute(const char* query)
 			return affected_rows;
 		}
 
-		auto status = mysql_next_result(m_mysql);
+		int status = mysql_next_result(m_mysql);
 		if (status > 0)
 		{
 			MYSQL_ERROR_NO_BRAKET(m_mysql);

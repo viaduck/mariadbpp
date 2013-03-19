@@ -30,7 +30,7 @@ account::account(const char* host_name, const char* user_name, const char* passw
 	//
 	// Extract port from host name if any
 	//
-	auto pos = m_host_name.find(':');
+	size_t pos = m_host_name.find(':');
 
 	if (pos != std::string::npos)
 	{
@@ -168,7 +168,7 @@ const std::map<std::string, std::string>& account::options() const
 
 const std::string& account::option(const char* name) const
 {
-	auto value = m_options.find(name);
+	const map_options_t::const_iterator value = m_options.find(name);
 
 	if (value != m_options.end())
 		return value->second;

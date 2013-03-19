@@ -85,7 +85,7 @@ void worker::execute()
 
 	try
 	{
-		auto connection = m_statement ? m_statement->m_connection : connection::create(m_account);
+		connection_ref connection = m_statement ? m_statement->m_connection : connection::create(m_account);
 
 		//
 		// Make sure auto commit mode is on before continuing...

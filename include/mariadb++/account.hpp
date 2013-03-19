@@ -8,7 +8,6 @@
 #ifndef _MARIADB_ACCOUNT_HPP_
 #define _MARIADB_ACCOUNT_HPP_
 
-#include <memory>
 #include <string>
 #include <map>
 #include "types.hpp"
@@ -25,10 +24,13 @@
 namespace mariadb
 {
 	class account;
-	typedef std::shared_ptr<account> account_ref;
+	typedef MARIADB_STD::shared_ptr<account> account_ref;
 
 	class account
 	{
+	public:
+		typedef std::map<std::string, std::string> map_options_t;
+
 	public:
 		//
 		// Constructor
@@ -98,7 +100,7 @@ namespace mariadb
 		std::string m_ssl_ca;
 		std::string m_ssl_ca_path;
 		std::string m_ssl_cipher;
-		std::map<std::string, std::string> m_options;
+		map_options_t m_options;
 	};
 }
 

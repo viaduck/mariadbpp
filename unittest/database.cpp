@@ -16,18 +16,18 @@ using namespace unittest;
 //
 bool test::test_transaction()
 {
-	auto con = connection::create(m_account_transaction);
+	connection_ref con = connection::create(m_account_transaction);
 
 	//
 	// Test commit
 	//
 	{
-		auto trx = con->create_transaction();
-		auto id = con->insert("INSERT INTO test(str) VALUES('test');");
+		transaction_ref trx = con->create_transaction();
+		u32 id = con->insert("INSERT INTO test(str) VALUES('test');");
 		trx->commit();
 		fail_if(!id, "mariadb::connection::insert id is zero!");
 
-		auto rs = con->query("SELECT COUNT(*) FROM test;");
+		result_set_ref rs = con->query("SELECT COUNT(*) FROM test;");
 		fail_if(!rs || !rs->next() || !rs->get_unsigned64((u32)0), "mariadb::connection::transaction cound not commit!");
 	}
 
@@ -35,11 +35,11 @@ bool test::test_transaction()
 	// Test rollback
 	//
 	{
-		auto trx = con->create_transaction();
+		transaction_ref trx = con->create_transaction();
 		con->insert("INSERT INTO test(str) VALUES('test2');");
 	}
 
-	auto rs = con->query("SELECT COUNT(*) FROM test;");
+	result_set_ref rs = con->query("SELECT COUNT(*) FROM test;");
 	fail_if(!rs || !rs->next() || 1 != rs->get_unsigned64((u32)0), "mariadb::connection::transaction cound not rollback!");
 
 	execute("DELETE FROM test WHERE id < 10000;");
@@ -48,30 +48,30 @@ bool test::test_transaction()
 
 bool test::test_save_point()
 {
-	auto con = connection::create(m_account_transaction);
+	connection_ref con = connection::create(m_account_transaction);
 
 	//
 	// Test commit
 	//
 	{
-		auto trx = con->create_transaction();
-		auto sp = trx->create_save_point();
-		auto id = con->insert("INSERT INTO test(str) VALUES('test');");
+		transaction_ref trx = con->create_transaction();
+		save_point_ref sp = trx->create_save_point();
+		u32 id = con->insert("INSERT INTO test(str) VALUES('test');");
 		sp->commit();
 		trx->commit();
 		fail_if(!id, "mariadb::connection::insert id is zero!");
 
-		auto rs = con->query("SELECT COUNT(*) FROM test;");
+		result_set_ref rs = con->query("SELECT COUNT(*) FROM test;");
 		fail_if(!rs || !rs->next() || !rs->get_unsigned64((u32)0), "mariadb::connection::save_point cound not commit!");
 	}
 	{
-		auto trx = con->create_transaction();
-		auto sp = trx->create_save_point();
-		auto id = con->insert("INSERT INTO test(str) VALUES('test');");
+		transaction_ref trx = con->create_transaction();
+		save_point_ref sp = trx->create_save_point();
+		u32 id = con->insert("INSERT INTO test(str) VALUES('test');");
 		trx->commit();
 		fail_if(!id, "mariadb::connection::insert id is zero!");
 
-		auto rs = con->query("SELECT COUNT(*) FROM test;");
+		result_set_ref rs = con->query("SELECT COUNT(*) FROM test;");
 		fail_if(!rs || !rs->next() || 1 == rs->get_unsigned64((u32)0), "mariadb::connection::save_point cound not commit!");
 	}
 
@@ -79,15 +79,15 @@ bool test::test_save_point()
 	// Test rollback
 	//
 	{
-		auto trx = con->create_transaction();
+		transaction_ref trx = con->create_transaction();
 		{
-			auto sp = trx->create_save_point();
+			save_point_ref sp = trx->create_save_point();
 			con->insert("INSERT INTO test(str) VALUES('test2');");
 		}
 		trx->commit();
 	}
 
-	auto rs = con->query("SELECT COUNT(*) FROM test;");
+	result_set_ref rs = con->query("SELECT COUNT(*) FROM test;");
 	fail_if(!rs || !rs->next() || 2 != rs->get_unsigned64((u32)0), "mariadb::connection::save_point cound not rollback!");
 
 	execute("DELETE FROM test WHERE id < 10000;");
@@ -108,12 +108,12 @@ bool test::test_statement()
 
 	u32 index = 0;
 	u32 id = 0;
-	auto con = connection::create(m_account_auto_commit);
+	connection_ref con = connection::create(m_account_auto_commit);
 
 	while (queries[index])
 	{
-		auto sta = con->create_statement(queries[index]);
-		auto data = data_ref(new mariadb::data<char>(100));
+		statement_ref sta = con->create_statement(queries[index]);
+		data_ref data = data_ref(new mariadb::data<char>(100));
 
 		sta->set_data(0, data);
 
@@ -125,11 +125,11 @@ bool test::test_statement()
 		id = sta->insert();
 
 		index++;
-		auto rs = con->query("SELECT COUNT(*) FROM test;");
+		result_set_ref rs = con->query("SELECT COUNT(*) FROM test;");
 		fail_if(!rs || !rs->next() || index != rs->get_unsigned64((u32)0), "mariadb::connection::statement unable to insert a row at index " << (index - 1));
 	}
 
-	auto sta = con->create_statement("DELETE FROM test WHERE id < ?;");
+	statement_ref sta = con->create_statement("DELETE FROM test WHERE id < ?;");
 	sta->set_unsigned32(0, id);
 	sta->execute();
 
@@ -141,8 +141,8 @@ bool test::test_result_set()
 	//
 	// Validate the inserted value from last test
 	//
-	auto con = connection::create(m_account_auto_commit);
-	auto rs = con->query("SELECT data, str, dt, t, value, deci FROM test LIMIT 1;");
+	connection_ref con = connection::create(m_account_auto_commit);
+	result_set_ref rs = con->query("SELECT data, str, dt, t, value, deci FROM test LIMIT 1;");
 
 	fail_if(!rs || !rs->next(), "mariadb::connection::result_set no row found!");
 

@@ -117,7 +117,7 @@ decimal::decimal(const char* string) :
 	// Extract the amount of precision required
 	//
 	std::string str = string;
-	auto pos = str.find(".");
+	size_t pos = str.find(".");
 
 	if (pos >= 0)
 	{

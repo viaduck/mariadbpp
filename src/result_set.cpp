@@ -203,7 +203,7 @@ bool result_set::is_null(const char* name) const
 //
 stream_ref result_set::get_blob(u32 index) const
 {
-	auto len = m_statement ? m_binds[index].length() : m_lengths[index];
+	size_t len = m_statement ? m_binds[index].length() : m_lengths[index];
 
 	if (!len)
 		return stream_ref();
@@ -215,7 +215,7 @@ stream_ref result_set::get_blob(u32 index) const
 
 data_ref result_set::get_data(u32 index) const
 {
-	auto len = m_statement ? m_binds[index].length() : m_lengths[index];
+	size_t len = m_statement ? m_binds[index].length() : m_lengths[index];
 
 	if (!len)
 		return data_ref();
@@ -430,7 +430,7 @@ const char* result_set::column_name(u32 index)
 
 u32 result_set::column_index(const char* name) const
 {
-	const auto i = m_indexes.find(name);
+	const map_indexes_t::const_iterator i = m_indexes.find(name);
 
 	if (i == m_indexes.end())
 		return 0xffffffff;

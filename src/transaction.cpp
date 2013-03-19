@@ -54,7 +54,7 @@ transaction::~transaction()
 //
 void transaction::cleanup()
 {
-	BOOST_FOREACH(auto save_point, m_save_points)
+	BOOST_FOREACH(save_point* save_point, m_save_points)
 	{
 		save_point->m_transaction = NULL;
 	}
@@ -81,7 +81,7 @@ save_point_ref transaction::create_save_point()
 	if (!m_connection)
 		return save_point_ref();
 
-	auto* sp = new save_point(this);
+	save_point* sp = new save_point(this);
 	m_save_points.push_back(sp);
 	return save_point_ref(sp);
 }

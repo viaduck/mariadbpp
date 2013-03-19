@@ -8,7 +8,17 @@
 #ifndef _MARIADB_TYPES_HPP_
 #define _MARIADB_TYPES_HPP_
 
-#include <memory>
+#ifdef MARIADB_WITHOUT_CPP11
+	#include <boost/shared_ptr.hpp>
+
+	#define MARIADB_STD boost
+	//#define MARIADB_SHARED_PTR boost::shared_ptr
+#else
+	#include <memory>
+
+	#define MARIADB_STD std
+	//#define MARIADB_SHARED_PTR std::shared_ptr
+#endif
 
 namespace mariadb
 {
@@ -82,11 +92,7 @@ namespace mariadb
 	//
 	// Stream
 	//
-	typedef std::shared_ptr<std::istream> stream_ref;
+	typedef MARIADB_STD::shared_ptr<std::istream> stream_ref;
 }
-
-#ifndef BIT
-#define BIT(x) ((x) << 1)
-#endif
 
 #endif

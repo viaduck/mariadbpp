@@ -8,7 +8,6 @@
 #ifndef _MARIADB_WORKER_HPP_
 #define _MARIADB_WORKER_HPP_
 
-#include <string>
 #include <mariadb++/connection.hpp>
 #include <mariadb++/concurrency.hpp>
 

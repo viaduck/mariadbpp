@@ -42,7 +42,7 @@
 			<Add option="-fpermissive" />
 			<Add option="-fopenmp" />
 			<Add option="-std=c++11" />
-			<Add directory="mariadb-native-client/include" />
+			<Add directory="../mariadb-native-client/include" />
 			<Add directory="include" />
 		</Compiler>
 		<Unit filename="include/mariadb++/account.hpp" />
@@ -61,9 +61,6 @@
 		<Unit filename="include/mariadb++/time_span.hpp" />
 		<Unit filename="include/mariadb++/transaction.hpp" />
 		<Unit filename="include/mariadb++/types.hpp" />
-		<Unit filename="mariadb-native-client/include/Makefile.am" />
-		<Unit filename="mariadb-native-client/include/my_config.h.in" />
-		<Unit filename="mariadb-native-client/include/mysql_version.h.in" />
 		<Unit filename="src/account.cpp" />
 		<Unit filename="src/bind.cpp" />
 		<Unit filename="src/bind.hpp" />

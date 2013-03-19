@@ -5,9 +5,24 @@
 //	License  : Boost Software License (http://www.boost.org/users/license.html)
 //
 
-#include <atomic>
-#include <thread>
-#include <mutex>
+#ifdef MARIADB_WITHOUT_CPP11
+	#include <boost/interprocess/detail/atomic.hpp>
+	#include <boost/thread.hpp>
+	#include <boost/thread/mutex.hpp>
+
+	#define LOCK_MUTEX() boost::mutex::scoped_lock lock(g_mutex)
+	#define SET_THREAD_RUNNING(x) boost::interprocess::ipcdetail::atomic_write32(&g_thread_running, x)
+	#define READ_THREAD_RUNNING() boost::interprocess::ipcdetail::atomic_read32(&g_thread_running)
+#else
+	#include <atomic>
+	#include <thread>
+	#include <mutex>
+
+	#define LOCK_MUTEX() std::lock_guard<std::mutex> lock(g_mutex)
+	#define SET_THREAD_RUNNING(x) g_thread_running = x
+	#define READ_THREAD_RUNNING() g_thread_running
+#endif
+
 #include "worker.hpp"
 #include "private.hpp"
 
@@ -18,24 +33,30 @@ namespace
 {
 	handle                    g_next_handle(0);
 	account_ref               g_account;
-	std::mutex                g_mutex;
+	MARIADB_STD::mutex        g_mutex;
 	std::vector<worker*>      g_querys_in;
 	std::map<handle, worker*> g_querys_out;
-	std::atomic<bool>         g_thread_running(false);
+#ifdef MARIADB_WITHOUT_CPP11
+	volatile boost::uint32_t  g_thread_running(false);
+#else
+	MARIADB_STD::atomic<bool> g_thread_running(false);
+#endif
+
+	typedef std::map<handle, worker*> map_t;
 
 	//
 	// Worker thread
 	//
 	void worker_thread()
 	{
-		g_thread_running = true;
+		SET_THREAD_RUNNING(true);
 		mysql_thread_init();
 
 		while (g_querys_in.size() > 0)
 		{
 			worker* w = NULL;
 			{
-				std::lock_guard<std::mutex> lock(g_mutex);
+				LOCK_MUTEX();
 				w = *g_querys_in.begin();
 				g_querys_in.erase(g_querys_in.begin());
 			}
@@ -45,10 +66,10 @@ namespace
 			if (!w->keep_handle())
 				delete w;
 
-			std::lock_guard<std::mutex> lock(g_mutex);
+			LOCK_MUTEX();
 		}
 
-		g_thread_running = false;
+		SET_THREAD_RUNNING(false);
 		mysql_thread_end();
 	}
 
@@ -57,9 +78,9 @@ namespace
 	//
 	void start_thread()
 	{
-		if (!g_thread_running)
+		if (!READ_THREAD_RUNNING())
 		{
-			std::thread t(worker_thread);
+			MARIADB_STD::thread t(worker_thread);
 			t.detach();
 		}
 	}
@@ -69,7 +90,7 @@ namespace
 	//
 	const worker& get_worker(handle handle)
 	{
-		auto w = g_querys_out.find(handle);
+		const map_t::const_iterator w = g_querys_out.find(handle);
 
 		if (w != g_querys_out.end())
 			return *w->second;
@@ -85,7 +106,7 @@ namespace
 	{
 		worker* w = new worker(g_account, ++g_next_handle, keep_handle, command, query);
 		{
-			std::lock_guard<std::mutex> lock(g_mutex);
+			LOCK_MUTEX();
 			g_querys_in.push_back(w);
 
 			if (keep_handle)
@@ -101,7 +122,7 @@ namespace
 	{
 		worker* w = new worker(g_account, ++g_next_handle, keep_handle, command, statement);
 		{
-			std::lock_guard<std::mutex> lock(g_mutex);
+			LOCK_MUTEX();
 			g_querys_in.push_back(w);
 
 			if (keep_handle)
@@ -175,8 +196,8 @@ handle concurrency::query(const char* query, bool keep_handle)
 //
 statement_ref concurrency::create_statement(const char* query)
 {
-	auto connection = connection::create(g_account);
-	auto statement = connection->create_statement(query);
+	connection_ref connection = connection::create(g_account);
+	statement_ref statement = connection->create_statement(query);
 	statement->set_connection(connection);
 	return statement;
 }
@@ -203,7 +224,7 @@ handle concurrency::query(statement_ref& statement, bool keep_handle)
 //
 void concurrency::remove(handle handle)
 {
-	auto w = g_querys_out.find(handle);
+	map_t::const_iterator w = g_querys_out.find(handle);
 
 	if (w == g_querys_out.end())
 		return;

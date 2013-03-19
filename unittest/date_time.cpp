@@ -54,7 +54,7 @@ bool test::test_time_span()
 	date_time dt(2000, 1, 2, 3, 4, 5, 666);
 	date_time dt2(2000, 1, 5, 5, 5, 5, 999);
 
-	auto ts = dt2.time_between(dt);
+	time_span ts = dt2.time_between(dt);
 	fail_if(ts.days() != 3 || ts.hours() != 2 || ts.minutes() != 1 || ts.milliseconds() != 333, "mariadb::time_span::time_between fail!");
 
 	return true;

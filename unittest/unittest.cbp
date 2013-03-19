@@ -41,11 +41,11 @@
 			<Add option="-fexceptions" />
 			<Add option="-std=c++11" />
 			<Add directory="../include" />
-			<Add directory="../mariadb-native-client/include" />
+			<Add directory="../../mariadb-native-client/include" />
 		</Compiler>
 		<Linker>
 			<Add library="../lib/libmariadb++.a" />
-			<Add library="../mariadb-native-client/libmariadb/libmariadbclient.a" />
+			<Add library="../../mariadb-native-client/libmariadb/libmariadbclient.a" />
 			<Add library="pthread" />
 			<Add library="stdc++" />
 			<Add library="z" />

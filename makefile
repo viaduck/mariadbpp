@@ -1,6 +1,8 @@
+# if you don't want C++11 just define MARIADB_WITHOUT_CPP11 and boost library will be used instead
+
 # Includes
-IDIR       =include
-IDIR_NATIVE=../mariadb-native-client/include
+IDIR        =include
+IDIR_NATIVE?=../mariadb-native-client/include
 
 # Default folders
 ODIR=obj
@@ -14,7 +16,7 @@ SRCS=account.cpp bind.cpp concurrency.cpp connection.cpp date_time.cpp decimal.c
 
 CXX     =g++
 AR      =ar -r -s
-CPPFLAGS=-I$(IDIR) -I$(IDIR_NATIVE) -std=c++11
+CPPFLAGS=-I$(IDIR) -I$(IDIR_NATIVE) -std=c++11 #-DMARIADB_WITHOUT_CPP11
 CXXFLAGS=-Wall -O2
 LIBS    =-lz -lssl -lstdc++ -pthread
 TARGET  =libmariadb++.a

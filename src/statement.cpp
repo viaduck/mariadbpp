@@ -35,7 +35,7 @@ statement::statement(connection* connection, const char* query) :
 		STMT_ERROR(m_statement)
 	else
 	{
-		auto count = mysql_stmt_param_count(m_statement);
+		u32 count = mysql_stmt_param_count(m_statement);
 
 		if (count > 0)
 		{
@@ -115,8 +115,8 @@ result_set_ref statement::query()
 //
 void statement::set_blob(u32 index, stream_ref stream)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	stream->seekg(0, std::ios_base::end);
 	u64 size = stream->tellg();
@@ -129,8 +129,8 @@ void statement::set_blob(u32 index, stream_ref stream)
 
 void statement::set_data(u32 index, const data_ref& data)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_BLOB, &mybind);
 	bind.m_data = data;
@@ -140,8 +140,8 @@ void statement::set_data(u32 index, const data_ref& data)
 
 void statement::set_date_time(u32 index, const date_time& date_time)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_DATETIME, &mybind);
 	bind.m_time = date_time.mysql_time();
@@ -151,8 +151,8 @@ void statement::set_date_time(u32 index, const date_time& date_time)
 
 void statement::set_date(u32 index, const date_time& date_time)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_DATE, &mybind);
 	bind.m_time = date_time.date().mysql_time();
@@ -162,8 +162,8 @@ void statement::set_date(u32 index, const date_time& date_time)
 
 void statement::set_time(u32 index, const time& time)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_TIME, &mybind);
 	bind.m_time = time.mysql_time();
@@ -173,8 +173,8 @@ void statement::set_time(u32 index, const time& time)
 
 void statement::set_decimal(u32 index, const decimal& dec)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 	std::string str = dec.str();
 
 	bind.set_input(MYSQL_TYPE_STRING, &mybind, str.c_str(), str.size());
@@ -182,16 +182,16 @@ void statement::set_decimal(u32 index, const decimal& dec)
 
 void statement::set_string(u32 index, const char* value)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_STRING, &mybind, value, strlen(value));
 }
 
 void statement::set_boolean(u32 index, bool value)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_TINY, &mybind);
 	bind.m_unsigned64 = value;
@@ -199,8 +199,8 @@ void statement::set_boolean(u32 index, bool value)
 
 void statement::set_unsigned8(u32 index, u8 value)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_TINY, &mybind);
 	bind.m_unsigned64 = value;
@@ -209,8 +209,8 @@ void statement::set_unsigned8(u32 index, u8 value)
 
 void statement::set_signed8(u32 index, s8 value)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_TINY, &mybind);
 	bind.m_signed64 = value;
@@ -218,8 +218,8 @@ void statement::set_signed8(u32 index, s8 value)
 
 void statement::set_unsigned16(u32 index, u16 value)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_SHORT, &mybind);
 	bind.m_unsigned64 = value;
@@ -228,8 +228,8 @@ void statement::set_unsigned16(u32 index, u16 value)
 
 void statement::set_signed16(u32 index, s16 value)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_SHORT, &mybind);
 	bind.m_signed64 = value;
@@ -237,8 +237,8 @@ void statement::set_signed16(u32 index, s16 value)
 
 void statement::set_unsigned32(u32 index, u32 value)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_LONG, &mybind);
 	bind.m_unsigned64 = value;
@@ -247,8 +247,8 @@ void statement::set_unsigned32(u32 index, u32 value)
 
 void statement::set_signed32(u32 index, s32 value)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_LONG, &mybind);
 	bind.m_signed64 = value;
@@ -256,8 +256,8 @@ void statement::set_signed32(u32 index, s32 value)
 
 void statement::set_unsigned64(u32 index, u64 value)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_LONGLONG, &mybind);
 	bind.m_unsigned64 = value;
@@ -266,8 +266,8 @@ void statement::set_unsigned64(u32 index, u64 value)
 
 void statement::set_signed64(u32 index, s64 value)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_LONGLONG, &mybind);
 	bind.m_signed64 = value;
@@ -275,8 +275,8 @@ void statement::set_signed64(u32 index, s64 value)
 
 void statement::set_float(u32 index, f32 value)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_FLOAT, &mybind);
 	bind.m_float32[0] = value;
@@ -284,8 +284,8 @@ void statement::set_float(u32 index, f32 value)
 
 void statement::set_double(u32 index, f64 value)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_DOUBLE, &mybind);
 	bind.m_double64 = value;
@@ -293,8 +293,8 @@ void statement::set_double(u32 index, f64 value)
 
 void statement::set_null(u32 index)
 {
-	auto& bind = m_binds[index];
-	auto& mybind = m_my_binds[index];
+	bind& bind = m_binds[index];
+	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_NULL, &mybind);
 }

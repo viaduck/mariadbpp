@@ -14,7 +14,7 @@
 namespace mariadb
 {
 	class connection;
-	typedef std::shared_ptr<connection> connection_ref;
+	typedef MARIADB_STD::shared_ptr<connection> connection_ref;
 
 	//
 	// Statement
@@ -87,7 +87,7 @@ namespace mariadb
 		bind*          m_binds;
 	};
 
-	typedef std::shared_ptr<statement> statement_ref;
+	typedef MARIADB_STD::shared_ptr<statement> statement_ref;
 }
 
 #endif

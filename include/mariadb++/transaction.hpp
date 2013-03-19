@@ -54,7 +54,6 @@ namespace mariadb
 		//
 		void remove_save_point(save_point* save_point);
 
-	private:
 		//
 		// Cleanup transaction
 		//
@@ -65,7 +64,7 @@ namespace mariadb
 		std::vector<save_point*> m_save_points;
 	};
 
-	typedef std::shared_ptr<transaction> transaction_ref;
+	typedef MARIADB_STD::shared_ptr<transaction> transaction_ref;
 }
 
 #endif
