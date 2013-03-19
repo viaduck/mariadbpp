@@ -12,12 +12,10 @@
 	#include <boost/shared_ptr.hpp>
 
 	#define MARIADB_STD boost
-	//#define MARIADB_SHARED_PTR boost::shared_ptr
 #else
 	#include <memory>
 
 	#define MARIADB_STD std
-	//#define MARIADB_SHARED_PTR std::shared_ptr
 #endif
 
 namespace mariadb
