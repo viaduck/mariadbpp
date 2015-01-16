@@ -9,11 +9,14 @@
 #define _MARIADB_CONNECTION_HPP_
 
 #include <string>
-#include "account.hpp"
-#include "statement.hpp"
-#include "transaction.hpp"
-#include "save_point.hpp"
-#include "result_set.hpp"
+#include <mariadb++/account.hpp>
+#include <mariadb++/statement.hpp>
+#include <mariadb++/transaction.hpp>
+#include <mariadb++/save_point.hpp>
+#include <mariadb++/result_set.hpp>
+
+struct st_mysql;
+typedef struct st_mysql MYSQL;
 
 //
 // C++ wrapper over mariadb-native-client API
@@ -61,11 +64,17 @@ namespace mariadb
 		bool set_schema(const char* schema);
 
 		//
+		// Get / Set character set
+		//
+		const std::string& charset() const;
+		bool set_charset(const std::string& value);
+
+		//
 		// Execute a query with or without statement
 		//
-		s32 execute(const char* query);
-		u32 insert(const char* query);
-		result_set_ref query(const char* query);
+		u64 execute(const std::string& query);
+		u64 insert(const std::string& query);
+		result_set_ref query(const std::string& query);
 
 		//
 		// Set auto commit mode
@@ -100,6 +109,7 @@ namespace mariadb
 		bool        m_auto_commit;
 		MYSQL*      m_mysql;
 		std::string m_schema;
+		std::string m_charset;
 		account_ref m_account;
 	};
 }

@@ -9,18 +9,41 @@
 #define _MARIADB_PRIVATE_HPP_
 
 #include <mariadb++/exceptions.hpp>
+#include <time.h>
 
 namespace mariadb
 {
-	extern bool g_throw_exception;
 	extern bool g_log_error;
+
+	inline int localtime_safe(struct tm * _tm, const time_t * _time)
+	{
+		return localtime_s(_tm, _time);
+	}
+
+	inline int gmtime_safe(struct tm * _tm, const time_t * _time)
+	{
+		return gmtime_s(_tm, _time);
+	}
 }
+#if _WIN32
+#define snprintf sprintf_s
+#endif
+
+#ifdef MARIADB_USES_EXCEPTION
+#define MARIADB_ERROR_THROW_CONNECTION(error_id, error) throw exception::connection(error_id, error);
+#define MARIADB_ERROR_THROW_DATE(_year, _month, _day, _hour, _minute, _second, _millisecond) throw exception::date_time(_year, _month, _day, _hour, _minute, _second, _millisecond);
+#define MARIADB_ERROR_THROW_TIME(_hour, _minute, _second, _millisecond) throw exception::time(_hour, _minute, _second, _millisecond);
+#else
+#define MARIADB_ERROR_THROW_CONNECTION(error_id, error)
+#define MARIADB_ERROR_THROW_DATE(_year, _month, _day, _hour, _minute, _second, _millisecond)
+#define MARIADB_ERROR_THROW_TIME(_hour, _minute, _second, _millisecond)
+#endif
+
 
 #define MARIADB_ERROR(error_id, error)\
 	if (mariadb::g_log_error)\
-		std::cerr << "MariaDB Error(" <<  error_id << "): " << error << "\nIn function: " << __PRETTY_FUNCTION__ << "\nIn file " << __FILE__ << "\nOn line " << __LINE__ << '\n';\
-	if (mariadb::g_throw_exception)\
-		throw exception::connection(error_id, error);
+		std::cerr << "MariaDB Error(" <<  error_id << "): " << error << "\nIn function: " << __FUNCTION__ << "\nIn file " << __FILE__ << "\nOn line " << __LINE__ << '\n';\
+	MARIADB_ERROR_THROW_CONNECTION(error_id, error)
 
 #define MYSQL_ERROR_NO_BRAKET(mysql)\
 	m_last_error_no = mysql_errno(mysql);\

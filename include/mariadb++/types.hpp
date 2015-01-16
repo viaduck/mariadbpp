@@ -8,6 +8,8 @@
 #ifndef _MARIADB_TYPES_HPP_
 #define _MARIADB_TYPES_HPP_
 
+#include <mariadb++/config.h>
+
 #ifdef MARIADB_WITHOUT_CPP11
 	#include <boost/shared_ptr.hpp>
 

@@ -8,7 +8,7 @@
 #ifndef _MARIADB_SAVE_POINT_HPP_
 #define _MARIADB_SAVE_POINT_HPP_
 
-#include "types.hpp"
+#include <mariadb++/types.hpp>
 
 namespace mariadb
 {

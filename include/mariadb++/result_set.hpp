@@ -8,12 +8,22 @@
 #ifndef _MARIADB_RESULT_SET_HPP_
 #define _MARIADB_RESULT_SET_HPP_
 
-#include <mysql.h>
 #include <map>
-#include "data.hpp"
-#include "date_time.hpp"
-#include "decimal.hpp"
-#include "last_error.hpp"
+#include <mariadb++/data.hpp>
+#include <mariadb++/date_time.hpp>
+#include <mariadb++/decimal.hpp>
+#include <mariadb++/last_error.hpp>
+
+struct st_mysql_res;
+typedef struct st_mysql_res MYSQL_RES;
+
+struct st_mysql_field;
+typedef struct st_mysql_field MYSQL_FIELD;
+
+struct st_mysql_bind;
+typedef struct st_mysql_bind MYSQL_BIND;
+
+typedef char **MYSQL_ROW;
 
 namespace mariadb
 {

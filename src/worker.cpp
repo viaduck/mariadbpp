@@ -66,7 +66,7 @@ mariadb::handle worker::get_handle() const
 //
 // Get result / result_set
 //
-s32 worker::result() const
+u64 worker::result() const
 {
 	return m_result;
 }
@@ -119,7 +119,7 @@ void worker::execute()
 
 		m_status = status::succeed;
 	}
-	catch (const std::exception& e)
+	catch (const std::exception&)
 	{
 		m_status = status::failed;
 	}

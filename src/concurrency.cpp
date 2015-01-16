@@ -5,6 +5,9 @@
 //	License  : Boost Software License (http://www.boost.org/users/license.html)
 //
 
+#include <mysql.h>
+#include <mariadb++/types.hpp>
+
 #ifdef MARIADB_WITHOUT_CPP11
 	#include <boost/interprocess/detail/atomic.hpp>
 	#include <boost/thread.hpp>
@@ -155,13 +158,13 @@ status::type concurrency::worker_status(handle handle)
 //
 // Query executed, result ready to be used
 //
-s32 concurrency::execute(handle handle)
+u64 concurrency::execute(handle handle)
 {
 	const worker& w = get_worker(handle);
 	return w.status() == status::removed ? 0 : w.result();
 }
 
-u32 concurrency::insert(handle handle)
+u64 concurrency::insert(handle handle)
 {
 	const worker& w = get_worker(handle);
 	return w.status() == status::removed ? 0 : w.result();

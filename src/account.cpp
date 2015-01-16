@@ -11,11 +11,6 @@
 
 using namespace mariadb;
 
-namespace mariadb
-{
-	extern int g_connection_count;
-}
-
 //
 // Constructor
 //
@@ -40,17 +35,13 @@ account::account(const char* host_name, const char* user_name, const char* passw
 
 	if (unix_socket)
 		m_unix_socket = unix_socket;
-
-	++g_connection_count;
 }
 
 //
 // Destructor
 //
 account::~account()
-{
-	if (!(--g_connection_count))
-		mysql_server_end();
+{	
 }
 
 //

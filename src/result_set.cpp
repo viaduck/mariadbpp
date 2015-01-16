@@ -5,6 +5,7 @@
 //	License  : Boost Software License (http://www.boost.org/users/license.html)
 //
 
+#include <mysql.h>
 #include <memory.h>
 #include <boost/lexical_cast.hpp>
 #include <mariadb++/connection.hpp>
@@ -260,7 +261,7 @@ const char* result_set::get_string(u32 index) const
 bool result_set::get_boolean(u32 index) const
 {
 	if (m_statement)
-		return m_binds[index].m_unsigned64;
+		return (m_binds[index].m_unsigned64 != 0);
 
 	return boost::lexical_cast<bool>(m_row[index]);
 }
@@ -268,7 +269,7 @@ bool result_set::get_boolean(u32 index) const
 u8 result_set::get_unsigned8(u32 index) const
 {
 	if (m_statement)
-		return m_binds[index].m_unsigned64;
+		return boost::lexical_cast<u8>(m_binds[index].m_unsigned64);
 
 	return boost::lexical_cast<u8>(m_row[index]);
 }
@@ -276,7 +277,7 @@ u8 result_set::get_unsigned8(u32 index) const
 s8 result_set::get_signed8(u32 index) const
 {
 	if (m_statement)
-		return m_binds[index].m_signed64;
+		return boost::lexical_cast<s8>(m_binds[index].m_signed64);
 
 	return boost::lexical_cast<s8>(m_row[index]);
 }
@@ -284,7 +285,7 @@ s8 result_set::get_signed8(u32 index) const
 u16 result_set::get_unsigned16(u32 index) const
 {
 	if (m_statement)
-		return m_binds[index].m_unsigned64;
+		return boost::lexical_cast<u16>(m_binds[index].m_unsigned64);
 
 	return boost::lexical_cast<u16>(m_row[index]);
 }
@@ -292,7 +293,7 @@ u16 result_set::get_unsigned16(u32 index) const
 s16 result_set::get_signed16(u32 index) const
 {
 	if (m_statement)
-		return m_binds[index].m_signed64;
+		return boost::lexical_cast<s16>(m_binds[index].m_signed64);
 
 	return boost::lexical_cast<s16>(m_row[index]);
 }
@@ -300,7 +301,7 @@ s16 result_set::get_signed16(u32 index) const
 u32 result_set::get_unsigned32(u32 index) const
 {
 	if (m_statement)
-		return m_binds[index].m_unsigned64;
+		return boost::lexical_cast<u32>(m_binds[index].m_unsigned64);
 
 	return boost::lexical_cast<u32>(m_row[index]);
 }
@@ -308,7 +309,7 @@ u32 result_set::get_unsigned32(u32 index) const
 s32 result_set::get_signed32(u32 index) const
 {
 	if (m_statement)
-		return m_binds[index].m_signed64;
+		return boost::lexical_cast<s32>(m_binds[index].m_signed64);
 
 	return boost::lexical_cast<s32>(m_row[index]);
 }
@@ -316,7 +317,7 @@ s32 result_set::get_signed32(u32 index) const
 u64 result_set::get_unsigned64(u32 index) const
 {
 	if (m_statement)
-		return m_binds[index].m_unsigned64;
+		return boost::lexical_cast<u64>(m_binds[index].m_unsigned64);
 
 	return boost::lexical_cast<u64>(m_row[index]);
 }
@@ -324,7 +325,7 @@ u64 result_set::get_unsigned64(u32 index) const
 s64 result_set::get_signed64(u32 index) const
 {
 	if (m_statement)
-		return m_binds[index].m_signed64;
+		return boost::lexical_cast<s64>(m_binds[index].m_signed64);
 
 	return boost::lexical_cast<s64>(m_row[index]);
 }
@@ -332,7 +333,7 @@ s64 result_set::get_signed64(u32 index) const
 f32 result_set::get_float(u32 index) const
 {
 	if (m_statement)
-		return m_binds[index].m_float32[0];
+		return boost::lexical_cast<f32>(m_binds[index].m_float32[0]);
 
 	return boost::lexical_cast<f32>(m_row[index]);
 }
@@ -340,7 +341,7 @@ f32 result_set::get_float(u32 index) const
 f64 result_set::get_double(u32 index) const
 {
 	if (m_statement)
-		return m_binds[index].m_double64;
+		return boost::lexical_cast<f64>(m_binds[index].m_double64);
 
 	return boost::lexical_cast<f64>(m_row[index]);
 }

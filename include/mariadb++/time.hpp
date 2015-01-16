@@ -9,8 +9,10 @@
 #define _MARIADB_TIME_HPP_
 
 #include <iostream>
-#include <mysql.h>
-#include "time_span.hpp"
+#include <mariadb++/time_span.hpp>
+
+struct st_mysql_time;
+typedef struct st_mysql_time MYSQL_TIME;
 
 namespace mariadb
 {

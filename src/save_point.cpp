@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <mariadb++/connection.hpp>
 #include <mariadb++/save_point.hpp>
+#include "private.hpp"
 
 using namespace mariadb;
 
@@ -30,9 +31,9 @@ save_point::save_point(transaction* transaction) :
 {
 	char command[32];
 
-	sprintf(command, "SP%llu", ++g_save_point_id);
+	snprintf(command, sizeof(command), "SP%llu", ++g_save_point_id);
 	m_name = command;
-	sprintf(command, g_save_point_commands[0], m_name.c_str());
+	snprintf(command, sizeof(command), g_save_point_commands[0], m_name.c_str());
 
 	m_transaction->m_connection->execute(command);
 }
@@ -46,7 +47,7 @@ save_point::~save_point()
 		return;
 
 	char command[32];
-	sprintf(command, g_save_point_commands[1], m_name.c_str());
+	snprintf(command, sizeof(command), g_save_point_commands[1], m_name.c_str());
 
 	m_transaction->remove_save_point(this);
 	m_transaction->m_connection->execute(command);
@@ -61,7 +62,7 @@ void save_point::commit()
 		return;
 
 	char command[32];
-	sprintf(command, g_save_point_commands[2], m_name.c_str());
+	snprintf(command, sizeof(command), g_save_point_commands[2], m_name.c_str());
 
 	m_transaction->remove_save_point(this);
 	m_transaction->m_connection->execute(command);

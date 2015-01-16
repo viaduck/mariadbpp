@@ -8,6 +8,7 @@
 #include <sstream>
 #include <mariadb++/exceptions.hpp>
 
+using namespace mariadb;
 using namespace mariadb::exception;
 using namespace std;
 

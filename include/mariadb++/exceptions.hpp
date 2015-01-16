@@ -9,7 +9,7 @@
 #define _MARIADB_EXCEPTIONS_HPP_
 
 #include <string>
-#include "types.hpp"
+#include <mariadb++/types.hpp>
 
 namespace mariadb
 {

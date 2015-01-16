@@ -13,11 +13,6 @@
 
 using namespace mariadb;
 
-namespace mariadb
-{
-	int g_connection_count = 0;
-}
-
 #define MYSQL_ERROR_DISCONNECT(mysql)\
 {\
 	MYSQL_ERROR_NO_BRAKET(mysql)\
@@ -33,7 +28,7 @@ connection::connection(account_ref& account) :
 	m_mysql(NULL),
 	m_account(account)
 {
-	++g_connection_count;
+	
 }
 
 //
@@ -50,9 +45,6 @@ connection_ref connection::create(account_ref& account)
 connection::~connection()
 {
 	disconnect();
-
-	if (!(--g_connection_count))
-		mysql_server_end();
 }
 
 //
@@ -72,6 +64,23 @@ bool connection::set_schema(const char* schema)
 		MYSQL_ERROR_RETURN_FALSE(m_mysql);
 
 	m_schema = schema;
+	return true;
+}
+
+const std::string& connection::charset() const
+{
+	return m_charset;
+}
+
+bool connection::set_charset(const std::string& value)
+{
+	if (!connect())
+		return false;
+
+	if (mysql_set_character_set(m_mysql, value.c_str()))
+		MYSQL_ERROR_RETURN_FALSE(m_mysql);
+
+	m_charset = value;
 	return true;
 }
 
@@ -141,8 +150,14 @@ bool connection::connect()
 			MYSQL_ERROR_RETURN_FALSE(m_mysql);
 	}
 
-	if (!mysql_real_connect(m_mysql, m_account->host_name().c_str(), m_account->user_name().c_str(), m_account->password().c_str(),
-							NULL, m_account->port(), m_account->unix_socket().c_str(), CLIENT_MULTI_STATEMENTS))
+	if (!mysql_real_connect(m_mysql,
+							m_account->host_name().c_str(),
+							m_account->user_name().c_str(),
+							m_account->password().c_str(),
+							m_account->db().empty() ? NULL : m_account->db().c_str(),
+							m_account->port(),
+							m_account->unix_socket().empty() ? NULL : m_account->unix_socket().c_str(),
+							CLIENT_MULTI_STATEMENTS))
 		MYSQL_ERROR_RETURN_FALSE(m_mysql);
 
 	if (!set_auto_commit(m_account->auto_commit()))
@@ -175,20 +190,22 @@ void connection::disconnect()
 		return;
 
 	mysql_close(m_mysql);
+	mysql_thread_end(); // mysql_init() call mysql_thread_init therefor it needed to clear memory when closed msql handle
 	m_mysql = NULL;
 }
 
 //
 // Execute a query
 //
-result_set_ref connection::query(const char* query)
+
+result_set_ref connection::query(const std::string& query)
 {
 	result_set_ref rs;
 
 	if (!connect())
 		return rs;
 
-	if (mysql_query(m_mysql, query))
+	if (mysql_real_query(m_mysql, query.c_str(), static_cast<unsigned long>(query.size()))) //(uint)strlen(query)
 	{
 		MYSQL_ERROR_NO_BRAKET(m_mysql);
 		return rs;
@@ -198,14 +215,14 @@ result_set_ref connection::query(const char* query)
 	return rs;
 }
 
-s32 connection::execute(const char* query)
+u64 connection::execute(const std::string& query)
 {
 	if (!connect())
 		return 0;
 
-	u32 affected_rows = 0;
+	u64 affected_rows = 0;
 
-	if (mysql_query(m_mysql, query))
+	if (mysql_real_query(m_mysql, query.c_str(), static_cast<unsigned long>(query.size())))
 	{
 		MYSQL_ERROR_NO_BRAKET(m_mysql);
 		return affected_rows;
@@ -238,12 +255,12 @@ s32 connection::execute(const char* query)
 	return affected_rows;
 }
 
-u32 connection::insert(const char* query)
+u64 connection::insert(const std::string& query)
 {
 	if (!connect())
 		return 0;
 
-	if (mysql_query(m_mysql, query))
+	if (mysql_real_query(m_mysql, query.c_str(), static_cast<unsigned long>(query.size())))
 	{
 		MYSQL_ERROR_NO_BRAKET(m_mysql);
 		return 0;

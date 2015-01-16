@@ -5,6 +5,7 @@
 //	License  : Boost Software License (http://www.boost.org/users/license.html)
 //
 
+#include <mysql.h>
 #include <sstream>
 #include <boost/lexical_cast.hpp>
 #include <mariadb++/exceptions.hpp>
@@ -24,11 +25,9 @@ using namespace std;
 {\
 	if (g_log_error)\
 		std::cerr << "MariaDB Invalid time: hour - " << _hour << ", minute - " << _minute << ", second - " << _second\
-				<< ", millisecond - " << _millisecond << "\nIn function: " << __func__ << '\n';\
-	if (g_throw_exception)\
-		throw exception::time(_hour, _minute, _second, _millisecond);\
-	else\
-		return false;\
+				<< ", millisecond - " << _millisecond << "\nIn function: " << __FUNCTION__ << '\n';\
+	MARIADB_ERROR_THROW_TIME(_hour, _minute, _second, _millisecond)\
+	return false;\
 }
 
 //
@@ -51,9 +50,10 @@ time::time(const tm& t)
 
 time::time(const time_t& t)
 {
-	tm* ts = localtime(&t);
+	tm ts;
+	localtime_safe(&ts, &t);
 
-	set(ts->tm_hour, ts->tm_min, ts->tm_sec, 0);
+	set(ts.tm_hour, ts.tm_min, ts.tm_sec, 0);
 }
 
 time::time(const MYSQL_TIME& t)
@@ -362,16 +362,16 @@ mariadb::time_span time::time_between(const time& t) const
 	else
 		total_ms = ms - t_ms;
 
-	u32 hours = total_ms / MS_PER_HOUR;
+	u32 hours = static_cast<u32>(total_ms / MS_PER_HOUR);
 	total_ms = total_ms % MS_PER_HOUR;
 
-	u32 minutes = total_ms / MS_PER_MIN;
+	u32 minutes = static_cast<u32>(total_ms / MS_PER_MIN);
 	total_ms = total_ms % MS_PER_MIN;
 
-	u32 seconds = total_ms / MS_PER_SEC;
+	u32 seconds = static_cast<u32>(total_ms / MS_PER_SEC);
 	total_ms = total_ms % MS_PER_SEC;
 
-	return time_span(hours, minutes, seconds, total_ms, negative);
+	return time_span(hours, minutes, seconds, static_cast<u32>(total_ms), negative);
 }
 
 time_t time::mktime() const
@@ -415,17 +415,19 @@ double time::diff_time(const time& t) const
 mariadb::time time::now()
 {
 	time_t local_time = ::time(NULL);
-	tm* time_struct = localtime(&local_time);
+	tm ts;
+	localtime_safe(&ts, &local_time);
 
-	return time(*time_struct);
+	return time(ts);
 }
 
 mariadb::time time::now_utc()
 {
 	time_t utc_time = ::time(NULL);
-	tm* time_struct = gmtime(&utc_time);
+	tm ts;
+	gmtime_safe(&ts, &utc_time);
 
-	return time(*time_struct);
+	return time(ts);
 }
 
 bool time::set(const std::string& t)
@@ -434,21 +436,21 @@ bool time::set(const std::string& t)
 		t.length() < 2)
 		return false;
 
-	u8 h = boost::lexical_cast<u16>(t.substr(0, 2).c_str());
+	u8 h = boost::lexical_cast<u8>(t.substr(0, 2).c_str());
 	u8 min = 0;
 	double s = 0;
 
 	if (t.length() >= 3)
 	{
-		min = boost::lexical_cast<u16>(t.substr(3, 2).c_str());
+		min = boost::lexical_cast<u8>(t.substr(3, 2).c_str());
 
 		if (t.length() >= 6)
 			s = boost::lexical_cast<double>(t.substr(6).c_str());
 	}
 
-	u16 ms = (s - (u8)s) * 1000;
+	u16 ms = static_cast<u16>((s - static_cast<u8>(s)) * 1000);
 
-	return set(h, min, (u8)s, ms);
+	return set(h, min, static_cast<u8>(s), ms);
 }
 
 const std::string time::str_time(bool with_millisecond) const
@@ -456,9 +458,9 @@ const std::string time::str_time(bool with_millisecond) const
     char buffer[14];
 
     if (with_millisecond && millisecond())
-		sprintf(buffer, "%02i:%02i:%02i.%03i", hour(), minute(), second(), millisecond());
+		snprintf(buffer, sizeof(buffer), "%02i:%02i:%02i.%03i", hour(), minute(), second(), millisecond());
 	else
-		sprintf(buffer, "%02i:%02i:%02i", hour(), minute(), second());
+		snprintf(buffer, sizeof(buffer), "%02i:%02i:%02i", hour(), minute(), second());
 	return std::string(buffer);
 }
 

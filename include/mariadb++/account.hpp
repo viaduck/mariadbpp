@@ -10,7 +10,7 @@
 
 #include <string>
 #include <map>
-#include "types.hpp"
+#include <mariadb++/types.hpp>
 
 //
 // Account is an helper class used for storing

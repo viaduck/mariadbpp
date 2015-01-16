@@ -5,6 +5,7 @@
 //	License  : Boost Software License (http://www.boost.org/users/license.html)
 //
 
+#include <mysql.h>
 #include <sstream>
 #include <boost/lexical_cast.hpp>
 #include <mariadb++/exceptions.hpp>
@@ -29,11 +30,9 @@ namespace
 	if (g_log_error)\
 		std::cerr << "MariaDB Invalid date time: year - " << _year << ", month - " << _month << ", day - " << _day\
 			<< ", hour - " << _hour << ", minute - " << _minute << ", second - " << _second << ", millisecond - " << _millisecond\
-			<< "\nIn function: " << __func__ << '\n';\
-	if (g_throw_exception)\
-		throw exception::date_time(_year, _month, _day, _hour, _minute, _second, _millisecond);\
-	else\
-		return false;\
+			<< "\nIn function: " << __FUNCTION__ << '\n';\
+	MARIADB_ERROR_THROW_DATE(_year, _month, _day, _hour, _minute, _second, _millisecond)\
+	return false;\
 }
 
 //
@@ -61,9 +60,10 @@ date_time::date_time(const tm& t)
 
 date_time::date_time(const time_t& time)
 {
-	tm* t = localtime(&time);
+	tm t;
+	localtime_safe(&t, &time);
 
-	set(t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, 0);
+	set(t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, 0);
 }
 
 date_time::date_time(const MYSQL_TIME& t)
@@ -490,16 +490,16 @@ time_span date_time::time_between(const date_time& dt) const
 		total_ms = ms - dt_ms;
 	}
 
-	u32 hours = total_ms / MS_PER_HOUR;
+	u32 hours = boost::lexical_cast<u32>(total_ms / MS_PER_HOUR);
 	total_ms = total_ms % MS_PER_HOUR;
 
-	u32 minutes = total_ms / MS_PER_MIN;
+	u32 minutes = boost::lexical_cast<u32>(total_ms / MS_PER_MIN);
 	total_ms = total_ms % MS_PER_MIN;
 
-	u32 seconds = total_ms / MS_PER_SEC;
+	u32 seconds = boost::lexical_cast<u32>(total_ms / MS_PER_SEC);
 	total_ms = total_ms % MS_PER_SEC;
 
-	u32 milliseconds = total_ms;
+	u32 milliseconds = boost::lexical_cast<u32>(total_ms);
 	u32 totaldays = 0;
 	u32 currentyear = year();
 	u32 currentday = day_of_year();
@@ -583,7 +583,7 @@ date_time date_time::reverse_day_of_year(u16 year, u16 day_of_year)
 		day_of_year -= days;
 	}
 
-	return date_time(year, month, day_of_year);
+	return date_time(year, month, boost::lexical_cast<u8>(day_of_year));
 }
 
 time_t date_time::mktime() const
@@ -628,10 +628,10 @@ double date_time::diff_time(const date_time& dt) const
 date_time date_time::now()
 {
 	time_t local_time = ::time(NULL);
+	tm time_struct;
+	localtime_safe(&time_struct, &local_time);
 
-	tm* t = localtime(&local_time);
-
-	return date_time(*t);
+	return date_time(time_struct);
 }
 
 date_time date_time::date() const
@@ -642,10 +642,10 @@ date_time date_time::date() const
 date_time date_time::now_utc()
 {
 	time_t utc_time = ::time(NULL);
+	tm ts;
+	gmtime_safe(&ts, &utc_time);
 
-	tm* t = gmtime(&utc_time);
-
-	return date_time(*t);
+	return date_time(ts);
 }
 
 bool date_time::set(const std::string& dt)
@@ -655,8 +655,8 @@ bool date_time::set(const std::string& dt)
 		return false;
 
 	u16 y = boost::lexical_cast<u16>(dt.substr(0, 4).c_str());
-	u8 m = boost::lexical_cast<u16>(dt.substr(5, 2).c_str());
-	u8 d = boost::lexical_cast<u16>(dt.substr(8, 2).c_str());
+	u8 m = boost::lexical_cast<u8>(dt.substr(5, 2).c_str());
+	u8 d = boost::lexical_cast<u8>(dt.substr(8, 2).c_str());
 
 	if (dt.length() >= 13)
 		time::set(dt.substr(11));
@@ -669,9 +669,9 @@ const std::string date_time::str(bool with_millisecond) const
     char buffer[32];
 
 	if (with_millisecond && millisecond())
-		sprintf(buffer, "%04i-%02i-%02i %02i:%02i:%02i.%03i", year(), month(), day(), hour(), minute(), second(), millisecond());
+		snprintf(buffer, sizeof(buffer), "%04i-%02i-%02i %02i:%02i:%02i.%03i", year(), month(), day(), hour(), minute(), second(), millisecond());
 	else
-		sprintf(buffer, "%04i-%02i-%02i %02i:%02i:%02i", year(), month(), day(), hour(), minute(), second());
+		snprintf(buffer, sizeof(buffer), "%04i-%02i-%02i %02i:%02i:%02i", year(), month(), day(), hour(), minute(), second());
 
 	return std::string(buffer);
 }
@@ -680,7 +680,7 @@ const std::string date_time::str_date() const
 {
     char buffer[32];
 
-    sprintf(buffer, "%04i-%02i-%02i", year(), month(), day());
+	snprintf(buffer, sizeof(buffer), "%04i-%02i-%02i", year(), month(), day());
 
 	return std::string(buffer);
 }

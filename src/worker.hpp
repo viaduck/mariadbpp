@@ -48,7 +48,7 @@ namespace mariadb
 		//
 		// Get result / result_set
 		//
-		s32 result() const;
+		u64 result() const;
 		result_set_ref result_set() const;
 
 		//
@@ -61,7 +61,7 @@ namespace mariadb
 		handle         m_handle;
 		status::type   m_status;
 		command::type  m_command;
-		s32            m_result;
+		u64            m_result;
 		std::string    m_query;
 		account_ref    m_account;
 		result_set_ref m_result_set;

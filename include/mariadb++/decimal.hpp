@@ -10,7 +10,7 @@
 #define _MARIADB_DECIMAL_HPP_
 
 #include <string>
-#include "types.hpp"
+#include <mariadb++/types.hpp>
 
 namespace mariadb
 {

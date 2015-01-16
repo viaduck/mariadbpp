@@ -6,11 +6,11 @@
 //
 
 #include "private.hpp"
+#include <mariadb++/mariadb++.hpp>
+#include <mysql.h>
 
 namespace mariadb
 {
-	bool g_throw_exception = true;
-
 #ifdef DEBUG
 	bool g_log_error = true;
 #else
@@ -22,8 +22,14 @@ namespace mariadb
 		g_log_error = log_error;
 	}
 
-	void set_throw_exception(bool throw_exception = true)
+	
+	mariodb_guard::mariodb_guard()
 	{
-		g_throw_exception = throw_exception;
+		mysql_library_init(0, NULL, NULL);
 	}
+
+	mariodb_guard::~mariodb_guard()
+	{
+		mysql_library_end();
+	}	
 }

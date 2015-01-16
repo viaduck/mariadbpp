@@ -55,8 +55,8 @@ namespace mariadb
 		//
 		// Query executed, result ready to be used
 		//
-		extern s32 execute(handle handle);
-		extern u32 insert(handle handle);
+		extern u64 execute(handle handle);
+		extern u64 insert(handle handle);
 		extern result_set_ref query(handle handle);
 
 		//

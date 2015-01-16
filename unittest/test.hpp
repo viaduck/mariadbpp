@@ -46,7 +46,7 @@ namespace unittest
 		#define fail_if(condition, message)\
 		if (condition)\
 		{\
-			std::cout << message << "\nIn function: " << __PRETTY_FUNCTION__ << "\nIn file " << __FILE__ << "\nOn line " << __LINE__ << '\n';\
+			std::cout << message << "\nIn function: " << __FUNCTION__ << "\nIn file " << __FILE__ << "\nOn line " << __LINE__ << '\n';\
 			return false;\
 		}
 

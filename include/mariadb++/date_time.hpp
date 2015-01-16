@@ -9,7 +9,7 @@
 #define _MARIADB_DATE_TIME_HPP_
 
 #include <iostream>
-#include "time.hpp"
+#include <mariadb++/time.hpp>
 
 namespace mariadb
 {

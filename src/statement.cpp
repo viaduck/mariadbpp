@@ -74,7 +74,7 @@ void statement::set_connection(connection_ref& connection)
 //
 // Execute the query
 //
-s32 statement::execute()
+u64 statement::execute()
 {
 	if (m_my_binds && mysql_stmt_bind_param(m_statement, m_my_binds))
 		STMT_ERROR_RETURN_FALSE(m_statement);
@@ -85,7 +85,7 @@ s32 statement::execute()
 	return mysql_stmt_affected_rows(m_statement);
 }
 
-u32 statement::insert()
+u64 statement::insert()
 {
 	if (m_my_binds && mysql_stmt_bind_param(m_statement, m_my_binds))
 		STMT_ERROR_RETURN_FALSE(m_statement);
@@ -122,7 +122,7 @@ void statement::set_blob(u32 index, stream_ref stream)
 	u64 size = stream->tellg();
 	stream->seekg(0);
 
-	bind.set_input(MYSQL_TYPE_BLOB, &mybind, NULL, size);
+	bind.set_input(MYSQL_TYPE_BLOB, &mybind, NULL, static_cast<long unsigned int>(size));
 
 	stream->read(bind.buffer(), bind.length());
 }
@@ -160,7 +160,7 @@ void statement::set_date(u32 index, const date_time& date_time)
 	mybind.buffer_length = sizeof(MYSQL_TIME);
 }
 
-void statement::set_time(u32 index, const time& time)
+void statement::set_time(u32 index, const mariadb::time& time)
 {
 	bind& bind = m_binds[index];
 	MYSQL_BIND& mybind = m_my_binds[index];

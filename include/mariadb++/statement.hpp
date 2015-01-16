@@ -8,8 +8,10 @@
 #ifndef _MARIADB_STATEMENT_HPP_
 #define _MARIADB_STATEMENT_HPP_
 
-#include "last_error.hpp"
-#include "result_set.hpp"
+#include <mariadb++/last_error.hpp>
+#include <mariadb++/result_set.hpp>
+
+typedef struct st_mysql_stmt MYSQL_STMT;
 
 namespace mariadb
 {
@@ -60,8 +62,8 @@ namespace mariadb
 		//
 		// Execute the query
 		//
-		s32 execute();
-		u32 insert();
+		u64 execute();
+		u64 insert();
 
 		//
 		// This is not the best alternative, use the result_set from a connection instead if you can.

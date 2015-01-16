@@ -9,7 +9,7 @@
 #define _MARIADB_DATA_HPP_
 
 #include <boost/iostreams/stream.hpp>
-#include "types.hpp"
+#include <mariadb++/types.hpp>
 
 namespace mariadb
 {

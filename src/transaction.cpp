@@ -5,6 +5,7 @@
 //	License  : Boost Software License (http://www.boost.org/users/license.html)
 //
 
+#include <mysql.h>
 #include <boost/foreach.hpp>
 #include <mariadb++/connection.hpp>
 #include <mariadb++/transaction.hpp>
@@ -13,7 +14,7 @@ using namespace mariadb;
 
 namespace
 {
-	/*const char* g_isolation_level[] = {
+	const char* g_isolation_level[] = {
 		"SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;",
 		"SET TRANSACTION ISOLATION LEVEL READ COMMITTED;",
 		"SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;",
@@ -23,7 +24,7 @@ namespace
 	const char* g_consistent_snapshot[] = {
 		"START TRANSACTION;",
 		"START TRANSACTION WITH CONSISTENT SNAPSHOT;",
-	};*/
+	};
 }
 
 //
@@ -32,8 +33,8 @@ namespace
 transaction::transaction(connection* connection, isolation::level level, bool consistent_snapshot) :
 	m_connection(connection)
 {
-	//connection->execute(g_isolation_level[level]);
-	//connection->execute(g_consistent_snapshot[consistent_snapshot]);
+	connection->execute(g_isolation_level[level]);
+	connection->execute(g_consistent_snapshot[consistent_snapshot]);
 }
 
 //

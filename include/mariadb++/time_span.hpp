@@ -9,7 +9,7 @@
 #define _MARIADB_TIME_SPAN_HPP_
 
 #include <sstream>
-#include "types.hpp"
+#include <mariadb++/types.hpp>
 
 namespace mariadb
 {

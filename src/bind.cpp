@@ -46,7 +46,7 @@ char* bind::buffer() const
 //
 bool bind::is_null() const
 {
-	return m_is_null;
+	return (m_is_null != 0);
 }
 
 //
