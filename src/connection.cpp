@@ -154,7 +154,7 @@ bool connection::connect()
 							m_account->host_name().c_str(),
 							m_account->user_name().c_str(),
 							m_account->password().c_str(),
-							m_account->db().empty() ? NULL : m_account->db().c_str(),
+							NULL,
 							m_account->port(),
 							m_account->unix_socket().empty() ? NULL : m_account->unix_socket().c_str(),
 							CLIENT_MULTI_STATEMENTS))
