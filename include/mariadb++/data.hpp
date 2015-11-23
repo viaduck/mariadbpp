@@ -48,7 +48,7 @@ namespace mariadb
 			m_size(0),
 			m_data(0)
 		{
-			create(data, count);
+			create(data, static_cast<u32>(count));
 		}
 
 		//

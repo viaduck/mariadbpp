@@ -15,7 +15,6 @@ namespace mariadb
 {
 	namespace exception
 	{
-		template <typename type>
 		class base : public std::exception
 		{
 		public:
@@ -33,13 +32,6 @@ namespace mariadb
 				std::exception(),
 				m_error_id(error_id),
 				m_error(error)
-			{
-			}
-
-			base(const type& e) throw() :
-				std::exception(e),
-				m_error_id(e.m_error_id),
-				m_error(e.m_error)
 			{
 			}
 
@@ -75,7 +67,7 @@ namespace mariadb
 			std::string m_error;
 		};
 
-		class date_time : public base<date_time>
+		class date_time : public base
 		{
 		public:
 			//
@@ -84,7 +76,7 @@ namespace mariadb
 			date_time(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u16 millisecond) throw();
 		};
 
-		class time : public base<time>
+		class time : public base
 		{
 		public:
 			//
@@ -93,7 +85,7 @@ namespace mariadb
 			time(u8 hour, u8 minute, u8 second, u16 millisecond) throw();
 		};
 
-		class connection : public base<connection>
+		class connection : public base
 		{
 		public:
 			//

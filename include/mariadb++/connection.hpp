@@ -97,13 +97,13 @@ namespace mariadb
 		//
 		// Create a new connection
 		//
-		static connection_ref create(account_ref& account);
+		static connection_ref create(const account_ref& account);
 
 	private:
 		//
 		// Constructor
 		//
-		connection(account_ref& account);
+		connection(const account_ref& account);
 
 	private:
 		bool        m_auto_commit;

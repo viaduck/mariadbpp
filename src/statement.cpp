@@ -31,7 +31,7 @@ statement::statement(connection* connection, const char* query) :
 {
 	if (!m_statement)
 		MYSQL_ERROR(connection->m_mysql)
-	else if (mysql_stmt_prepare(m_statement, query, strlen(query)))
+	else if (mysql_stmt_prepare(m_statement, query, static_cast<unsigned long>(strlen(query))))
 		STMT_ERROR(m_statement)
 	else
 	{
@@ -177,7 +177,7 @@ void statement::set_decimal(u32 index, const decimal& dec)
 	MYSQL_BIND& mybind = m_my_binds[index];
 	std::string str = dec.str();
 
-	bind.set_input(MYSQL_TYPE_STRING, &mybind, str.c_str(), str.size());
+	bind.set_input(MYSQL_TYPE_STRING, &mybind, str.c_str(), static_cast<unsigned long>((str.size())));
 }
 
 void statement::set_string(u32 index, const char* value)
@@ -185,7 +185,7 @@ void statement::set_string(u32 index, const char* value)
 	bind& bind = m_binds[index];
 	MYSQL_BIND& mybind = m_my_binds[index];
 
-	bind.set_input(MYSQL_TYPE_STRING, &mybind, value, strlen(value));
+	bind.set_input(MYSQL_TYPE_STRING, &mybind, value, static_cast<unsigned long>(strlen(value)));
 }
 
 void statement::set_boolean(u32 index, bool value)

@@ -23,7 +23,7 @@ using namespace mariadb;
 //
 // Constructor
 //
-connection::connection(account_ref& account) :
+connection::connection(const account_ref& account) :
 	m_auto_commit(true),
 	m_mysql(NULL),
 	m_account(account)
@@ -34,7 +34,7 @@ connection::connection(account_ref& account) :
 //
 // Create a new connection
 //
-connection_ref connection::create(account_ref& account)
+connection_ref connection::create(const account_ref& account)
 {
 	return connection_ref(new connection(account));
 }

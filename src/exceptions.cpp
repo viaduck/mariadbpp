@@ -9,13 +9,11 @@
 #include <mariadb++/exceptions.hpp>
 
 using namespace mariadb;
-using namespace mariadb::exception;
-using namespace std;
 
 //
 // Constructors
 //
-date_time::date_time(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u16 millisecond) throw() :
+exception::date_time::date_time(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u16 millisecond) throw() :
 	base()
 {
 	std::ostringstream oss;
@@ -26,7 +24,7 @@ date_time::date_time(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, 
 	m_error = oss.str();
 }
 
-time::time(u8 hour, u8 minute, u8 second, u16 millisecond) throw() :
+exception::time::time(u8 hour, u8 minute, u8 second, u16 millisecond) throw() :
 	base()
 {
 	std::ostringstream oss;
