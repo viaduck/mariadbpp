@@ -48,7 +48,7 @@ int test::run()
 		if (test_date_time() &&
 			test_time() &&
 			test_time_span() &&
-			test_decimal() &&
+			test_decimal() && // TODO: fix this SH$"!/!IT
 			test_transaction() &&
 			test_save_point() &&
 			test_statement() &&

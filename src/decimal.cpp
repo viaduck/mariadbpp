@@ -134,7 +134,7 @@ decimal::decimal(const char* string) :
 
 	if (pos != std::string::npos)
 	{
-		m_precision = boost::lexical_cast<u8>(str.length() - pos - 1);
+		m_precision = boost::numeric_cast<u8>(str.length() - pos - 1);
 		m_value = boost::lexical_cast<s64>(str.substr(0, pos)) * g_factors[m_precision] + boost::lexical_cast<s64>(str.substr(pos + 1));
 	}
 	else

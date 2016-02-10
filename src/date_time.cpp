@@ -583,7 +583,7 @@ date_time date_time::reverse_day_of_year(u16 year, u16 day_of_year)
 		day_of_year -= days;
 	}
 
-	return date_time(year, month, boost::lexical_cast<u8>(day_of_year));
+	return date_time(year, month, boost::numeric_cast<u8>(day_of_year));
 }
 
 time_t date_time::mktime() const
@@ -655,8 +655,9 @@ bool date_time::set(const std::string& dt)
 		return false;
 
 	u16 y = boost::lexical_cast<u16>(dt.substr(0, 4).c_str());
-	u8 m = boost::lexical_cast<u8>(dt.substr(5, 2).c_str());
-	u8 d = boost::lexical_cast<u8>(dt.substr(8, 2).c_str());
+	// since using two chars in base10 we cannot exceed u8, cast is safe
+	u8 m = boost::lexical_cast<u16>(dt.substr(5, 2).c_str());
+	u8 d = boost::lexical_cast<u16>(dt.substr(8, 2).c_str());
 
 	if (dt.length() >= 13)
 		time::set(dt.substr(11));
@@ -666,12 +667,12 @@ bool date_time::set(const std::string& dt)
 
 const std::string date_time::str(bool with_millisecond) const
 {
-    char buffer[32];
+    char buffer[128];
 
 	if (with_millisecond && millisecond())
-		snprintf(buffer, sizeof(buffer), "%04i-%02i-%02i %02i:%02i:%02i.%03i", year(), month(), day(), hour(), minute(), second(), millisecond());
+		sprintf(buffer, "%04i-%02i-%02i %02i:%02i:%02i.%03i", year(), month(), day(), hour(), minute(), second(), millisecond());
 	else
-		snprintf(buffer, sizeof(buffer), "%04i-%02i-%02i %02i:%02i:%02i", year(), month(), day(), hour(), minute(), second());
+		sprintf(buffer, "%04i-%02i-%02i %02i:%02i:%02i", year(), month(), day(), hour(), minute(), second());
 
 	return std::string(buffer);
 }

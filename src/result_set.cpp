@@ -269,17 +269,17 @@ bool result_set::get_boolean(u32 index) const
 u8 result_set::get_unsigned8(u32 index) const
 {
 	if (m_statement)
-		return boost::lexical_cast<u8>(m_binds[index].m_unsigned64);
+		return boost::numeric_cast<u8>(m_binds[index].m_unsigned64);
 
-	return boost::lexical_cast<u8>(m_row[index]);
+	return boost::numeric_cast<u8>(boost::lexical_cast<u16>(m_row[index]));
 }
 
 s8 result_set::get_signed8(u32 index) const
 {
 	if (m_statement)
-		return boost::lexical_cast<s8>(m_binds[index].m_signed64);
+		return boost::numeric_cast<s8>(m_binds[index].m_signed64);
 
-	return boost::lexical_cast<s8>(m_row[index]);
+	return boost::numeric_cast<s8>(boost::lexical_cast<s16>(m_row[index]));
 }
 
 u16 result_set::get_unsigned16(u32 index) const

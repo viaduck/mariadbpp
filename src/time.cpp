@@ -435,13 +435,13 @@ bool mariadb::time::set(const std::string& t)
 		t.length() < 2)
 		return false;
 
-	u8 h = boost::lexical_cast<u8>(t.substr(0, 2).c_str());
+	u8 h = boost::lexical_cast<u16>(t.substr(0, 2).c_str());
 	u8 min = 0;
 	double s = 0;
 
 	if (t.length() >= 3)
 	{
-		min = boost::lexical_cast<u8>(t.substr(3, 2).c_str());
+		min = boost::lexical_cast<u16>(t.substr(3, 2).c_str());
 
 		if (t.length() >= 6)
 			s = boost::lexical_cast<double>(t.substr(6).c_str());
@@ -454,12 +454,12 @@ bool mariadb::time::set(const std::string& t)
 
 const std::string mariadb::time::str_time(bool with_millisecond) const
 {
-    char buffer[14];
+    char buffer[128];
 
     if (with_millisecond && millisecond())
-		snprintf(buffer, sizeof(buffer), "%02i:%02i:%02i.%03i", hour(), minute(), second(), millisecond());
+		sprintf(buffer, "%02i:%02i:%02i.%03i", hour(), minute(), second(), millisecond());
 	else
-		snprintf(buffer, sizeof(buffer), "%02i:%02i:%02i", hour(), minute(), second());
+		sprintf(buffer, "%02i:%02i:%02i", hour(), minute(), second());
 	return std::string(buffer);
 }
 
