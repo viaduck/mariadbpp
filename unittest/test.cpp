@@ -32,6 +32,8 @@ test::~test()
 {
 }
 
+#define run_test_p(x) (std::cout << "Running test: " << #x << std::endl, x())
+
 //
 // Run
 //
@@ -45,15 +47,15 @@ int test::run()
 
 	try
 	{
-		if (test_date_time() &&
-			test_time() &&
-			test_time_span() &&
-			test_decimal() && // TODO: fix this SH$"!/!IT
-			test_transaction() &&
-			test_save_point() &&
-			test_statement() &&
-			test_result_set() &&
-			test_concurrency())
+		if (run_test_p(test_date_time) &&
+			run_test_p(test_time) &&
+			run_test_p(test_time_span) &&
+			run_test_p(test_decimal) && // TODO: fix this SH$"!/!IT
+			run_test_p(test_transaction) &&
+			run_test_p(test_save_point) &&
+			run_test_p(test_statement) &&
+			run_test_p(test_result_set) &&
+			run_test_p(test_concurrency))
 		{
 			std::cout << "test succeed!\n";
 			drop_test_db();

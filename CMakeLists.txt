@@ -6,8 +6,10 @@ cmake_minimum_required(VERSION 2.8)
 # set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/install")
 # set(MARIADB_WITHOUT_CPP11 ON)
 set(BOOST_ROOT C:/Users/pcpcpc/Downloads/boost_1_60_0/)
-set(mariadb_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/mariadb/libmariadb.a ${CMAKE_CURRENT_SOURCE_DIR}/mariadb/libmariadb.dll)
-set(mariadb_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/mariadb/include/)
+#set(mariadb_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/mariadb/libmariadb.a ${CMAKE_CURRENT_SOURCE_DIR}/mariadb/libmariadb.dll)
+set(mariadb_LIBRARIES mysqlclient)
+#set(mariadb_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/mariadb/include/)
+set(mariadb_INCLUDE_DIRS /usr/include/mysql/)
 
 #####################################################################################
 # dependencies

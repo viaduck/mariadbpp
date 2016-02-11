@@ -285,7 +285,7 @@ s8 result_set::get_signed8(u32 index) const
 u16 result_set::get_unsigned16(u32 index) const
 {
 	if (m_statement)
-		return boost::lexical_cast<u16>(m_binds[index].m_unsigned64);
+		return boost::numeric_cast<u16>(m_binds[index].m_unsigned64);
 
 	return boost::lexical_cast<u16>(m_row[index]);
 }
@@ -293,7 +293,7 @@ u16 result_set::get_unsigned16(u32 index) const
 s16 result_set::get_signed16(u32 index) const
 {
 	if (m_statement)
-		return boost::lexical_cast<s16>(m_binds[index].m_signed64);
+		return boost::numeric_cast<s16>(m_binds[index].m_signed64);
 
 	return boost::lexical_cast<s16>(m_row[index]);
 }
@@ -301,7 +301,7 @@ s16 result_set::get_signed16(u32 index) const
 u32 result_set::get_unsigned32(u32 index) const
 {
 	if (m_statement)
-		return boost::lexical_cast<u32>(m_binds[index].m_unsigned64);
+		return boost::numeric_cast<u32>(m_binds[index].m_unsigned64);
 
 	return boost::lexical_cast<u32>(m_row[index]);
 }
@@ -309,7 +309,7 @@ u32 result_set::get_unsigned32(u32 index) const
 s32 result_set::get_signed32(u32 index) const
 {
 	if (m_statement)
-		return boost::lexical_cast<s32>(m_binds[index].m_signed64);
+		return m_binds[index].m_signed32[0];
 
 	return boost::lexical_cast<s32>(m_row[index]);
 }
@@ -317,7 +317,7 @@ s32 result_set::get_signed32(u32 index) const
 u64 result_set::get_unsigned64(u32 index) const
 {
 	if (m_statement)
-		return boost::lexical_cast<u64>(m_binds[index].m_unsigned64);
+		return m_binds[index].m_unsigned64;
 
 	return boost::lexical_cast<u64>(m_row[index]);
 }
@@ -325,7 +325,7 @@ u64 result_set::get_unsigned64(u32 index) const
 s64 result_set::get_signed64(u32 index) const
 {
 	if (m_statement)
-		return boost::lexical_cast<s64>(m_binds[index].m_signed64);
+		return m_binds[index].m_signed64;
 
 	return boost::lexical_cast<s64>(m_row[index]);
 }
@@ -333,7 +333,7 @@ s64 result_set::get_signed64(u32 index) const
 f32 result_set::get_float(u32 index) const
 {
 	if (m_statement)
-		return boost::lexical_cast<f32>(m_binds[index].m_float32[0]);
+		return m_binds[index].m_float32[0];
 
 	return boost::lexical_cast<f32>(m_row[index]);
 }
@@ -341,7 +341,7 @@ f32 result_set::get_float(u32 index) const
 f64 result_set::get_double(u32 index) const
 {
 	if (m_statement)
-		return boost::lexical_cast<f64>(m_binds[index].m_double64);
+		return boost::numeric_cast<f64>(m_binds[index].m_double64);
 
 	return boost::lexical_cast<f64>(m_row[index]);
 }
