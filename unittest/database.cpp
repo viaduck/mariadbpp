@@ -172,8 +172,15 @@ bool test::test_concurrency()
 {
 	concurrency::status::type status;
 	concurrency::set_account(m_account_auto_commit);
-	concurrency::execute("DROP PROCEDURE IF EXISTS insert_rows;");
-	auto handle = concurrency::execute("\
+	auto haendl = concurrency::execute("DROP PROCEDURE IF EXISTS insert_rows;", true);
+	while ((status = concurrency::worker_status(haendl)) < concurrency::status::succeed)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	}
+	concurrency::remove(haendl);
+	fail_if(status != concurrency::status::succeed, "mariadb::concurrency did not work!");
+
+	haendl = concurrency::execute("\
 CREATE PROCEDURE insert_rows()\
 BEGIN\
 	DECLARE counter INT DEFAULT 100;\
@@ -186,22 +193,22 @@ BEGIN\
 	END LOOP;\
 END", true);
 
-	while ((status = concurrency::worker_status(handle)) < concurrency::status::succeed)
+	while ((status = concurrency::worker_status(haendl)) < concurrency::status::succeed)
 	{
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 	}
 
-	concurrency::remove(handle);
+	concurrency::remove(haendl);
 	fail_if(status != concurrency::status::succeed, "mariadb::concurrency did not work!");
 
-	handle = concurrency::execute("call insert_rows(); DELETE FROM test;", true);
+	haendl = concurrency::execute("call insert_rows(); DELETE FROM test;", true);
 
-	while ((status = concurrency::worker_status(handle)) < concurrency::status::succeed)
+	while ((status = concurrency::worker_status(haendl)) < concurrency::status::succeed)
 	{
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(200));
 	}
 
-	concurrency::remove(handle);
+	concurrency::remove(haendl);
 	fail_if(status != concurrency::status::succeed, "mariadb::concurrency did not work!");
 
 	return true;
