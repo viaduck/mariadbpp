@@ -667,12 +667,12 @@ bool date_time::set(const std::string& dt)
 
 const std::string date_time::str(bool with_millisecond) const
 {
-    char buffer[128];
+    char buffer[32];
 
 	if (with_millisecond && millisecond())
-		sprintf(buffer, "%04i-%02i-%02i %02i:%02i:%02i.%03i", year(), month(), day(), hour(), minute(), second(), millisecond());
+		snprintf(buffer, sizeof(buffer), "%04i-%02i-%02i %02i:%02i:%02i.%03i", year(), month(), day(), hour(), minute(), second(), millisecond());
 	else
-		sprintf(buffer, "%04i-%02i-%02i %02i:%02i:%02i", year(), month(), day(), hour(), minute(), second());
+		snprintf(buffer, sizeof(buffer), "%04i-%02i-%02i %02i:%02i:%02i", year(), month(), day(), hour(), minute(), second());
 
 	return std::string(buffer);
 }

@@ -38,7 +38,13 @@ namespace mariadb
 #endif
 }
 #if _WIN32
+
+#if __MINGW32__
+// this is needed because on mingw sprintf_s is broken (due to msvcrt not following c99 standard with sprintf...)
+#define snprintf(buffer, szbuffer, format, ...) __mingw_sprintf(buffer, format, ##__VA_ARGS__)
+#else
 #define snprintf sprintf_s
+
 #endif
 
 #ifdef MARIADB_USES_EXCEPTION

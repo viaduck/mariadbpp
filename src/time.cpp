@@ -454,12 +454,12 @@ bool mariadb::time::set(const std::string& t)
 
 const std::string mariadb::time::str_time(bool with_millisecond) const
 {
-    char buffer[128];
+    char buffer[14];
 
     if (with_millisecond && millisecond())
-		sprintf(buffer, "%02i:%02i:%02i.%03i", hour(), minute(), second(), millisecond());
+		snprintf(buffer, sizeof(buffer), "%02i:%02i:%02i.%03i", hour(), minute(), second(), millisecond());
 	else
-		sprintf(buffer, "%02i:%02i:%02i", hour(), minute(), second());
+		snprintf(buffer, sizeof(buffer), "%02i:%02i:%02i", hour(), minute(), second());
 	return std::string(buffer);
 }
 

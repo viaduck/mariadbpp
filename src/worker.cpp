@@ -119,8 +119,9 @@ void worker::execute()
 
 		m_status = status::succeed;
 	}
-	catch (const std::exception&)
+	catch (const std::exception& e)
 	{
+		std::cout << e.what() << std::endl;
 		m_status = status::failed;
 	}
 }

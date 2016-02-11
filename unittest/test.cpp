@@ -50,7 +50,7 @@ int test::run()
 		if (run_test_p(test_date_time) &&
 			run_test_p(test_time) &&
 			run_test_p(test_time_span) &&
-			run_test_p(test_decimal) && // TODO: fix this SH$"!/!IT
+			run_test_p(test_decimal) &&
 			run_test_p(test_transaction) &&
 			run_test_p(test_save_point) &&
 			run_test_p(test_statement) &&
