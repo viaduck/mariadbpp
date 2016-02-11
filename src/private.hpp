@@ -44,6 +44,7 @@ namespace mariadb
 #define snprintf(buffer, szbuffer, format, ...) __mingw_sprintf(buffer, format, ##__VA_ARGS__)
 #else
 #define snprintf sprintf_s
+#endif
 
 #endif
 
