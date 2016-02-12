@@ -8,23 +8,13 @@
 #include <mysql.h>
 #include <mariadb++/types.hpp>
 
-#ifdef MARIADB_WITHOUT_CPP11
-	#include <boost/interprocess/detail/atomic.hpp>
-	#include <boost/thread.hpp>
-	#include <boost/thread/mutex.hpp>
+#include <atomic>
+#include <thread>
+#include <mutex>
 
-	#define LOCK_MUTEX() boost::mutex::scoped_lock lock(g_mutex)
-	#define SET_THREAD_RUNNING(x) boost::interprocess::ipcdetail::atomic_write32(&g_thread_running, x)
-	#define READ_THREAD_RUNNING() boost::interprocess::ipcdetail::atomic_read32(&g_thread_running)
-#else
-	#include <atomic>
-	#include <thread>
-	#include <mutex>
-
-	#define LOCK_MUTEX() std::lock_guard<std::mutex> lock(g_mutex)
-	#define SET_THREAD_RUNNING(x) g_thread_running = x
-	#define READ_THREAD_RUNNING() g_thread_running
-#endif
+#define LOCK_MUTEX() std::lock_guard<std::mutex> lock(g_mutex)
+#define SET_THREAD_RUNNING(x) g_thread_running = x
+#define READ_THREAD_RUNNING() g_thread_running
 
 #include "worker.hpp"
 #include "private.hpp"
@@ -34,16 +24,12 @@ using namespace mariadb::concurrency;
 
 namespace
 {
-	handle                    g_next_handle(0);
-	account_ref               g_account;
-	MARIADB_STD::mutex        g_mutex;
-	std::vector<worker*>      g_querys_in;
-	std::map<handle, worker*> g_querys_out;
-#ifdef MARIADB_WITHOUT_CPP11
-	volatile boost::uint32_t  g_thread_running(false);
-#else
-	MARIADB_STD::atomic<bool> g_thread_running(false);
-#endif
+	handle                    	g_next_handle(0);
+	account_ref               	g_account;
+	std::mutex        			g_mutex;
+	std::vector<worker*>      	g_querys_in;
+	std::map<handle, worker*> 	g_querys_out;
+	std::atomic<bool> 			g_thread_running(false);
 
 	typedef std::map<handle, worker*> map_t;
 
@@ -91,9 +77,9 @@ namespace
 	//
 	// Get worker from handle
 	//
-	const worker& get_worker(handle handle)
+	const worker& get_worker(handle h)
 	{
-		const map_t::const_iterator w = g_querys_out.find(handle);
+		const map_t::const_iterator w = g_querys_out.find(h);
 
 		if (w != g_querys_out.end())
 			return *w->second;
@@ -149,30 +135,30 @@ void concurrency::set_account(account_ref& account)
 //
 // Query status
 //
-status::type concurrency::worker_status(handle handle)
+status::type concurrency::worker_status(handle h)
 {
-	const worker& w = get_worker(handle);
+	const worker& w = get_worker(h);
 	return w.status();
 }
 
 //
 // Query executed, result ready to be used
 //
-u64 concurrency::execute(handle handle)
+u64 concurrency::execute(handle h)
 {
-	const worker& w = get_worker(handle);
+	const worker& w = get_worker(h);
 	return w.status() == status::removed ? 0 : w.result();
 }
 
-u64 concurrency::insert(handle handle)
+u64 concurrency::insert(handle h)
 {
-	const worker& w = get_worker(handle);
+	const worker& w = get_worker(h);
 	return w.status() == status::removed ? 0 : w.result();
 }
 
-result_set_ref concurrency::query(handle handle)
+result_set_ref concurrency::query(handle h)
 {
-	const worker& w = get_worker(handle);
+	const worker& w = get_worker(h);
 	return w.status() == status::removed ? result_set_ref() : w.result_set();
 }
 
