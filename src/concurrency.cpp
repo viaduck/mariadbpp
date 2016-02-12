@@ -14,7 +14,6 @@
 
 #define LOCK_MUTEX() std::lock_guard<std::mutex> lock(g_mutex)
 #define SET_THREAD_RUNNING(x) g_thread_running = x
-#define READ_THREAD_RUNNING() g_thread_running
 
 #include "worker.hpp"
 #include "private.hpp"
@@ -29,7 +28,8 @@ namespace
 	std::mutex        			g_mutex;
 	std::vector<worker*>      	g_querys_in;
 	std::map<handle, worker*> 	g_querys_out;
-	std::atomic<bool> 			g_thread_running(false);
+	bool			 			g_thread_running(false);
+
 
 	typedef std::map<handle, worker*> map_t;
 
@@ -38,27 +38,30 @@ namespace
 	//
 	void worker_thread()
 	{
-		SET_THREAD_RUNNING(true);
+		g_thread_running = true;
+
 		mysql_thread_init();
 
-		while (g_querys_in.size() > 0)
+		while (true) // fixing race condition when getting size previously
 		{
 			worker* w = NULL;
 			{
 				LOCK_MUTEX();
-				w = *g_querys_in.begin();
-				g_querys_in.erase(g_querys_in.begin());
+				auto possible_w = g_querys_in.begin();
+				if(possible_w == g_querys_in.end())
+					break;
+
+				w = *possible_w;
+				g_querys_in.erase(possible_w);
 			}
 
 			w->execute();
 
 			if (!w->keep_handle())
 				delete w;
-
-			LOCK_MUTEX();
 		}
 
-		SET_THREAD_RUNNING(false);
+		g_thread_running = false;
 		mysql_thread_end();
 	}
 
@@ -67,9 +70,9 @@ namespace
 	//
 	void start_thread()
 	{
-		if (!READ_THREAD_RUNNING())
+		if (!g_thread_running)
 		{
-			MARIADB_STD::thread t(worker_thread);
+			std::thread t(worker_thread);
 			t.detach();
 		}
 	}
@@ -79,6 +82,7 @@ namespace
 	//
 	const worker& get_worker(handle h)
 	{
+		LOCK_MUTEX();
 		const map_t::const_iterator w = g_querys_out.find(h);
 
 		if (w != g_querys_out.end())
@@ -93,14 +97,12 @@ namespace
 	//
 	handle add(const char* query, command::type command, bool keep_handle)
 	{
+		LOCK_MUTEX();
 		worker* w = new worker(g_account, ++g_next_handle, keep_handle, command, query);
-		{
-			LOCK_MUTEX();
-			g_querys_in.push_back(w);
+		g_querys_in.push_back(w);
 
-			if (keep_handle)
-				g_querys_out[g_next_handle] = w;
-		}
+		if (keep_handle)
+			g_querys_out[g_next_handle] = w;
 
 		start_thread();
 
@@ -109,14 +111,12 @@ namespace
 
 	handle add(statement_ref& statement, command::type command, bool keep_handle)
 	{
+		LOCK_MUTEX();
 		worker* w = new worker(g_account, ++g_next_handle, keep_handle, command, statement);
-		{
-			LOCK_MUTEX();
-			g_querys_in.push_back(w);
+		g_querys_in.push_back(w);
 
-			if (keep_handle)
-				g_querys_out[g_next_handle] = w;
-		}
+		if (keep_handle)
+			g_querys_out[g_next_handle] = w;
 
 		start_thread();
 
@@ -213,6 +213,7 @@ handle concurrency::query(statement_ref& statement, bool keep_handle)
 //
 void concurrency::remove(handle handle)
 {
+	LOCK_MUTEX();
 	map_t::iterator w = g_querys_out.find(handle);
 
 	if (w == g_querys_out.end())
