@@ -9,20 +9,8 @@
 #include <sstream>
 #include <limits>
 #include <math.h>
-#include <boost/lexical_cast.hpp>
 #include <mariadb++/decimal.hpp>
-
-
-#ifdef MARIADB_WITHOUT_CPP11
-namespace
-{
-	template <typename type>
-	mariadb::s64 round(type value)
-	{
-		return mariadb::s64(value < 0.0 ? value - 0.5 : value + 0.5);
-	}
-}
-#endif
+#include <mariadb++/conversion_helper.hpp>
 
 using namespace mariadb;
 
@@ -33,78 +21,75 @@ namespace
 	//
 	s64 multiply_divide(s64 value1, s64 value2, s64 divider)
 	{
-		if ((abs(value1) <= std::numeric_limits<int>::max()) || (abs(value2) <= std::numeric_limits<int>::max()))
-			return round(static_cast<f64>(value1 * value2) / static_cast<f64>(divider));
-
-		return round(static_cast<f64>(value1)* static_cast<f64>(value2) / static_cast<f64>(divider));
+		return static_cast<s64>(round(static_cast<double>(value1) * static_cast<double>(value2) / static_cast<double>(divider)));
 	}
 }
 
-const s64 decimal::g_factors[] = {
-	static_cast<s64>(pow(10, 0)),
-	static_cast<s64>(pow(10, 1)),
-	static_cast<s64>(pow(10, 2)),
-	static_cast<s64>(pow(10, 3)),
-	static_cast<s64>(pow(10, 4)),
-	static_cast<s64>(pow(10, 5)),
-	static_cast<s64>(pow(10, 6)),
-	static_cast<s64>(pow(10, 7)),
-	static_cast<s64>(pow(10, 8)),
-	static_cast<s64>(pow(10, 9)),
-	static_cast<s64>(pow(10, 10)),
-	static_cast<s64>(pow(10, 11)),
-	static_cast<s64>(pow(10, 12)),
-	static_cast<s64>(pow(10, 13)),
-	static_cast<s64>(pow(10, 14)),
-	static_cast<s64>(pow(10, 15)),
-	static_cast<s64>(pow(10, 16)),
-	static_cast<s64>(pow(10, 17)),
-	static_cast<s64>(pow(10, 18)),
-	static_cast<s64>(pow(10, 19)),
-	static_cast<s64>(pow(10, 20)),
-	static_cast<s64>(pow(10, 21)),
-	static_cast<s64>(pow(10, 22)),
-	static_cast<s64>(pow(10, 23)),
-	static_cast<s64>(pow(10, 24)),
-	static_cast<s64>(pow(10, 25)),
-	static_cast<s64>(pow(10, 26)),
-	static_cast<s64>(pow(10, 27)),
-	static_cast<s64>(pow(10, 28)),
-	static_cast<s64>(pow(10, 29)),
-	static_cast<s64>(pow(10, 30)),
-	static_cast<s64>(pow(10, 31)),
-	static_cast<s64>(pow(10, 32)),
-	static_cast<s64>(pow(10, 33)),
-	static_cast<s64>(pow(10, 34)),
-	static_cast<s64>(pow(10, 35)),
-	static_cast<s64>(pow(10, 36)),
-	static_cast<s64>(pow(10, 37)),
-	static_cast<s64>(pow(10, 38)),
-	static_cast<s64>(pow(10, 39)),
-	static_cast<s64>(pow(10, 40)),
-	static_cast<s64>(pow(10, 41)),
-	static_cast<s64>(pow(10, 42)),
-	static_cast<s64>(pow(10, 43)),
-	static_cast<s64>(pow(10, 44)),
-	static_cast<s64>(pow(10, 45)),
-	static_cast<s64>(pow(10, 46)),
-	static_cast<s64>(pow(10, 47)),
-	static_cast<s64>(pow(10, 48)),
-	static_cast<s64>(pow(10, 49)),
-	static_cast<s64>(pow(10, 40)),
-	static_cast<s64>(pow(10, 51)),
-	static_cast<s64>(pow(10, 52)),
-	static_cast<s64>(pow(10, 53)),
-	static_cast<s64>(pow(10, 54)),
-	static_cast<s64>(pow(10, 55)),
-	static_cast<s64>(pow(10, 56)),
-	static_cast<s64>(pow(10, 57)),
-	static_cast<s64>(pow(10, 58)),
-	static_cast<s64>(pow(10, 59)),
-	static_cast<s64>(pow(10, 60)),
-	static_cast<s64>(pow(10, 61)),
-	static_cast<s64>(pow(10, 62)),
-	static_cast<s64>(pow(10, 63)),
+const double decimal::g_factors[] = {
+	pow(10, 0),
+	pow(10, 1),
+	pow(10, 2),
+	pow(10, 3),
+	pow(10, 4),
+	pow(10, 5),
+	pow(10, 6),
+	pow(10, 7),
+	pow(10, 8),
+	pow(10, 9),
+	pow(10, 10),
+	pow(10, 11),
+	pow(10, 12),
+	pow(10, 13),
+	pow(10, 14),
+	pow(10, 15),
+	pow(10, 16),
+	pow(10, 17),
+	pow(10, 18),
+	pow(10, 19),
+	pow(10, 20),
+	pow(10, 21),
+	pow(10, 22),
+	pow(10, 23),
+	pow(10, 24),
+	pow(10, 25),
+	pow(10, 26),
+	pow(10, 27),
+	pow(10, 28),
+	pow(10, 29),
+	pow(10, 30),
+	pow(10, 31),
+	pow(10, 32),
+	pow(10, 33),
+	pow(10, 34),
+	pow(10, 35),
+	pow(10, 36),
+	pow(10, 37),
+	pow(10, 38),
+	pow(10, 39),
+	pow(10, 40),
+	pow(10, 41),
+	pow(10, 42),
+	pow(10, 43),
+	pow(10, 44),
+	pow(10, 45),
+	pow(10, 46),
+	pow(10, 47),
+	pow(10, 48),
+	pow(10, 49),
+	pow(10, 40),
+	pow(10, 51),
+	pow(10, 52),
+	pow(10, 53),
+	pow(10, 54),
+	pow(10, 55),
+	pow(10, 56),
+	pow(10, 57),
+	pow(10, 58),
+	pow(10, 59),
+	pow(10, 60),
+	pow(10, 61),
+	pow(10, 62),
+	pow(10, 63),
 };
 
 //
@@ -134,11 +119,11 @@ decimal::decimal(const char* string) :
 
 	if (pos != std::string::npos)
 	{
-		m_precision = boost::numeric_cast<u8>(str.length() - pos - 1);
-		m_value = boost::lexical_cast<s64>(str.substr(0, pos)) * g_factors[m_precision] + boost::lexical_cast<s64>(str.substr(pos + 1));
+		m_precision = checked_cast<u8>(str.length() - pos - 1);
+		m_value = string_cast<s64>(str.substr(0, pos)) * g_factors[m_precision] + string_cast<s64>(str.substr(pos + 1));
 	}
 	else
-		m_value = boost::lexical_cast<s64>(string);
+		m_value = string_cast<s64>(string);
 }
 
 //
@@ -146,7 +131,7 @@ decimal::decimal(const char* string) :
 //
 s64 decimal::factor() const
 {
-	return g_factors[m_precision];
+	return g_factors[m_precision]; // TODO: double factors still dont fix the bug
 }
 
 u8 decimal::precision() const

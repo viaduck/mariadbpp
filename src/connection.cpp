@@ -6,8 +6,6 @@
 //
 
 #include <mysql.h>
-#include <boost/foreach.hpp>
-#include <boost/algorithm/string.hpp>
 #include <mariadb++/connection.hpp>
 #include "private.hpp"
 
@@ -172,7 +170,7 @@ bool connection::connect()
 	//
 	// Set options
 	//
-	BOOST_FOREACH(const account::map_options_t::value_type& pair, m_account->options())
+	for(auto& pair : m_account->options())
 	{
 		if (1 != execute(("SET OPTION " + pair.first + "=" + pair.second).c_str()))
 			MYSQL_ERROR_DISCONNECT(m_mysql);
@@ -205,7 +203,7 @@ result_set_ref connection::query(const std::string& query)
 	if (!connect())
 		return rs;
 
-	if (mysql_real_query(m_mysql, query.c_str(), static_cast<unsigned long>(query.size()))) //(uint)strlen(query)
+	if (mysql_real_query(m_mysql, query.c_str(), query.size()))
 	{
 		MYSQL_ERROR_NO_BRAKET(m_mysql);
 		return rs;
@@ -222,13 +220,14 @@ u64 connection::execute(const std::string& query)
 
 	u64 affected_rows = 0;
 
-	if (mysql_real_query(m_mysql, query.c_str(), static_cast<unsigned long>(query.size())))
+	if (mysql_real_query(m_mysql, query.c_str(), query.size()))
 	{
 		MYSQL_ERROR_NO_BRAKET(m_mysql);
 		return affected_rows;
 	}
 
-	while (true)
+	int status;
+	do
 	{
 		MYSQL_RES* result = mysql_store_result(m_mysql);
 
@@ -242,15 +241,13 @@ u64 connection::execute(const std::string& query)
 			return affected_rows;
 		}
 
-		int status = mysql_next_result(m_mysql);
+		status = mysql_next_result(m_mysql);
 		if (status > 0)
 		{
 			MYSQL_ERROR_NO_BRAKET(m_mysql);
 			return affected_rows;
 		}
-		else if (status < 0)
-			break;
-	}
+	} while(status == 0);
 
 	return affected_rows;
 }
@@ -260,7 +257,7 @@ u64 connection::insert(const std::string& query)
 	if (!connect())
 		return 0;
 
-	if (mysql_real_query(m_mysql, query.c_str(), static_cast<unsigned long>(query.size())))
+	if (mysql_real_query(m_mysql, query.c_str(), query.size()))
 	{
 		MYSQL_ERROR_NO_BRAKET(m_mysql);
 		return 0;

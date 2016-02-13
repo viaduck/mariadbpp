@@ -7,9 +7,9 @@
 
 #include <mysql.h>
 #include <sstream>
-#include <boost/lexical_cast.hpp>
 #include <mariadb++/exceptions.hpp>
 #include <mariadb++/date_time.hpp>
+#include <mariadb++/conversion_helper.hpp>
 #include "private.hpp"
 
 using namespace mariadb;
@@ -490,16 +490,16 @@ time_span date_time::time_between(const date_time& dt) const
 		total_ms = ms - dt_ms;
 	}
 
-	u32 hours = boost::lexical_cast<u32>(total_ms / MS_PER_HOUR);
+	u32 hours = static_cast<u32>(total_ms / MS_PER_HOUR);
 	total_ms = total_ms % MS_PER_HOUR;
 
-	u32 minutes = boost::lexical_cast<u32>(total_ms / MS_PER_MIN);
+	u32 minutes = static_cast<u32>(total_ms / MS_PER_MIN);
 	total_ms = total_ms % MS_PER_MIN;
 
-	u32 seconds = boost::lexical_cast<u32>(total_ms / MS_PER_SEC);
+	u32 seconds = static_cast<u32>(total_ms / MS_PER_SEC);
 	total_ms = total_ms % MS_PER_SEC;
 
-	u32 milliseconds = boost::lexical_cast<u32>(total_ms);
+	u32 milliseconds = static_cast<u32>(total_ms);
 	u32 totaldays = 0;
 	u32 currentyear = year();
 	u32 currentday = day_of_year();
@@ -528,7 +528,7 @@ bool date_time::is_leap_year(u16 year)
 {
 	return
 		!(year % 400) ||
-		(!(year % 4) && (year % 100));
+		(!(year % 4) && (year % 100)); // TODO: condition redundant?
 }
 
 bool date_time::valid_date(u16 year, u8 month, u8 day)
@@ -583,7 +583,7 @@ date_time date_time::reverse_day_of_year(u16 year, u16 day_of_year)
 		day_of_year -= days;
 	}
 
-	return date_time(year, month, boost::numeric_cast<u8>(day_of_year));
+	return date_time(year, month, static_cast<u8>(day_of_year));
 }
 
 time_t date_time::mktime() const
@@ -654,10 +654,9 @@ bool date_time::set(const std::string& dt)
 		dt.length() < 10)
 		return false;
 
-	u16 y = boost::lexical_cast<u16>(dt.substr(0, 4).c_str());
-	// since using two chars in base10 we cannot exceed u8, cast is safe
-	u8 m = boost::lexical_cast<u16>(dt.substr(5, 2).c_str());
-	u8 d = boost::lexical_cast<u16>(dt.substr(8, 2).c_str());
+	u16 y = string_cast<u16>(dt.substr(0, 4));
+	u8 m = string_cast<u8>(dt.substr(5, 2));
+	u8 d = string_cast<u8>(dt.substr(8, 2));
 
 	if (dt.length() >= 13)
 		time::set(dt.substr(11));

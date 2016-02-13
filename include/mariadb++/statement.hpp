@@ -16,7 +16,7 @@ typedef struct st_mysql_stmt MYSQL_STMT;
 namespace mariadb
 {
 	class connection;
-	typedef MARIADB_STD::shared_ptr<connection> connection_ref;
+	typedef std::shared_ptr<connection> connection_ref;
 
 	//
 	// Statement
@@ -89,7 +89,7 @@ namespace mariadb
 		bind*          m_binds;
 	};
 
-	typedef MARIADB_STD::shared_ptr<statement> statement_ref;
+	typedef std::shared_ptr<statement> statement_ref;
 }
 
 #endif

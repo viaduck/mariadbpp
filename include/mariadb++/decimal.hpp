@@ -17,7 +17,7 @@ namespace mariadb
 	class decimal
 	{
 	private:
-		static const s64 g_factors[];
+		static const double g_factors[];
 
 	public:
 		//
@@ -30,7 +30,7 @@ namespace mariadb
 		explicit decimal(type value, u8 precision) :
 			m_precision(precision)
 		{
-			m_value = round(g_factors[precision] * static_cast<type>(value));
+			m_value = round(g_factors[precision] * value);
 		}
 
 		//

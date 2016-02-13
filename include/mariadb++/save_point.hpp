@@ -41,7 +41,7 @@ namespace mariadb
 		std::string  m_name;
 	};
 
-	typedef MARIADB_STD::shared_ptr<save_point> save_point_ref;
+	typedef std::shared_ptr<save_point> save_point_ref;
 }
 
 #endif

@@ -64,7 +64,7 @@ namespace mariadb
 		std::vector<save_point*> m_save_points;
 	};
 
-	typedef MARIADB_STD::shared_ptr<transaction> transaction_ref;
+	typedef std::shared_ptr<transaction> transaction_ref;
 }
 
 #endif

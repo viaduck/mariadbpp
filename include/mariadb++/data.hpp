@@ -8,8 +8,8 @@
 #ifndef _MARIADB_DATA_HPP_
 #define _MARIADB_DATA_HPP_
 
-#include <boost/iostreams/stream.hpp>
 #include <mariadb++/types.hpp>
+#include <bits/ios_base.h>
 
 namespace mariadb
 {
@@ -17,13 +17,6 @@ namespace mariadb
 	{
 	public:
 		typedef Type char_type;
-
-		struct category :
-			virtual boost::iostreams::device_tag,
-			virtual boost::iostreams::input_seekable,
-			virtual boost::iostreams::output_seekable
-		{
-		};
 
 		//
 		// Constructor
@@ -180,9 +173,9 @@ namespace mariadb
 			return size ? -1 : 0;
 		}
 
-		std::streampos seek(boost::iostreams::stream_offset offset, std::ios_base::seekdir seekdir)
+		/*std::streampos seek(std::iostreams::stream_offset offset, std::ios_base::seekdir seekdir)
 		{
-			boost::iostreams::stream_offset pos;
+			std::iostreams::stream_offset pos;
 
 			if (seekdir == std::ios_base::beg)
 				pos = offset;
@@ -197,8 +190,8 @@ namespace mariadb
 				throw std::ios_base::failure("Bad seek offset");
 
 			m_position = static_cast<u32>(pos);
-			return boost::iostreams::offset_to_position(pos);
-		}
+			return std::iostreams::offset_to_position(pos);
+		}*/
 
 	protected:
 		u32   m_count;
@@ -207,8 +200,8 @@ namespace mariadb
 		Type* m_data;
 	};
 
-	typedef MARIADB_STD::shared_ptr< ::mariadb::data<char> > data_ref;
-	typedef boost::iostreams::stream< ::mariadb::data<char> > data_stream;
+	typedef std::shared_ptr< ::mariadb::data<char> > data_ref;
+	//typedef boost::iostreams::stream< ::mariadb::data<char> > data_stream;
 }
 
 #endif

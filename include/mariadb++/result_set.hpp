@@ -138,7 +138,7 @@ namespace mariadb
 		map_indexes_t      m_indexes;
 	};
 
-	typedef MARIADB_STD::shared_ptr<result_set> result_set_ref;
+	typedef std::shared_ptr<result_set> result_set_ref;
 }
 
 #endif

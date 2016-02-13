@@ -13,7 +13,6 @@
 #include <mutex>
 
 #define LOCK_MUTEX() std::lock_guard<std::mutex> lock(g_mutex)
-#define SET_THREAD_RUNNING(x) g_thread_running = x
 
 #include "worker.hpp"
 #include "private.hpp"
@@ -30,7 +29,6 @@ namespace
 	std::map<handle, worker*> 	g_querys_out;
 	bool			 			g_thread_running(false);
 
-
 	typedef std::map<handle, worker*> map_t;
 
 	//
@@ -42,7 +40,8 @@ namespace
 
 		mysql_thread_init();
 
-		while (true) // fixing race condition when getting size previously
+		// breaking in infinite loop because checking g_querys_in would result in a race condition
+		while (true)
 		{
 			worker* w = NULL;
 			{

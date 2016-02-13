@@ -7,10 +7,10 @@
 
 #include <mysql.h>
 #include <sstream>
-#include <boost/lexical_cast.hpp>
 #include <mariadb++/exceptions.hpp>
 #include <mariadb++/date_time.hpp>
 #include <mariadb++/time.hpp>
+#include <mariadb++/conversion_helper.hpp>
 #include "private.hpp"
 
 using namespace std;
@@ -435,16 +435,16 @@ bool mariadb::time::set(const std::string& t)
 		t.length() < 2)
 		return false;
 
-	u8 h = boost::lexical_cast<u16>(t.substr(0, 2).c_str());
+	u8 h = string_cast<u8>(t.substr(0, 2).c_str());
 	u8 min = 0;
 	double s = 0;
 
 	if (t.length() >= 3)
 	{
-		min = boost::lexical_cast<u16>(t.substr(3, 2).c_str());
+		min = string_cast<u8>(t.substr(3, 2).c_str());
 
 		if (t.length() >= 6)
-			s = boost::lexical_cast<double>(t.substr(6).c_str());
+			s = string_cast<double>(t.substr(6).c_str());
 	}
 
 	u16 ms = static_cast<u16>((s - static_cast<u8>(s)) * 1000);

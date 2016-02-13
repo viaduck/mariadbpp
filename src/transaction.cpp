@@ -6,7 +6,6 @@
 //
 
 #include <mysql.h>
-#include <boost/foreach.hpp>
 #include <mariadb++/connection.hpp>
 #include <mariadb++/transaction.hpp>
 
@@ -55,7 +54,7 @@ transaction::~transaction()
 //
 void transaction::cleanup()
 {
-	BOOST_FOREACH(save_point* save_point, m_save_points)
+	for(save_point* save_point : m_save_points)
 	{
 		save_point->m_transaction = NULL;
 	}
@@ -92,5 +91,5 @@ save_point_ref transaction::create_save_point()
 //
 void transaction::remove_save_point(save_point* save_point)
 {
-	m_save_points.erase(std::remove(m_save_points.begin(), m_save_points.end(), save_point));
+	//m_save_points.erase(std::remove(m_save_points.begin(), m_save_points.end(), save_point));
 }

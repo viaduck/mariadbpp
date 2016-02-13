@@ -24,7 +24,7 @@
 namespace mariadb
 {
 	class account;
-	typedef MARIADB_STD::shared_ptr<account> account_ref;
+	typedef std::shared_ptr<account> account_ref;
 
 	class account
 	{
