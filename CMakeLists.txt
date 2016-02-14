@@ -4,8 +4,6 @@ cmake_minimum_required(VERSION 2.8)
 
 #####################################################################################
 # set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/install")
-# set(MARIADB_WITHOUT_CPP11 ON)
-set(BOOST_ROOT C:/Users/pcpcpc/Downloads/boost_1_60_0/)
 #set(mariadb_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/mariadb/libmariadb.a ${CMAKE_CURRENT_SOURCE_DIR}/mariadb/libmariadb.dll)
 set(mariadb_LIBRARIES mysqlclient)
 #set(mariadb_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/mariadb/include/)
@@ -14,9 +12,6 @@ set(mariadb_INCLUDE_DIRS /usr/include/mysql/)
 #####################################################################################
 # dependencies
 
-# Please set BOOST_ROOT to the root directory containing Boost or BOOST_INCLUDEDIR to the directory containing  Boost's headers.
-find_package(Boost REQUIRED)
-
 # Please set mariadb_LIBRARIES and mariadb_INCLUDE_DIRS
 
 #####################################################################################
@@ -24,16 +19,12 @@ find_package(Boost REQUIRED)
 include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/include"
 	"${CMAKE_CURRENT_BINARY_DIR}/include"
-	"${Boost_INCLUDE_DIRS}"
 	"${mariadb_INCLUDE_DIRS}"
 )
 
 # generate config.h
-if(MARIADB_WITHOUT_CPP11)
-	set(VAL_MARIADB_WITHOUT_CPP11 "#define MARIADB_WITHOUT_CPP11")
-endif()
-
 set(MARIADB_USES_EXCEPTION ON)
+
 if(MARIADB_USES_EXCEPTION)
 	set(VAL_MARIADB_USES_EXCEPTION "#define MARIADB_USES_EXCEPTION")
 endif()
@@ -42,7 +33,6 @@ configure_file(
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/config.h.in"
 	"${CMAKE_CURRENT_BINARY_DIR}/include/mariadb++/config.h"
 )
-
 
 set(CMAKE_CXX_STANDARD 11)
 

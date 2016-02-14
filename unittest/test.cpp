@@ -55,7 +55,8 @@ int test::run()
 			run_test_p(test_save_point) &&
 			run_test_p(test_statement) &&
 			run_test_p(test_result_set) &&
-			run_test_p(test_concurrency))
+			run_test_p(test_concurrency) &&
+			run_test_p(test_real_concurrency))
 		{
 			std::cout << "test succeed!\n";
 			drop_test_db();

@@ -143,19 +143,19 @@ status::type concurrency::worker_status(handle h)
 //
 // Query executed, result ready to be used
 //
-u64 concurrency::execute(handle h)
+u64 concurrency::get_execute_result(handle h)
 {
 	const worker& w = get_worker(h);
 	return w.status() == status::removed ? 0 : w.result();
 }
 
-u64 concurrency::insert(handle h)
+u64 concurrency::get_insert_result(handle h)
 {
 	const worker& w = get_worker(h);
 	return w.status() == status::removed ? 0 : w.result();
 }
 
-result_set_ref concurrency::query(handle h)
+result_set_ref concurrency::get_query_result(handle h)
 {
 	const worker& w = get_worker(h);
 	return w.status() == status::removed ? result_set_ref() : w.result_set();
@@ -210,14 +210,22 @@ handle concurrency::query(statement_ref& statement, bool keep_handle)
 //
 // Please note, if a result_set is used, it must be done after the result_set is used...
 //
-void concurrency::remove(handle handle)
+void concurrency::release_handle(handle h)
 {
 	LOCK_MUTEX();
-	map_t::iterator w = g_querys_out.find(handle);
+	map_t::iterator w = g_querys_out.find(h);
 
 	if (w == g_querys_out.end())
 		return;
 
 	delete w->second;
 	g_querys_out.erase(w);
+}
+
+bool concurrency::wait_handle(handle h, u64 wait_time_ms) {
+	while(worker_status(h) < status::succeed) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(wait_time_ms));
+	}
+
+	return worker_status(h) == status::succeed;
 }

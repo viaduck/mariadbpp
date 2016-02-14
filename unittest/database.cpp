@@ -6,6 +6,7 @@
 //
 
 #include <thread>
+#include <set>
 #include "test.hpp"
 
 using namespace mariadb;
@@ -23,12 +24,12 @@ bool test::test_transaction()
 	//
 	{
 		transaction_ref trx = con->create_transaction();
-		u32 id = con->insert("INSERT INTO test(str) VALUES('test');");
+		u64 id = con->insert("INSERT INTO test(str) VALUES('test');");
 		trx->commit();
 		fail_if(!id, "mariadb::connection::insert id is zero!");
 
 		result_set_ref rs = con->query("SELECT COUNT(*) FROM test;");
-		fail_if(!rs || !rs->next() || !rs->get_unsigned64((u32)0), "mariadb::connection::transaction cound not commit!");
+		fail_if(!rs || !rs->next() || !rs->get_unsigned64((u32)0), "mariadb::connection::transaction could not commit!");
 	}
 
 	//
@@ -40,7 +41,7 @@ bool test::test_transaction()
 	}
 
 	result_set_ref rs = con->query("SELECT COUNT(*) FROM test;");
-	fail_if(!rs || !rs->next() || 1 != rs->get_unsigned64((u32)0), "mariadb::connection::transaction cound not rollback!");
+	fail_if(!rs || !rs->next() || 1 != rs->get_unsigned64((u32)0), "mariadb::connection::transaction could not rollback!");
 
 	execute("DELETE FROM test WHERE id < 10000;");
 	return true;
@@ -56,23 +57,23 @@ bool test::test_save_point()
 	{
 		transaction_ref trx = con->create_transaction();
 		save_point_ref sp = trx->create_save_point();
-		u32 id = con->insert("INSERT INTO test(str) VALUES('test');");
+		u64 id = con->insert("INSERT INTO test(str) VALUES('test');");
 		sp->commit();
 		trx->commit();
 		fail_if(!id, "mariadb::connection::insert id is zero!");
 
 		result_set_ref rs = con->query("SELECT COUNT(*) FROM test;");
-		fail_if(!rs || !rs->next() || !rs->get_unsigned64((u32)0), "mariadb::connection::save_point cound not commit!");
+		fail_if(!rs || !rs->next() || !rs->get_unsigned64((u32)0), "mariadb::connection::save_point could not commit!");
 	}
 	{
 		transaction_ref trx = con->create_transaction();
 		save_point_ref sp = trx->create_save_point();
-		u32 id = con->insert("INSERT INTO test(str) VALUES('test');");
+		u64 id = con->insert("INSERT INTO test(str) VALUES('test');");
 		trx->commit();
 		fail_if(!id, "mariadb::connection::insert id is zero!");
 
 		result_set_ref rs = con->query("SELECT COUNT(*) FROM test;");
-		fail_if(!rs || !rs->next() || 1 == rs->get_unsigned64((u32)0), "mariadb::connection::save_point cound not commit!");
+		fail_if(!rs || !rs->next() || 1 == rs->get_unsigned64((u32)0), "mariadb::connection::save_point could not commit!");
 	}
 
 	//
@@ -88,7 +89,7 @@ bool test::test_save_point()
 	}
 
 	result_set_ref rs = con->query("SELECT COUNT(*) FROM test;");
-	fail_if(!rs || !rs->next() || 2 != rs->get_unsigned64((u32)0), "mariadb::connection::save_point cound not rollback!");
+	fail_if(!rs || !rs->next() || 2 != rs->get_unsigned64((u32)0), "mariadb::connection::save_point could not rollback!");
 
 	execute("DELETE FROM test WHERE id < 10000;");
 	return true;
@@ -170,15 +171,14 @@ bool test::test_result_set()
 
 bool test::test_concurrency()
 {
-	concurrency::status::type status;
+	bool success;
 	concurrency::set_account(m_account_auto_commit);
+
 	auto haendl = concurrency::execute("DROP PROCEDURE IF EXISTS insert_rows;", true);
-	while ((status = concurrency::worker_status(haendl)) < concurrency::status::succeed)
-	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(200));
-	}
-	concurrency::remove(haendl);
-	fail_if(status != concurrency::status::succeed, "mariadb::concurrency did not work!");
+	success = concurrency::wait_handle(haendl);
+	concurrency::release_handle(haendl);
+
+	fail_if(!success, "mariadb::concurrency did not work!");
 
 	haendl = concurrency::execute("\
 CREATE PROCEDURE insert_rows()\
@@ -193,23 +193,57 @@ BEGIN\
 	END LOOP;\
 END", true);
 
-	while ((status = concurrency::worker_status(haendl)) < concurrency::status::succeed)
-	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(200));
-	}
+	success = concurrency::wait_handle(haendl, 200);
+	concurrency::release_handle(haendl);
 
-	concurrency::remove(haendl);
-	fail_if(status != concurrency::status::succeed, "mariadb::concurrency did not work!");
+	fail_if(!success, "mariadb::concurrency did not work!");
 
 	haendl = concurrency::execute("call insert_rows(); DELETE FROM test;", true);
+	success = concurrency::wait_handle(haendl);
+	concurrency::release_handle(haendl);
 
-	while ((status = concurrency::worker_status(haendl)) < concurrency::status::succeed)
-	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	fail_if(!success, "mariadb::concurrency did not work!");
+
+	return true;
+}
+
+bool test::test_real_concurrency() {
+	constexpr int num_results = 100;
+
+	std::vector<handle> handles;
+	std::set<u64> results;
+
+	concurrency::set_account(m_account_auto_commit);
+
+	// launch all queries
+	for(int i = 0; i < num_results; i++) {
+		auto heandl = concurrency::insert("INSERT INTO test(str) VALUES('teest');", true);
+		handles.push_back(heandl);
 	}
 
-	concurrency::remove(haendl);
-	fail_if(status != concurrency::status::succeed, "mariadb::concurrency did not work!");
+	// wait for all queries
+	for(auto h : handles)
+		fail_if(!concurrency::wait_handle(h), "mariadb::concurrency did not work");
+
+	// get all results
+	for(auto h : handles) {
+		u64 res = concurrency::get_execute_result(h);
+		auto set_result = results.insert(res);
+
+		// fail if this result already existed (insert returns false as second)
+		fail_if(!set_result.second, "maraidb::concurrency did not work");
+	}
+
+	// release all handles
+	for(auto h : handles)
+		concurrency::release_handle(h);
+
+	// clear table for tests later on
+	auto hn = concurrency::execute("DELETE FROM test;", true);
+	fail_if(!concurrency::wait_handle(hn), "mariadb::concurrency did not work");
+	concurrency::release_handle(hn);
+
+	fail_if(results.size() != num_results, "mariadb::concurrency did not work, results missing");
 
 	return true;
 }
