@@ -9,6 +9,7 @@
 #define _MARIADB_TRANSACTION_HPP_
 
 #include <vector>
+#include <algorithm>
 #include <mariadb++/save_point.hpp>
 #include <mariadb++/types.hpp>
 

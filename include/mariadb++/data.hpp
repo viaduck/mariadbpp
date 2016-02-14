@@ -173,9 +173,9 @@ namespace mariadb
 			return size ? -1 : 0;
 		}
 
-		/*std::streampos seek(std::iostreams::stream_offset offset, std::ios_base::seekdir seekdir)
+		std::streampos seek(std::streampos offset, std::ios_base::seekdir seekdir)
 		{
-			std::iostreams::stream_offset pos;
+			std::streampos pos;
 
 			if (seekdir == std::ios_base::beg)
 				pos = offset;
@@ -190,8 +190,8 @@ namespace mariadb
 				throw std::ios_base::failure("Bad seek offset");
 
 			m_position = static_cast<u32>(pos);
-			return std::iostreams::offset_to_position(pos);
-		}*/
+			return pos;
+		}
 
 	protected:
 		u32   m_count;
@@ -201,7 +201,7 @@ namespace mariadb
 	};
 
 	typedef std::shared_ptr< ::mariadb::data<char> > data_ref;
-	//typedef boost::iostreams::stream< ::mariadb::data<char> > data_stream;
+	typedef std::basic_iostream< ::mariadb::data<char> > data_stream;
 }
 
 #endif
