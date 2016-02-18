@@ -8,7 +8,7 @@
 #ifndef _MARIADB_TYPES_HPP_
 #define _MARIADB_TYPES_HPP_
 
-#include <mariadb++/config.h>
+//#include <mariadb++/config.h>
 #include <memory>
 
 namespace mariadb

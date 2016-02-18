@@ -9,6 +9,7 @@
 #define _MARIADB_CONCURRENCY_HPP_
 
 #include <vector>
+#include <mariadb++/account.hpp>
 #include <mariadb++/statement.hpp>
 
 namespace mariadb
