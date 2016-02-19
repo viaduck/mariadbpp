@@ -5,7 +5,7 @@
 //	License  : Boost Software License (http://www.boost.org/users/license.html)
 //
 
-#include <mysql.h>
+#include <mysql/mysql.h>
 #include <sstream>
 #include <mariadb++/exceptions.hpp>
 #include <mariadb++/date_time.hpp>

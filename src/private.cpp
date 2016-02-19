@@ -7,7 +7,7 @@
 
 #include "private.hpp"
 #include <mariadb++/mariadb++.hpp>
-#include <mysql.h>
+#include <mysql/mysql.h>
 
 namespace mariadb
 {

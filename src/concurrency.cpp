@@ -5,7 +5,7 @@
 //	License  : Boost Software License (http://www.boost.org/users/license.html)
 //
 
-#include <mysql.h>
+#include <mysql/mysql.h>
 #include <mariadb++/types.hpp>
 
 #include <atomic>
