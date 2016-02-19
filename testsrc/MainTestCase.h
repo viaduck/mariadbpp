@@ -9,6 +9,8 @@
 class MainTestCase {
 public:
     int run();
+
+    int run_stress();
 };
 
 

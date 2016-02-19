@@ -8,6 +8,7 @@
 #ifndef _MARIADB_DATA_HPP_
 #define _MARIADB_DATA_HPP_
 
+#include <string.h>
 #include <mariadb++/types.hpp>
 #include <bits/ios_base.h>
 
