@@ -87,7 +87,10 @@ bool connection::set_charset(const std::string& value)
 //
 bool connection::connected() const
 {
-	return m_mysql != NULL;
+	if (m_mysql == NULL)
+		return false;
+	else
+		return mysql_stat(m_mysql) != NULL;
 }
 
 //
