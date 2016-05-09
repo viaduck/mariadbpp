@@ -269,7 +269,7 @@ bool result_set::get_boolean(u32 index) const
 u8 result_set::get_unsigned8(u32 index) const
 {
 	if (m_statement)
-		return checked_cast<u8>(m_binds[index].m_unsigned64);
+		return checked_cast<u8>(0x00000000000000ff & m_binds[index].m_unsigned64);
 
 	return string_cast<u8>(m_row[index]);
 }
@@ -277,7 +277,7 @@ u8 result_set::get_unsigned8(u32 index) const
 s8 result_set::get_signed8(u32 index) const
 {
 	if (m_statement)
-		return checked_cast<s8>(m_binds[index].m_signed64);
+		return checked_cast<s8>(0x00000000000000ff & m_binds[index].m_signed64);
 
 	return string_cast<s8>(m_row[index]);
 }
@@ -285,7 +285,7 @@ s8 result_set::get_signed8(u32 index) const
 u16 result_set::get_unsigned16(u32 index) const
 {
 	if (m_statement)
-		return checked_cast<u16>(m_binds[index].m_unsigned64);
+		return checked_cast<u16>(0x000000000000ffff & m_binds[index].m_unsigned64);
 
 	return string_cast<u16>(m_row[index]);
 }
@@ -293,7 +293,7 @@ u16 result_set::get_unsigned16(u32 index) const
 s16 result_set::get_signed16(u32 index) const
 {
 	if (m_statement)
-		return checked_cast<s16>(m_binds[index].m_signed64);
+		return checked_cast<s16>(0x000000000000ffff & m_binds[index].m_signed64);
 
 	return string_cast<s16>(m_row[index]);
 }
@@ -301,7 +301,7 @@ s16 result_set::get_signed16(u32 index) const
 u32 result_set::get_unsigned32(u32 index) const
 {
 	if (m_statement)
-		return checked_cast<u32>(m_binds[index].m_unsigned64);
+		return checked_cast<u32>(0x00000000ffffffff & m_binds[index].m_unsigned64);
 
 	return string_cast<u32>(m_row[index]);
 }
