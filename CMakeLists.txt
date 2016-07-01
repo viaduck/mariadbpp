@@ -8,11 +8,12 @@ set(mariadb_LIBRARIES mysqlclient)
 #####################################################################################
 # dependencies
 
-find_package(MySQL REQUIRED)
+#find_package(MySQL REQUIRED)
 
 include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/include"
 	"${CMAKE_CURRENT_BINARY_DIR}/include"
+	"${CMAKE_CURRENT_SOURCE_DIR}/external/googletest/include"
 )
 
 # generate config.h
@@ -52,5 +53,5 @@ install(FILES ${mariadbclientpp_PUBLIC_HEADERS}
 )
 
 add_subdirectory(unittest)
-add_subdirectory(testsrc)
 add_subdirectory(external/googletest)
+add_subdirectory(testsrc)
