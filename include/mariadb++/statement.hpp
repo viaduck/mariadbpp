@@ -83,6 +83,7 @@ namespace mariadb
 		statement(connection* connection, const std::string &query);
 
 	private:
+		unsigned long  m_bind_count;
 		connection_ref m_connection;
 		MYSQL_STMT*    m_statement;
 		MYSQL_BIND*    m_my_binds;
