@@ -114,6 +114,8 @@ namespace mariadb
 		//
 		bool next();
 
+		void check_result_exists() const;
+
 		//
 		// Set row index
 		//
@@ -127,6 +129,7 @@ namespace mariadb
 		result_set(statement* statement);
 
 	private:
+		bool 			   m_has_result;
 		u32                m_field_count;
 		long unsigned int* m_lengths;
 		MYSQL_RES*         m_result_set;

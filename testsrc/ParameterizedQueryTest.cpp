@@ -43,7 +43,6 @@ TEST_F(ParameterizedQueryTest, bindAfterQuery)
 	EXPECT_NO_THROW(errorQuery->set_unsigned32(0, 1));
 }
 
-
 TEST_F(ParameterizedQueryTest, bindTHISdataType)
 {
 	mariadb::statement_ref nonerrorQuery = m_con->create_statement("UPDATE ParameterizedQueryTest_bindAnyDataType SET preis = 299;");
@@ -63,7 +62,7 @@ TEST_F(ParameterizedQueryTest, bindAnyDataType)
 	mariadb::statement_ref testQuery;
 	mariadb::result_set_ref queryResult;
 
-#define ParamTest_TEST(call, call2, name, value)  errorQuery = m_con->create_statement("UPDATE " + m_table_name + " SET "+ std::string(name) +"= ?;"); \
+#define ParamTest_TEST(call, call2, name, value)  errorQuery = m_con->create_statement("UPDATE " + m_table_name + " SET " + name + "= ?;"); \
 	call; \
 	errorQuery->execute(); \
 	testQuery = m_con->create_statement("SELECT " + std::string(name) + " FROM " + m_table_name + " WHERE id = 1;"); \

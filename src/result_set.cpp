@@ -25,7 +25,8 @@ result_set::result_set(connection* connection) :
 	m_fields(NULL),
 	m_my_binds(NULL),
 	m_binds(NULL),
-	m_statement(NULL)
+	m_statement(NULL),
+    m_has_result(false)
 {
 	if (m_result_set)
 	{
@@ -44,7 +45,8 @@ result_set::result_set(statement* statement) :
 	m_fields(NULL),
 	m_my_binds(NULL),
 	m_binds(NULL),
-	m_statement(statement)
+	m_statement(statement),
+    m_has_result(false)
 {
 	int max_length = 1;
 	mysql_stmt_attr_set(m_statement->m_statement, STMT_ATTR_UPDATE_MAX_LENGTH, &max_length);
@@ -205,7 +207,9 @@ bool result_set::is_null(const char* name) const
 //
 stream_ref result_set::get_blob(u32 index) const
 {
-	size_t len = m_statement ? m_binds[index].length() : m_lengths[index];
+    check_result_exists();
+
+    size_t len = m_statement ? m_binds[index].length() : m_lengths[index];
 
 	if (!len)
 		return stream_ref();
@@ -217,7 +221,9 @@ stream_ref result_set::get_blob(u32 index) const
 
 data_ref result_set::get_data(u32 index) const
 {
-	size_t len = m_statement ? m_binds[index].length() : m_lengths[index];
+    check_result_exists();
+
+    size_t len = m_statement ? m_binds[index].length() : m_lengths[index];
 
 	if (!len)
 		return data_ref();
@@ -227,12 +233,16 @@ data_ref result_set::get_data(u32 index) const
 
 decimal result_set::get_decimal(u32 index) const
 {
-	return decimal(m_row[index]);
+    check_result_exists();
+
+    return decimal(m_row[index]);
 }
 
 date_time result_set::get_date(u32 index) const
 {
-	if (m_statement)
+    check_result_exists();
+
+    if (m_statement)
 		return mariadb::date_time(m_binds[index].m_time);
 
 	return date_time(m_row[index]).date();
@@ -240,7 +250,9 @@ date_time result_set::get_date(u32 index) const
 
 date_time result_set::get_date_time(u32 index) const
 {
-	if (m_statement)
+    check_result_exists();
+
+    if (m_statement)
 		return mariadb::date_time(m_binds[index].m_time);
 
 	return date_time(m_row[index]);
@@ -248,7 +260,9 @@ date_time result_set::get_date_time(u32 index) const
 
 mariadb::time result_set::get_time(u32 index) const
 {
-	if (m_statement)
+    check_result_exists();
+
+    if (m_statement)
 		return mariadb::time(m_binds[index].m_time);
 
 	return mariadb::time(m_row[index]);
@@ -256,12 +270,16 @@ mariadb::time result_set::get_time(u32 index) const
 
 const char* result_set::get_string(u32 index) const
 {
-	return m_row[index];
+    check_result_exists();
+
+    return m_row[index];
 }
 
 bool result_set::get_boolean(u32 index) const
 {
-	if (m_statement)
+    check_result_exists();
+
+    if (m_statement)
 		return (m_binds[index].m_unsigned64 != 0);
 
 	return string_cast<bool>(m_row[index]);
@@ -269,7 +287,9 @@ bool result_set::get_boolean(u32 index) const
 
 u8 result_set::get_unsigned8(u32 index) const
 {
-	if (m_statement)
+    check_result_exists();
+
+    if (m_statement)
 		return checked_cast<u8>(0x00000000000000ff & m_binds[index].m_unsigned64);
 
 	return string_cast<u8>(m_row[index]);
@@ -277,7 +297,9 @@ u8 result_set::get_unsigned8(u32 index) const
 
 s8 result_set::get_signed8(u32 index) const
 {
-	if (m_statement)
+    check_result_exists();
+
+    if (m_statement)
 		return checked_cast<s8>(0x00000000000000ff & m_binds[index].m_signed64);
 
 	return string_cast<s8>(m_row[index]);
@@ -285,7 +307,9 @@ s8 result_set::get_signed8(u32 index) const
 
 u16 result_set::get_unsigned16(u32 index) const
 {
-	if (m_statement)
+    check_result_exists();
+
+    if (m_statement)
 		return checked_cast<u16>(0x000000000000ffff & m_binds[index].m_unsigned64);
 
 	return string_cast<u16>(m_row[index]);
@@ -293,7 +317,9 @@ u16 result_set::get_unsigned16(u32 index) const
 
 s16 result_set::get_signed16(u32 index) const
 {
-	if (m_statement)
+    check_result_exists();
+
+    if (m_statement)
 		return checked_cast<s16>(0x000000000000ffff & m_binds[index].m_signed64);
 
 	return string_cast<s16>(m_row[index]);
@@ -301,7 +327,9 @@ s16 result_set::get_signed16(u32 index) const
 
 u32 result_set::get_unsigned32(u32 index) const
 {
-	if (m_statement)
+    check_result_exists();
+
+    if (m_statement)
 		return checked_cast<u32>(0x00000000ffffffff & m_binds[index].m_unsigned64);
 
 	return string_cast<u32>(m_row[index]);
@@ -309,7 +337,9 @@ u32 result_set::get_unsigned32(u32 index) const
 
 s32 result_set::get_signed32(u32 index) const
 {
-	if (m_statement)
+    check_result_exists();
+
+    if (m_statement)
 		return m_binds[index].m_signed32[0];
 
 	return string_cast<s32>(m_row[index]);
@@ -317,7 +347,9 @@ s32 result_set::get_signed32(u32 index) const
 
 u64 result_set::get_unsigned64(u32 index) const
 {
-	if (m_statement)
+    check_result_exists();
+
+    if (m_statement)
 		return m_binds[index].m_unsigned64;
 
 	return string_cast<u64>(m_row[index]);
@@ -325,7 +357,9 @@ u64 result_set::get_unsigned64(u32 index) const
 
 s64 result_set::get_signed64(u32 index) const
 {
-	if (m_statement)
+    check_result_exists();
+
+    if (m_statement)
 		return m_binds[index].m_signed64;
 
 	return string_cast<s64>(m_row[index]);
@@ -333,7 +367,9 @@ s64 result_set::get_signed64(u32 index) const
 
 f32 result_set::get_float(u32 index) const
 {
-	if (m_statement)
+    check_result_exists();
+
+    if (m_statement)
 		return m_binds[index].m_float32[0];
 
 	return string_cast<f32>(m_row[index]);
@@ -341,7 +377,9 @@ f32 result_set::get_float(u32 index) const
 
 f64 result_set::get_double(u32 index) const
 {
-	if (m_statement)
+    check_result_exists();
+
+    if (m_statement)
 		return checked_cast<f64>(m_binds[index].m_double64);
 
 	return string_cast<f64>(m_row[index]);
@@ -349,6 +387,8 @@ f64 result_set::get_double(u32 index) const
 
 bool result_set::is_null(u32 index) const
 {
+    check_result_exists();
+
 	if (m_statement)
 		return m_binds[index].is_null();
 
@@ -458,14 +498,16 @@ bool result_set::set_row_index(u64 index)
 bool result_set::next()
 {
 	if (!m_result_set)
-		return false;
+		return (m_has_result = false);
 
 	if (m_statement)
-		return !mysql_stmt_fetch(m_statement->m_statement);
+		return (m_has_result = !mysql_stmt_fetch(m_statement->m_statement));
 
 	m_row = mysql_fetch_row(m_result_set);
 	m_lengths = mysql_fetch_lengths(m_result_set);
-	return m_row != NULL;
+
+	// make sure no access to results is possible until a result is successfully fetched
+	return (m_has_result = m_row != NULL);
 }
 
 //
@@ -486,3 +528,10 @@ u64 result_set::row_count() const
 
 	return (u64)mysql_num_rows(m_result_set);
 }
+
+void result_set::check_result_exists() const {
+    if(!m_has_result)
+        throw std::out_of_range("No row was fetched");
+}
+
+
