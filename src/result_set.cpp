@@ -116,7 +116,7 @@ data_ref result_set::get_data(const std::string &name) const
 	return get_data(column_index(name));
 }
 
-const char* result_set::get_string(const std::string &name) const
+std::string result_set::get_string(const std::string &name) const
 {
 	return get_string(column_index(name));
 }
@@ -208,9 +208,9 @@ stream_ref result_set::get_blob(u32 index) const
 {
     check_result_exists();
 
-    size_t len = m_statement ? m_binds[index].length() : m_lengths[index];
+    size_t len = column_size(index);
 
-	if (!len)
+	if (len == 0)
 		return stream_ref();
 
 	std::istringstream* ss = new std::istringstream();
@@ -222,9 +222,12 @@ data_ref result_set::get_data(u32 index) const
 {
     check_result_exists();
 
-    size_t len = m_statement ? m_binds[index].length() : m_lengths[index];
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
 
-	if (!len)
+    size_t len = column_size(index);
+
+	if (len == 0)
 		return data_ref();
 
 	return data_ref(new data<char>(m_row[index], len));
@@ -234,12 +237,18 @@ decimal result_set::get_decimal(u32 index) const
 {
     check_result_exists();
 
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
+
     return decimal(m_row[index]);
 }
 
 date_time result_set::get_date(u32 index) const
 {
     check_result_exists();
+
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
 
     if (m_statement)
 		return mariadb::date_time(m_binds[index].m_time);
@@ -251,6 +260,9 @@ date_time result_set::get_date_time(u32 index) const
 {
     check_result_exists();
 
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
+
     if (m_statement)
 		return mariadb::date_time(m_binds[index].m_time);
 
@@ -261,22 +273,31 @@ mariadb::time result_set::get_time(u32 index) const
 {
     check_result_exists();
 
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
+
     if (m_statement)
 		return mariadb::time(m_binds[index].m_time);
 
 	return mariadb::time(m_row[index]);
 }
 
-const char* result_set::get_string(u32 index) const
+std::string result_set::get_string(u32 index) const
 {
     check_result_exists();
 
-    return m_row[index];
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
+
+    return std::string(m_row[index], column_size(index));
 }
 
 bool result_set::get_boolean(u32 index) const
 {
     check_result_exists();
+
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
 
     if (m_statement)
 		return (m_binds[index].m_unsigned64 != 0);
@@ -288,6 +309,9 @@ u8 result_set::get_unsigned8(u32 index) const
 {
     check_result_exists();
 
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
+
     if (m_statement)
 		return checked_cast<u8>(0x00000000000000ff & m_binds[index].m_unsigned64);
 
@@ -297,6 +321,9 @@ u8 result_set::get_unsigned8(u32 index) const
 s8 result_set::get_signed8(u32 index) const
 {
     check_result_exists();
+
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
 
     if (m_statement)
 		return checked_cast<s8>(0x00000000000000ff & m_binds[index].m_signed64);
@@ -308,6 +335,9 @@ u16 result_set::get_unsigned16(u32 index) const
 {
     check_result_exists();
 
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
+
     if (m_statement)
 		return checked_cast<u16>(0x000000000000ffff & m_binds[index].m_unsigned64);
 
@@ -317,6 +347,9 @@ u16 result_set::get_unsigned16(u32 index) const
 s16 result_set::get_signed16(u32 index) const
 {
     check_result_exists();
+
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
 
     if (m_statement)
 		return checked_cast<s16>(0x000000000000ffff & m_binds[index].m_signed64);
@@ -328,6 +361,9 @@ u32 result_set::get_unsigned32(u32 index) const
 {
     check_result_exists();
 
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
+
     if (m_statement)
 		return checked_cast<u32>(0x00000000ffffffff & m_binds[index].m_unsigned64);
 
@@ -337,6 +373,9 @@ u32 result_set::get_unsigned32(u32 index) const
 s32 result_set::get_signed32(u32 index) const
 {
     check_result_exists();
+
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
 
     if (m_statement)
 		return m_binds[index].m_signed32[0];
@@ -348,6 +387,9 @@ u64 result_set::get_unsigned64(u32 index) const
 {
     check_result_exists();
 
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
+
     if (m_statement)
 		return m_binds[index].m_unsigned64;
 
@@ -357,6 +399,9 @@ u64 result_set::get_unsigned64(u32 index) const
 s64 result_set::get_signed64(u32 index) const
 {
     check_result_exists();
+
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
 
     if (m_statement)
 		return m_binds[index].m_signed64;
@@ -368,6 +413,9 @@ f32 result_set::get_float(u32 index) const
 {
     check_result_exists();
 
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
+
     if (m_statement)
 		return m_binds[index].m_float32[0];
 
@@ -378,6 +426,9 @@ f64 result_set::get_double(u32 index) const
 {
     check_result_exists();
 
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
+
     if (m_statement)
 		return checked_cast<f64>(m_binds[index].m_double64);
 
@@ -387,6 +438,9 @@ f64 result_set::get_double(u32 index) const
 bool result_set::is_null(u32 index) const
 {
     check_result_exists();
+
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
 
 	if (m_statement)
 		return m_binds[index].is_null();
@@ -404,6 +458,9 @@ u64 result_set::column_count() const
 
 value::type result_set::column_type(u32 index)
 {
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
+
 	switch (m_fields[index].type)
 	{
 		case MYSQL_TYPE_NULL:
@@ -466,6 +523,9 @@ value::type result_set::column_type(u32 index)
 
 const char* result_set::column_name(u32 index)
 {
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
+
 	return m_fields[index].name;
 }
 
@@ -477,6 +537,14 @@ u32 result_set::column_index(const std::string &name) const
 		return 0xffffffff;
 
 	return i->second;
+}
+
+unsigned long result_set::column_size(u32 index) const {
+
+    if (index >= m_field_count)
+        throw std::out_of_range("Column index out of range");
+
+    return m_statement ? m_binds[index].length() : m_lengths[index];
 }
 
 //

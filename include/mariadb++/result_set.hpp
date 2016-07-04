@@ -58,7 +58,7 @@ namespace mariadb
 		date_time get_date_time(const std::string &name) const;
 		time get_time(const std::string &name) const;
 		decimal get_decimal(const std::string &name) const;
-		const char* get_string(const std::string &name) const;
+		std::string get_string(const std::string &name) const;
 		bool get_boolean(const std::string &name) const;
 		u8 get_unsigned8(const std::string &name) const;
 		s8 get_signed8(const std::string &name) const;
@@ -81,7 +81,7 @@ namespace mariadb
 		date_time get_date_time(u32 index) const;
 		time get_time(u32 index) const;
 		decimal get_decimal(u32 index) const;
-		const char* get_string(u32 index) const;
+		std::string get_string(u32 index) const;
 		bool get_boolean(u32 index) const;
 		u8 get_unsigned8(u32 index) const;
 		s8 get_signed8(u32 index) const;
@@ -102,6 +102,7 @@ namespace mariadb
 		u32 column_index(const std::string &name) const;
 		value::type column_type(u32 index);
 		const char* column_name(u32 index);
+        unsigned long column_size(u32 index) const;
 
 		//
 		// Get row count & index
