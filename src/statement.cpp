@@ -115,6 +115,9 @@ result_set_ref statement::query()
 //
 void statement::set_blob(u32 index, stream_ref stream)
 {
+	if(!stream)
+		return;
+
 	bind& bind = m_binds[index];
 	MYSQL_BIND& mybind = m_my_binds[index];
 
@@ -129,6 +132,9 @@ void statement::set_blob(u32 index, stream_ref stream)
 
 void statement::set_data(u32 index, const data_ref& data)
 {
+	if(!data)
+		return;
+
 	bind& bind = m_binds[index];
 	MYSQL_BIND& mybind = m_my_binds[index];
 
