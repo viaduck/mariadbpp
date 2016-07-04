@@ -26,6 +26,7 @@ result_set::result_set(connection* connection) :
 	m_my_binds(NULL),
 	m_binds(NULL),
 	m_statement(NULL),
+    m_row(nullptr),
     m_has_result(false)
 {
 	if (m_result_set)
@@ -46,6 +47,7 @@ result_set::result_set(statement* statement) :
 	m_my_binds(NULL),
 	m_binds(NULL),
 	m_statement(statement),
+    m_row(nullptr),
     m_has_result(false)
 {
 	int max_length = 1;
@@ -57,26 +59,23 @@ result_set::result_set(statement* statement) :
 	{
 		m_field_count = mysql_stmt_field_count(m_statement->m_statement);
 		m_result_set = mysql_stmt_result_metadata(m_statement->m_statement);
-		m_fields = mysql_fetch_fields(m_result_set);
 
-		if (m_field_count > 0)
-		{
-			m_binds = new bind[m_field_count];
-			m_my_binds = new MYSQL_BIND[m_field_count];
-			m_row = new char*[m_field_count];
+        if (m_field_count > 0) {
+            m_fields = mysql_fetch_fields(m_result_set);
+            m_binds = new bind[m_field_count];
+            m_my_binds = new MYSQL_BIND[m_field_count];
+            m_row = new char *[m_field_count];
 
-			memset(m_my_binds, 0, sizeof(MYSQL_BIND) * m_field_count);
-		}
+            memset(m_my_binds, 0, sizeof(MYSQL_BIND) * m_field_count);
 
-		for (u32 i = 0; i < m_field_count; ++i)
-		{
-			m_indexes[m_fields[i].name] = i;
-			m_binds[i].set_output(m_fields[i], &m_my_binds[i]);
-			m_row[i] = m_binds[i].buffer();
-		}
+            for (u32 i = 0; i < m_field_count; ++i) {
+                m_indexes[m_fields[i].name] = i;
+                m_binds[i].set_output(m_fields[i], &m_my_binds[i]);
+                m_row[i] = m_binds[i].buffer();
+            }
 
-		if (m_field_count > 0)
-			mysql_stmt_bind_result(m_statement->m_statement, m_my_binds);
+            mysql_stmt_bind_result(m_statement->m_statement, m_my_binds);
+        }
 	}
 }
 
