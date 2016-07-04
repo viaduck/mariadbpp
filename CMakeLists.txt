@@ -31,7 +31,6 @@ endif()
 set(CMAKE_CXX_STANDARD 11)
 
 file(GLOB mariadbclientpp_PUBLIC_HEADERS include/mariadb++/*)
-list(APPEND mariadbclientpp_PUBLIC_HEADERS "${CMAKE_CURRENT_BINARY_DIR}/include/mariadb++/config.h")
 source_group("Public Header Files" FILES ${mariadbclientpp_PUBLIC_HEADERS})
 
 file(GLOB mariadbclientpp_PRIVATE_HEADERS src/*.hpp)
