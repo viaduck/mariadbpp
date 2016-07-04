@@ -65,23 +65,33 @@ inline long long string_cast(std::string str) {
 template <>
 inline double string_cast(std::string str) {
     size_t endPos;
-    double parsedNumber = std::stod(str, &endPos);
+    try {
+        double parsedNumber = std::stod(str, &endPos);
 
-    if(endPos != str.size())
-        return 0;
+        if (endPos != str.size())
+            return 0;
 
-    return parsedNumber;
+        return parsedNumber;
+    } catch (std::out_of_range) {
+        // Not a Number double
+        return std::numeric_limits<double>::quiet_NaN();
+    }
 }
 
 template <>
 inline float string_cast(std::string str) {
     size_t endPos;
-    float parsedNumber = std::stof(str, &endPos);
+    try {
+        float parsedNumber = std::stof(str, &endPos);
 
-    if(endPos != str.size())
-        return 0;
+        if (endPos != str.size())
+            return 0;
 
-    return parsedNumber;
+        return parsedNumber;
+    } catch (std::out_of_range) {
+        // Not a Number float
+        return std::numeric_limits<float>::quiet_NaN();
+    }
 }
 
 #endif //MARIADBCLIENTPP_CONVERSION_HELPER_H
