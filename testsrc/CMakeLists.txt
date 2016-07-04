@@ -1,2 +1,2 @@
-add_executable(testsowieso MainTestCase.cpp MainTestCase.h SkeletonTest.h)
-target_link_libraries(testsowieso mariadbclientpp)
+add_executable(mariadbpp_tests SkeletonTest.h SelectTest.cpp SelectTest.h)
+target_link_libraries(mariadbpp_tests mariadbclientpp gtest_main)

@@ -7,11 +7,13 @@
 using namespace mariadb;
 
 class SkeletonTest : public ::testing::Test {
-    const char* m_unixsock = "test";
+    const char* m_hostname = "localhost";
+    const char* m_unixsock = nullptr;
     const char* m_username = "test";
     const char* m_password = "test";
-
     const char* m_dbname = "test";
+
+    uint32_t m_port = 3306;
 
 public:
     virtual void SetUp() override {
@@ -20,13 +22,14 @@ public:
         m_table_name = std::string(test_info->test_case_name()) + "_" + std::string(test_info->name());
 
         // create user account
-        m_account_setup = account::create(nullptr, m_username, m_password, m_dbname, nullptr, m_unixsock);
+        m_account_setup = account::create(m_hostname, m_username, m_password, m_dbname, m_port, m_unixsock);
         ASSERT_TRUE(!!m_account_setup);
         m_account_setup->set_auto_commit(true);
 
         // create database connection
         m_con = connection::create(m_account_setup);
         ASSERT_TRUE(!!m_con);
+        ASSERT_TRUE(m_con->connect());
         ASSERT_TRUE(m_con->connected());
 
         // drop table and call creation

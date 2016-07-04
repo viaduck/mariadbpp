@@ -16,17 +16,17 @@ include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/external/googletest/include"
 )
 
-# generate config.h
-set(MARIADB_USES_EXCEPTION ON)
+set(MARIADB_USES_EXCEPTION ON CACHED)
+option(TEST_HOSTNAME "Hostname for mariadbpp test" "localhost")
+option(TEST_UNIXSOCKET "Unix socket for mariadbpp test")
+option(TEST_USERNAME "Hostname for mariadbpp test" "testuser")
+option(TEST_PASSWORD "Hostname for mariadbpp test" "bockwurst")
+option(TEST_PORT "Hostname for mariadbpp test" 3306)
 
 if(MARIADB_USES_EXCEPTION)
-	set(VAL_MARIADB_USES_EXCEPTION "#define MARIADB_USES_EXCEPTION")
+	add_definitions(-DMARIADB_USES_EXCEPTION)
 endif()
 
-configure_file(
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/config.h.in"
-	"${CMAKE_CURRENT_BINARY_DIR}/include/mariadb++/config.h"
-)
 
 set(CMAKE_CXX_STANDARD 11)
 

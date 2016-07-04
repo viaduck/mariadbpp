@@ -53,6 +53,8 @@ namespace mariadb
 #define MARIADB_ERROR_THROW_DATE(_year, _month, _day, _hour, _minute, _second, _millisecond) throw exception::date_time(_year, _month, _day, _hour, _minute, _second, _millisecond);
 #define MARIADB_ERROR_THROW_TIME(_hour, _minute, _second, _millisecond) throw exception::time(_hour, _minute, _second, _millisecond);
 #else
+#warning MariaDB++ without exceptions is not implemented yet
+
 #define MARIADB_ERROR_THROW_CONNECTION(error_id, error)
 #define MARIADB_ERROR_THROW_DATE(_year, _month, _day, _hour, _minute, _second, _millisecond)
 #define MARIADB_ERROR_THROW_TIME(_hour, _minute, _second, _millisecond)
