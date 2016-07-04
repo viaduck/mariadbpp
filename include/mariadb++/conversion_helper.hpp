@@ -66,4 +66,15 @@ inline double string_cast(std::string str) {
     return parsedNumber;
 }
 
+template <>
+inline float string_cast(std::string str) {
+    size_t endPos;
+    float parsedNumber = std::stof(str, &endPos);
+
+    if(endPos != str.size())
+        return 0;
+
+    return parsedNumber;
+}
+
 #endif //MARIADBCLIENTPP_CONVERSION_HELPER_H
