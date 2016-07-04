@@ -23,13 +23,6 @@ inline T string_cast(std::string str) {
 }
 
 template <>
-inline unsigned int string_cast(std::string str) {
-    unsigned long parsedNumber = string_cast<unsigned long>(str);
-
-    return checked_cast<unsigned int>(parsedNumber);
-}
-
-template <>
 inline unsigned long string_cast(std::string str) {
     size_t endPos;
     unsigned long parsedNumber = std::stoul(str, &endPos);
@@ -38,6 +31,13 @@ inline unsigned long string_cast(std::string str) {
         return 0;
 
     return parsedNumber;
+}
+
+template <>
+inline unsigned int string_cast(std::string str) {
+    unsigned long parsedNumber = string_cast<unsigned long>(str);
+
+    return checked_cast<unsigned int>(parsedNumber);
 }
 
 template <>
