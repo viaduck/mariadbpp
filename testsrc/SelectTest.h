@@ -9,8 +9,10 @@
 #include "SkeletonTest.h"
 
 class SelectTest : public SkeletonTest {
+    // TODO missing: time-based types, string/byte-based types, statement-based tests
+
     virtual void CreateTestTable() override {
-        m_con->execute("CREATE TABLE " + m_table_name + " (id INT AUTO_INCREMENT, PRIMARY KEY (`id`));");
+
     }
 };
 
