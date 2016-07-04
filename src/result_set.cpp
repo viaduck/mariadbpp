@@ -94,7 +94,8 @@ result_set::~result_set()
 		if (m_row)
 			delete [] m_row;
 
-		mysql_stmt_free_result(m_statement->m_statement);
+		// fixme: Leaking mysql results
+	//	mysql_stmt_free_result(m_statement->m_statement);
 	}
 
 	if (m_binds)
