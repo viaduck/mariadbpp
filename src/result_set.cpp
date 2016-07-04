@@ -106,97 +106,97 @@ result_set::~result_set()
 //
 // Get from name
 //
-stream_ref result_set::get_blob(const char* name) const
+stream_ref result_set::get_blob(const std::string &name) const
 {
 	return get_blob(column_index(name));
 }
 
-data_ref result_set::get_data(const char* name) const
+data_ref result_set::get_data(const std::string &name) const
 {
 	return get_data(column_index(name));
 }
 
-const char* result_set::get_string(const char* name) const
+const char* result_set::get_string(const std::string &name) const
 {
 	return get_string(column_index(name));
 }
 
-date_time result_set::get_date(const char* name) const
+date_time result_set::get_date(const std::string &name) const
 {
 	return get_date(column_index(name));
 }
 
-date_time result_set::get_date_time(const char* name) const
+date_time result_set::get_date_time(const std::string &name) const
 {
 	return get_date_time(column_index(name));
 }
 
-mariadb::time result_set::get_time(const char* name) const
+mariadb::time result_set::get_time(const std::string &name) const
 {
 	return get_time(column_index(name));
 }
 
-decimal result_set::get_decimal(const char* name) const
+decimal result_set::get_decimal(const std::string &name) const
 {
 	return get_decimal(column_index(name));
 }
 
-bool result_set::get_boolean(const char* name) const
+bool result_set::get_boolean(const std::string &name) const
 {
 	return get_boolean(column_index(name));
 }
 
-u8 result_set::get_unsigned8(const char* name) const
+u8 result_set::get_unsigned8(const std::string &name) const
 {
 	return get_unsigned8(column_index(name));
 }
 
-s8 result_set::get_signed8(const char* name) const
+s8 result_set::get_signed8(const std::string &name) const
 {
 	return get_signed8(column_index(name));
 }
 
-u16 result_set::get_unsigned16(const char* name) const
+u16 result_set::get_unsigned16(const std::string &name) const
 {
 	return get_unsigned16(column_index(name));
 }
 
-s16 result_set::get_signed16(const char* name) const
+s16 result_set::get_signed16(const std::string &name) const
 {
 	return get_signed16(column_index(name));
 }
 
-u32 result_set::get_unsigned32(const char* name) const
+u32 result_set::get_unsigned32(const std::string &name) const
 {
 	return get_unsigned32(column_index(name));
 }
 
-s32 result_set::get_signed32(const char* name) const
+s32 result_set::get_signed32(const std::string &name) const
 {
 	return get_signed32(column_index(name));
 }
 
-s64 result_set::get_signed64(const char* name) const
+s64 result_set::get_signed64(const std::string &name) const
 {
 	return get_signed64(column_index(name));
 }
 
-u64 result_set::get_unsigned64(const char* name) const
+u64 result_set::get_unsigned64(const std::string &name) const
 {
 	return get_unsigned64(column_index(name));
 }
 
-f32 result_set::get_float(const char* name) const
+f32 result_set::get_float(const std::string &name) const
 {
 	return get_float(column_index(name));
 }
 
-f64 result_set::get_double(const char* name) const
+f64 result_set::get_double(const std::string &name) const
 {
 	return get_double(column_index(name));
 }
 
-bool result_set::is_null(const char* name) const
+bool result_set::is_null(const std::string &name) const
 {
 	return is_null(column_index(name));
 }
@@ -469,7 +469,7 @@ const char* result_set::column_name(u32 index)
 	return m_fields[index].name;
 }
 
-u32 result_set::column_index(const char* name) const
+u32 result_set::column_index(const std::string &name) const
 {
 	const map_indexes_t::const_iterator i = m_indexes.find(name);
 

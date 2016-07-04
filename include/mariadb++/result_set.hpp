@@ -52,25 +52,25 @@ namespace mariadb
 		//
 		// Get from name
 		//
-		stream_ref get_blob(const char* name) const;
-		data_ref get_data(const char* name) const;
-		date_time get_date(const char* name) const;
-		date_time get_date_time(const char* name) const;
-		time get_time(const char* name) const;
-		decimal get_decimal(const char* name) const;
-		const char* get_string(const char* name) const;
-		bool get_boolean(const char* name) const;
-		u8 get_unsigned8(const char* name) const;
-		s8 get_signed8(const char* name) const;
-		u16 get_unsigned16(const char* name) const;
-		s16 get_signed16(const char* name) const;
-		u32 get_unsigned32(const char* name) const;
-		s32 get_signed32(const char* name) const;
-		u64 get_unsigned64(const char* name) const;
-		s64 get_signed64(const char* name) const;
-		f32 get_float(const char* name) const;
-		f64 get_double(const char* name) const;
-		bool is_null(const char* name) const;
+		stream_ref get_blob(const std::string &name) const;
+		data_ref get_data(const std::string &name) const;
+		date_time get_date(const std::string &name) const;
+		date_time get_date_time(const std::string &name) const;
+		time get_time(const std::string &name) const;
+		decimal get_decimal(const std::string &name) const;
+		const char* get_string(const std::string &name) const;
+		bool get_boolean(const std::string &name) const;
+		u8 get_unsigned8(const std::string &name) const;
+		s8 get_signed8(const std::string &name) const;
+		u16 get_unsigned16(const std::string &name) const;
+		s16 get_signed16(const std::string &name) const;
+		u32 get_unsigned32(const std::string &name) const;
+		s32 get_signed32(const std::string &name) const;
+		u64 get_unsigned64(const std::string &name) const;
+		s64 get_signed64(const std::string &name) const;
+		f32 get_float(const std::string &name) const;
+		f64 get_double(const std::string &name) const;
+		bool is_null(const std::string &name) const;
 
 		//
 		// Get from index
@@ -99,7 +99,7 @@ namespace mariadb
 		// Get column count / type / name
 		//
 		u64 column_count() const;
-		u32 column_index(const char* name) const;
+		u32 column_index(const std::string &name) const;
 		value::type column_type(u32 index);
 		const char* column_name(u32 index);
 
