@@ -9,8 +9,8 @@ using namespace mariadb;
 class SkeletonTest : public ::testing::Test {
     const char* m_hostname = "localhost";
     const char* m_unixsock = nullptr;
-    const char* m_username = "test";
-    const char* m_password = "test";
+    const char* m_username = "testuser";
+    const char* m_password = "";
     const char* m_dbname = "test";
 
     uint32_t m_port = 3306;
