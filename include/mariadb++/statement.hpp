@@ -80,7 +80,7 @@ namespace mariadb
 		//
 		// Constructor
 		//
-		statement(connection* connection, const char* query);
+		statement(connection* connection, const std::string &query);
 
 	private:
 		connection_ref m_connection;

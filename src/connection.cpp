@@ -272,7 +272,7 @@ u64 connection::insert(const std::string& query)
 //
 // Create statement
 //
-statement_ref connection::create_statement(const char* query)
+statement_ref connection::create_statement(const std::string &query)
 {
 	if (!connect())
 		return statement_ref();

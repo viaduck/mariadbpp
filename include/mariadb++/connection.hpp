@@ -86,7 +86,7 @@ namespace mariadb
 		//
 		// Create statement
 		//
-		statement_ref create_statement(const char* query);
+		statement_ref create_statement(const std::string &query);
 
 		//
 		// Commit / rollback support

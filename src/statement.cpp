@@ -24,14 +24,14 @@ using namespace mariadb;
 //
 // Constructor
 //
-statement::statement(connection* connection, const char* query) :
+statement::statement(connection* connection, const std::string &query) :
 	m_statement(mysql_stmt_init(connection->m_mysql)),
 	m_my_binds(NULL),
 	m_binds(NULL)
 {
 	if (!m_statement)
 		MYSQL_ERROR(connection->m_mysql)
-	else if (mysql_stmt_prepare(m_statement, query, static_cast<unsigned long>(strlen(query))))
+	else if (mysql_stmt_prepare(m_statement, query.c_str(), query.size()))
 		STMT_ERROR(m_statement)
 	else
 	{
