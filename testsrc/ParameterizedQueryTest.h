@@ -1,0 +1,14 @@
+//
+// Created by jonas on 04.07.16.
+//
+
+#ifndef MARIADBCLIENTPP_PARAMETERIZEDQUERYTEST_H
+#define MARIADBCLIENTPP_PARAMETERIZEDQUERYTEST_H
+
+
+class ParameterizedQueryTest {
+
+};
+
+
+#endif //MARIADBCLIENTPP_PARAMETERIZEDQUERYTEST_H
