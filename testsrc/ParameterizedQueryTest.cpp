@@ -9,7 +9,7 @@ TEST_F(ParameterizedQueryTest, bindNormal)
 
 	std::string query = "SELECT * FROM " + m_table_name + " WHERE preis>=?;";
 
-	mariadb::statement_ref  selectQuery = m_con->create_statement(("SELECT * FROM " + m_table_name + " WHERE 1=?;").c_str());
+	mariadb::statement_ref  selectQuery = m_con->create_statement("SELECT * FROM " + m_table_name + " WHERE 1=?;");
 	selectQuery->set_unsigned32(0, 1);
 
 	mariadb::result_set_ref queryResult = selectQuery->query();
@@ -21,12 +21,12 @@ TEST_F(ParameterizedQueryTest, bindNormal)
 
 TEST_F(ParameterizedQueryTest, emptyBind)
 {
-	// Currently this test does fail because mariadbclient does not distinguish between a normal query with ? and a parameterized query...
-
-	mariadb::statement_ref emptyQuery = m_con->create_statement(("SELECT * FROM " + m_table_name + " WHERE 1=?;").c_str());
+	mariadb::statement_ref emptyQuery = m_con->create_statement("SELECT * FROM " + m_table_name + " WHERE 1=?;");
 
 	mariadb::result_set_ref queryResult = emptyQuery->query();
-	ASSERT_FALSE(!!emptyQuery);
+	ASSERT_TRUE(!!emptyQuery);
+	ASSERT_TRUE(!!queryResult);
+	ASSERT_FALSE(queryResult->next());
 }
 
 TEST_F(ParameterizedQueryTest, emptyBindQuery)
@@ -37,7 +37,7 @@ TEST_F(ParameterizedQueryTest, emptyBindQuery)
 
 TEST_F(ParameterizedQueryTest, bindAfterQuery)
 {
-	mariadb::statement_ref errorQuery = m_con->create_statement(("SELECT * FROM " + m_table_name + " WHERE id = ?;").c_str());
+	mariadb::statement_ref errorQuery = m_con->create_statement("SELECT * FROM " + m_table_name + " WHERE id = ?;");
 	mariadb::result_set_ref queryResult = errorQuery->query();
 
 	EXPECT_NO_THROW(errorQuery->set_unsigned32(0, 1));
@@ -63,10 +63,10 @@ TEST_F(ParameterizedQueryTest, bindAnyDataType)
 	mariadb::statement_ref testQuery;
 	mariadb::result_set_ref queryResult;
 
-#define ParamTest_TEST(call, call2, name, value)  errorQuery = m_con->create_statement(("UPDATE " + m_table_name + " SET "+ std::string(name) +"= ?;").c_str()); \
+#define ParamTest_TEST(call, call2, name, value)  errorQuery = m_con->create_statement("UPDATE " + m_table_name + " SET "+ std::string(name) +"= ?;"); \
 	call; \
 	errorQuery->execute(); \
-	testQuery = m_con->create_statement(("SELECT " + std::string(name) + " FROM " + m_table_name + " WHERE id = 1;").c_str()); \
+	testQuery = m_con->create_statement("SELECT " + std::string(name) + " FROM " + m_table_name + " WHERE id = 1;"); \
 	queryResult = testQuery->query(); \
 	ASSERT_TRUE(queryResult->next()); \
 	ASSERT_EQ(call2, value);
@@ -86,7 +86,7 @@ TEST_F(ParameterizedQueryTest, bindAnyDataType)
 
 TEST_F(ParameterizedQueryTest, bindExecute)
 {
-	mariadb::statement_ref crashQuery = m_con->create_statement(("INSERT INTO " + m_table_name + " (id, preis) VALUES (2, ?);").c_str());
+	mariadb::statement_ref crashQuery = m_con->create_statement("INSERT INTO " + m_table_name + " (id, preis) VALUES (2, ?);");
 	crashQuery->set_unsigned32(0, 1);
 
 	// Should not crash
@@ -95,7 +95,7 @@ TEST_F(ParameterizedQueryTest, bindExecute)
 
 TEST_F(ParameterizedQueryTest, bindDataBlob)
 {
-	mariadb::statement_ref errorQuery = m_con->create_statement(("SELECT * FROM " + m_table_name + " WHERE id = ?;").c_str());
+	mariadb::statement_ref errorQuery = m_con->create_statement("SELECT * FROM " + m_table_name + " WHERE id = ?;");
 
 	const char* c = reinterpret_cast<const char*>(new char[400]);
 	errorQuery->set_data(0, mariadb::data_ref(new mariadb::data<char>(c, 400)));
@@ -111,7 +111,7 @@ TEST_F(ParameterizedQueryTest, bindDataBlob)
 TEST_F(ParameterizedQueryTest, bindDataBlobNullPtr)
 {
 	// Basically should not crash. Please.
-	mariadb::statement_ref errorQuery = m_con->create_statement(("SELECT * FROM " + m_table_name + " WHERE id = ?;").c_str());
+	mariadb::statement_ref errorQuery = m_con->create_statement("SELECT * FROM " + m_table_name + " WHERE id = ?;");
 	errorQuery->set_data(0, nullptr);
 }
 
