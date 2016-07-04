@@ -9,7 +9,6 @@
 #include <iostream>
 #include "test.hpp"
 
-using namespace std;
 using namespace mariadb;
 
 namespace

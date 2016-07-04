@@ -8,7 +8,6 @@
 #include <mariadb++/time_span.hpp>
 
 using namespace mariadb;
-using namespace std;
 
 //
 // Constructors
@@ -233,7 +232,7 @@ u64 time_span::total_milliseconds() const
 	return total_seconds() * 1000 + m_milliseconds;
 }
 
-ostream& mariadb::operator << (ostream& os, const time_span& ts)
+std::ostream& mariadb::operator << (std::ostream& os, const time_span& ts)
 {
 	if (ts.negative())
 		os << "negative ";

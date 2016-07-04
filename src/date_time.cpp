@@ -13,7 +13,6 @@
 #include "private.hpp"
 
 using namespace mariadb;
-using namespace std;
 
 namespace
 {
@@ -685,7 +684,7 @@ const std::string date_time::str_date() const
 	return std::string(buffer);
 }
 
-ostream& mariadb::operator << (ostream& os, const date_time& dt)
+std::ostream& mariadb::operator << (std::ostream& os, const date_time& dt)
 {
 	os << dt.str();
 	return os;

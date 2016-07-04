@@ -13,8 +13,6 @@
 #include <mariadb++/conversion_helper.hpp>
 #include "private.hpp"
 
-using namespace std;
-
 #define MS_PER_SEC 1000
 #define MS_PER_MIN (MS_PER_SEC * 60)
 #define MS_PER_HOUR (MS_PER_MIN * 60)
@@ -463,7 +461,7 @@ const std::string mariadb::time::str_time(bool with_millisecond) const
 	return std::string(buffer);
 }
 
-ostream& mariadb::operator << (ostream& os, const time& t)
+std::ostream& mariadb::operator << (std::ostream& os, const time& t)
 {
 	os << t.str_time();
 	return os;

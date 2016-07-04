@@ -121,7 +121,7 @@ void statement::set_blob(u32 index, stream_ref stream)
 
 	if(index >= m_bind_count)
         throw std::out_of_range("Field index out of range");
-    
+
 	bind& bind = m_binds[index];
 	MYSQL_BIND& mybind = m_my_binds[index];
 
