@@ -3,10 +3,10 @@ services:
     - mariadb:latest
     
 variables:
-    MYSQL_DATABASE: mariadbpptest
-    MYSQL_USER: test
-    MYSQL_PASSWORD: test
-    MYSQL_RANDOM_ROOT_PASSWORD: true            # it's not used anyway
+    MYSQL_DATABASE: "mariadbpptest"
+    MYSQL_USER: "test"
+    MYSQL_PASSWORD: "test"
+    MYSQL_RANDOM_ROOT_PASSWORD: "true"            # it's not used anyway
 
 stages:
     - build         # contains build and test and deploy
@@ -21,4 +21,3 @@ test:
         - make
         - testsrc/mariadbpp_tests             # runs gtest target
     stage: build
- 
