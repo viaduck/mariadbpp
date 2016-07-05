@@ -17,7 +17,7 @@ test:
         - git submodule update --init
         - mkdir build
         - cd build
-        - cmake ../ -DTEST_HOSTNAME=mariadb -DTEST_USERNAME=MYSQL_USER -DTEST_PASSWORD=MYSQL_PASSWORD -DTEST_PORT=3306 -DTEST_DATABASE=MYSQL_DATABASE
+        - cmake ../ -DTEST_HOSTNAME=mariadb -DTEST_USERNAME=$MYSQL_USER -DTEST_PASSWORD=$MYSQL_PASSWORD -DTEST_PORT=3306 -DTEST_DATABASE=$MYSQL_DATABASE
         - make
         - testsrc/mariadbpp_tests             # runs gtest target
     stage: build
