@@ -17,18 +17,17 @@ include_directories(
 )
 
 set(MARIADB_USES_EXCEPTION ON CACHED)
-option(TEST_HOSTNAME "Hostname for mariadbpp test" "localhost")
-option(TEST_UNIXSOCKET "Unix socket for mariadbpp test")
-option(TEST_USERNAME "Hostname for mariadbpp test" "testuser")
-option(TEST_PASSWORD "Hostname for mariadbpp test" "bockwurst")
-option(TEST_PORT "Hostname for mariadbpp test" 3306)
 
 if(MARIADB_USES_EXCEPTION)
 	add_definitions(-DMARIADB_USES_EXCEPTION)
 endif()
 
 
-set(CMAKE_CXX_STANDARD 11)
+if (CMAKE_VERSION VERSION_LESS "3.1")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+else()
+	set(CMAKE_CXX_STANDARD 11)
+endif()
 
 file(GLOB mariadbclientpp_PUBLIC_HEADERS include/mariadb++/*)
 source_group("Public Header Files" FILES ${mariadbclientpp_PUBLIC_HEADERS})

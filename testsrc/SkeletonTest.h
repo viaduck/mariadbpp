@@ -4,17 +4,11 @@
 #include <mariadb++/connection.hpp>
 #include <gtest/gtest.h>
 
+#include "test_config.h"
+
 using namespace mariadb;
 
 class SkeletonTest : public ::testing::Test {
-    const char* m_hostname = "localhost";
-    const char* m_unixsock = nullptr;
-    const char* m_username = "test";
-    const char* m_password = "test";
-    const char* m_dbname = "mariadbpptests";
-
-    uint32_t m_port = 3306;
-
 public:
     virtual void SetUp() override {
         // get test names and concatenate them
@@ -22,7 +16,11 @@ public:
         m_table_name = std::string(test_info->test_case_name()) + "_" + std::string(test_info->name());
 
         // create user account
-        m_account_setup = account::create(m_hostname, m_username, m_password, m_dbname, m_port, m_unixsock);
+        using TestConfig = mariadb::testing::TestConfig;
+        if (std::string(TestConfig::UnixSocket) != "")
+            m_account_setup = account::create("", TestConfig::User, TestConfig::Password, TestConfig::Database, 0, TestConfig::UnixSocket);
+        else
+            m_account_setup = account::create(TestConfig::Hostname, TestConfig::User, TestConfig::Password, TestConfig::Database, TestConfig::Port);
         ASSERT_TRUE(!!m_account_setup);
         m_account_setup->set_auto_commit(true);
 
