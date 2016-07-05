@@ -23,7 +23,7 @@ worker::worker() :
 {
 }
 
-worker::worker(account_ref& account, handle handle, bool keep_handle, command::type command, const char* query) :
+worker::worker(account_ref& account, handle handle, bool keep_handle, command::type command, const std::string &query) :
 	m_keep_handle(keep_handle),
 	m_handle(handle),
 	m_status(handle > 0 ? status::waiting : status::removed),

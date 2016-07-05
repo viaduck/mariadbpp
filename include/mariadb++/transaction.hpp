@@ -48,7 +48,7 @@ namespace mariadb
 		//
 		// Constructor
 		//
-		transaction(connection* connection, isolation::level level, bool consistent_snapshot);
+		transaction(connection* conn, isolation::level level, bool consistent_snapshot);
 
 		//
 		// Remove save_point

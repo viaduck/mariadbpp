@@ -50,6 +50,5 @@ install(FILES ${mariadbclientpp_PUBLIC_HEADERS}
 	DESTINATION include/mariadb++
 )
 
-add_subdirectory(unittest)
 add_subdirectory(external/googletest)
 add_subdirectory(testsrc)

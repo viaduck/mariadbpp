@@ -34,7 +34,7 @@ namespace mariadb
 		//
 		// Constructor
 		//
-		save_point(transaction* transaction);
+		save_point(transaction* trans);
 
 	private:
 		transaction* m_transaction;

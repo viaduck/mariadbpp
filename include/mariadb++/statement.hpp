@@ -39,9 +39,9 @@ namespace mariadb
 		// Set a value
 		//
 		void set_blob(u32 index, stream_ref value);
-		void set_date_time(u32 index, const date_time& date_time);
-		void set_date(u32 index, const date_time& date_time);
-		void set_time(u32 index, const time& time);
+		void set_date_time(u32 index, const date_time& dt);
+		void set_date(u32 index, const date_time& dt);
+		void set_time(u32 index, const time& tm);
 		void set_data(u32 index, const data_ref& data);
 		void set_decimal(u32 index, const decimal& dec);
 		void set_string(u32 index, const char* value);
@@ -80,7 +80,7 @@ namespace mariadb
 		//
 		// Constructor
 		//
-		statement(connection* connection, const std::string &query);
+		statement(connection* conn, const std::string &query);
 
 	private:
 		unsigned long  m_bind_count;

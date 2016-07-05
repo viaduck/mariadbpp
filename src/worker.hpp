@@ -35,8 +35,8 @@ namespace mariadb
 		// Constructor
 		//
 		worker();
-		worker(account_ref& account, handle handle, bool keep_handle, command::type command, const char* query);
-		worker(account_ref& account, handle handle, bool keep_handle, command::type command, statement_ref& statement);
+		worker(account_ref& account, handle hnd, bool keep_handle, command::type command, const std::string &query);
+		worker(account_ref& account, handle hnd, bool keep_handle, command::type command, statement_ref& statement);
 
 		//
 		// Get informations

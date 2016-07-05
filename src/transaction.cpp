@@ -13,7 +13,7 @@ using namespace mariadb;
 
 namespace
 {
-	/*const char* g_isolation_level[] = {
+	const char* g_isolation_level[] = {
 		"SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;",
 		"SET TRANSACTION ISOLATION LEVEL READ COMMITTED;",
 		"SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;",
@@ -23,17 +23,17 @@ namespace
 	const char* g_consistent_snapshot[] = {
 		"START TRANSACTION;",
 		"START TRANSACTION WITH CONSISTENT SNAPSHOT;",
-	};*/
+	};
 }
 
 //
 // Constructor
 //
-transaction::transaction(connection* connection, isolation::level level, bool consistent_snapshot) :
-	m_connection(connection)
+transaction::transaction(connection* conn, isolation::level level, bool consistent_snapshot) :
+	m_connection(conn)
 {
-	//connection->execute(g_isolation_level[level]);
-	//connection->execute(g_consistent_snapshot[consistent_snapshot]);
+	conn->execute(g_isolation_level[level]);
+	conn->execute(g_consistent_snapshot[consistent_snapshot]);
 }
 
 //

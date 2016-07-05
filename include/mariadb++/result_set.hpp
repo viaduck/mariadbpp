@@ -126,8 +126,8 @@ namespace mariadb
 		//
 		// Constructor
 		//
-		result_set(connection* connection);
-		result_set(statement* statement);
+		result_set(connection* conn);
+		result_set(statement* stmt);
 
 	private:
 		bool 			   m_has_result;

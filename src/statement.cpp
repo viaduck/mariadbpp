@@ -24,14 +24,14 @@ using namespace mariadb;
 //
 // Constructor
 //
-statement::statement(connection* connection, const std::string &query) :
-	m_statement(mysql_stmt_init(connection->m_mysql)),
+statement::statement(connection* conn, const std::string &query) :
+	m_statement(mysql_stmt_init(conn->m_mysql)),
 	m_my_binds(NULL),
 	m_binds(NULL),
 	m_bind_count(0)
 {
 	if (!m_statement)
-		MYSQL_ERROR(connection->m_mysql)
+		MYSQL_ERROR(conn->m_mysql)
 	else if (mysql_stmt_prepare(m_statement, query.c_str(), query.size()))
 		STMT_ERROR(m_statement)
 	else
@@ -151,7 +151,7 @@ void statement::set_data(u32 index, const data_ref& data)
 	mybind.buffer_length = data->size();
 }
 
-void statement::set_date_time(u32 index, const date_time& date_time)
+void statement::set_date_time(u32 index, const date_time& dt)
 {
 	if(index >= m_bind_count)
         throw std::out_of_range("Field index out of range");
@@ -160,12 +160,12 @@ void statement::set_date_time(u32 index, const date_time& date_time)
 	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_DATETIME, &mybind);
-	bind.m_time = date_time.mysql_time();
+	bind.m_time = dt.mysql_time();
 	mybind.buffer = (void*)&bind.m_time;
 	mybind.buffer_length = sizeof(MYSQL_TIME);
 }
 
-void statement::set_date(u32 index, const date_time& date_time)
+void statement::set_date(u32 index, const date_time& dt)
 {
 	if(index >= m_bind_count)
         throw std::out_of_range("Field index out of range");
@@ -174,12 +174,12 @@ void statement::set_date(u32 index, const date_time& date_time)
 	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_DATE, &mybind);
-	bind.m_time = date_time.date().mysql_time();
+	bind.m_time = dt.date().mysql_time();
 	mybind.buffer = (void*)&bind.m_time;
 	mybind.buffer_length = sizeof(MYSQL_TIME);
 }
 
-void statement::set_time(u32 index, const mariadb::time& time)
+void statement::set_time(u32 index, const mariadb::time& tm)
 {
 	if(index >= m_bind_count)
         throw std::out_of_range("Field index out of range");
@@ -188,7 +188,7 @@ void statement::set_time(u32 index, const mariadb::time& time)
 	MYSQL_BIND& mybind = m_my_binds[index];
 
 	bind.set_input(MYSQL_TYPE_TIME, &mybind);
-	bind.m_time = time.mysql_time();
+	bind.m_time = tm.mysql_time();
 	mybind.buffer = (void*)&bind.m_time;
 	mybind.buffer_length = sizeof(MYSQL_TIME);
 }

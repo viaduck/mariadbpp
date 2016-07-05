@@ -94,7 +94,7 @@ namespace
 	//
 	// Add / remove a new query / command to the thread
 	//
-	handle add(const char* query, command::type command, bool keep_handle)
+	handle add(const std::string &query, command::type command, bool keep_handle)
 	{
 		LOCK_MUTEX();
 		worker* w = new worker(g_account, ++g_next_handle, keep_handle, command, query);
@@ -164,17 +164,17 @@ result_set_ref concurrency::get_query_result(handle h)
 //
 // Execute a query
 //
-handle concurrency::execute(const char* query, bool keep_handle)
+handle concurrency::execute(const std::string &query, bool keep_handle)
 {
 	return add(query, command::execute, keep_handle);
 }
 
-handle concurrency::insert(const char* query, bool keep_handle)
+handle concurrency::insert(const std::string &query, bool keep_handle)
 {
 	return add(query, command::insert, keep_handle);
 }
 
-handle concurrency::query(const char* query, bool keep_handle)
+handle concurrency::query(const std::string &query, bool keep_handle)
 {
 	return add(query, command::query, keep_handle);
 }
@@ -182,7 +182,7 @@ handle concurrency::query(const char* query, bool keep_handle)
 //
 // Execute a query using a statement
 //
-statement_ref concurrency::create_statement(const char* query)
+statement_ref concurrency::create_statement(const std::string &query)
 {
 	connection_ref connection = connection::create(g_account);
 	statement_ref statement = connection->create_statement(query);

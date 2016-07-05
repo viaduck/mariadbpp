@@ -3,6 +3,7 @@
 //
 
 #include "GeneralTest.h"
+#include "mariadb++/concurrency.hpp"
 
 TEST_F(GeneralTest, testCreateFail) {
     // intended syntax error
@@ -32,4 +33,38 @@ TEST_F(GeneralTest, testMissingConnection) {
 
 TEST_F(GeneralTest, testDuplicateTable) {
     EXPECT_ANY_THROW(m_con->execute("CREATE TABLE " + m_table_name + " (id INT AUTO_INCREMENT, PRIMARY KEY(id));"));
+}
+
+TEST_F(GeneralTest, testConcurrentInsert) {
+    constexpr int num_results = 100;
+
+    std::vector<handle> handles;
+    std::set<u64> results;
+
+    concurrency::set_account(m_account_setup);
+
+    // launch all queries
+    for(int i = 0; i < num_results; i++) {
+        auto hndl = concurrency::insert("INSERT INTO " + m_table_name + "(str) VALUES('teest');", true);
+        handles.push_back(hndl);
+    }
+
+    // wait for all queries
+    for(auto h : handles)
+        EXPECT_TRUE(concurrency::wait_handle(h));
+
+    // get all results
+    for(auto h : handles) {
+        u64 res = concurrency::get_execute_result(h);
+        auto set_result = results.insert(res);
+
+        // fail if this result already existed (insert returns false as second)
+        EXPECT_TRUE(set_result.second);
+    }
+
+    // release all handles
+    for(auto h : handles)
+        concurrency::release_handle(h);
+
+    EXPECT_EQ(num_results, results.size());
 }

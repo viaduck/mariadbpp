@@ -26,8 +26,8 @@ namespace
 //
 // Constructor
 //
-save_point::save_point(transaction* transaction) :
-	m_transaction(transaction)
+save_point::save_point(transaction* trans) :
+	m_transaction(trans)
 {
 	char command[32];
 
