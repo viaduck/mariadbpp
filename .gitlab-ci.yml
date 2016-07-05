@@ -1,0 +1,24 @@
+image: debian:openssl-build
+services:
+    - mariadb:latest
+    
+variables:
+    MYSQL_DATABASE: mariadbpptest
+    MYSQL_USER: test
+    MYSQL_PASSWORD: test
+    MYSQL_RANDOM_ROOT_PASSWORD: true            # it's not used anyway
+
+stages:
+    - build         # contains build and test and deploy
+
+test:
+    script:
+        - apt-get update && apt-get install -y libmysqlclient-dev
+        - git submodule update --init
+        - mkdir build
+        - cd build
+        - cmake ../ -DTEST_HOSTNAME=mariadb -DTEST_USERNAME=MYSQL_USER -DTEST_PASSWORD=MYSQL_PASSWORD -DTEST_PORT=3306 -DTEST_DATABASE=MYSQL_DATABASE
+        - make
+        - testsrc/mariadbpp_tests             # runs gtest target
+    stage: build
+ 
