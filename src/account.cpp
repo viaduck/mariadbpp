@@ -22,31 +22,14 @@ account::account(const char* host_name, const char* user_name, const char* passw
 	m_password(password),
 	m_schema(schema ? schema : "")
 {
-	//
-	// Extract port from host name if any
-	//
-	size_t pos = m_host_name.find(':');
-
-	if (pos != std::string::npos)
-	{
-		m_port = string_cast<uint32_t>(m_host_name.substr(pos + 1));
-		m_host_name = m_host_name.substr(0, pos);
-	}
-
 	if (unix_socket)
 		m_unix_socket = unix_socket;
 }
 
-//
-// Destructor
-//
 account::~account()
 {	
 }
 
-//
-// Get account informations
-//
 const std::string& account::host_name() const
 {
 	return m_host_name;
@@ -97,9 +80,6 @@ const std::string& account::ssl_cipher() const
 	return m_ssl_cipher;
 }
 
-//
-// Get / Set default schema
-//
 const std::string& account::schema() const
 {
 	return m_schema;
@@ -113,9 +93,6 @@ void account::set_schema(const char* schema)
 		m_schema.clear();
 }
 
-//
-// Establishing secure connections using SSL
-//
 void account::set_ssl(const char* key, const char* certificate, const char* ca, const char* ca_path, const char* cipher)
 {
 	if (key)

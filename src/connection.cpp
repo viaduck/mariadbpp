@@ -18,9 +18,6 @@ using namespace mariadb;
 	return false;\
 }
 
-//
-// Constructor
-//
 connection::connection(const account_ref& account) :
 	m_auto_commit(true),
 	m_mysql(NULL),
@@ -29,36 +26,27 @@ connection::connection(const account_ref& account) :
 	
 }
 
-//
-// Create a new connection
-//
 connection_ref connection::create(const account_ref& account)
 {
 	return connection_ref(new connection(account));
 }
 
-//
-// Destructor
-//
 connection::~connection()
 {
 	disconnect();
 }
 
-//
-// Get / Set schema (database)
-//
-const char* connection::schema() const
+const std::string &connection::schema() const
 {
-	return m_schema.c_str();
+	return m_schema;
 }
 
-bool connection::set_schema(const char* schema)
+bool connection::set_schema(const std::string &schema)
 {
 	if (!connect())
 		return false;
 
-	if (mysql_select_db(m_mysql, schema))
+	if (mysql_select_db(m_mysql, schema.c_str()))
 		MYSQL_ERROR_RETURN_FALSE(m_mysql);
 
 	m_schema = schema;
@@ -82,28 +70,19 @@ bool connection::set_charset(const std::string& value)
 	return true;
 }
 
-//
-// Tell if a connection is currently active to the database
-//
 bool connection::connected() const
 {
-	if (m_mysql == NULL)
+	if (m_mysql == nullptr)
 		return false;
 	else
-		return mysql_stat(m_mysql) != NULL;
+		return mysql_stat(m_mysql) != nullptr;
 }
 
-//
-// Get account
-//
 account_ref connection::account() const
 {
 	return m_account;
 }
 
-//
-// Set auto commit mode
-//
 bool connection::auto_commit() const
 {
 	return m_auto_commit;
@@ -124,15 +103,12 @@ bool connection::set_auto_commit(bool auto_commit)
 	return true;
 }
 
-//
-// Connect to the database
-//
 bool connection::connect()
 {
 	if (connected())
 		return true;
 
-	m_mysql = mysql_init(NULL);
+	m_mysql = mysql_init(nullptr);
 
 	if (!m_mysql)
 	{
@@ -155,9 +131,9 @@ bool connection::connect()
 							m_account->host_name().c_str(),
 							m_account->user_name().c_str(),
 							m_account->password().c_str(),
-							NULL,
+							nullptr,
 							m_account->port(),
-							m_account->unix_socket().empty() ? NULL : m_account->unix_socket().c_str(),
+							m_account->unix_socket().empty() ? nullptr : m_account->unix_socket().c_str(),
 							CLIENT_MULTI_STATEMENTS))
 		MYSQL_ERROR_RETURN_FALSE(m_mysql);
 
@@ -175,16 +151,13 @@ bool connection::connect()
 	//
 	for(auto& pair : m_account->options())
 	{
-		if (1 != execute(("SET OPTION " + pair.first + "=" + pair.second).c_str()))
+		if (1 != execute("SET OPTION " + pair.first + "=" + pair.second))
 			MYSQL_ERROR_DISCONNECT(m_mysql);
 	}
 
 	return true;
 }
 
-//
-// Disconnect from the database
-//
 void connection::disconnect()
 {
 	if (!m_mysql)
@@ -192,12 +165,8 @@ void connection::disconnect()
 
 	mysql_close(m_mysql);
 	mysql_thread_end(); // mysql_init() call mysql_thread_init therefor it needed to clear memory when closed msql handle
-	m_mysql = NULL;
+	m_mysql = nullptr;
 }
-
-//
-// Execute a query
-//
 
 result_set_ref connection::query(const std::string& query)
 {
@@ -269,9 +238,6 @@ u64 connection::insert(const std::string& query)
 	return mysql_insert_id(m_mysql);
 }
 
-//
-// Create statement
-//
 statement_ref connection::create_statement(const std::string &query)
 {
 	if (!connect())
@@ -280,9 +246,6 @@ statement_ref connection::create_statement(const std::string &query)
 	return statement_ref(new statement(this, query));
 }
 
-//
-// Commit / rollback
-//
 transaction_ref connection::create_transaction(isolation::level level, bool consistent_snapshot)
 {
 	if (!connect())

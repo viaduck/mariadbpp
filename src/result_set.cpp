@@ -15,9 +15,6 @@
 
 using namespace mariadb;
 
-//
-// Constructor
-//
 result_set::result_set(connection* connection) :
 	m_field_count(0),
 	m_lengths(NULL),
@@ -79,9 +76,6 @@ result_set::result_set(statement* statement) :
 	}
 }
 
-//
-// Destructor
-//
 result_set::~result_set()
 {
 	if (m_result_set)
@@ -103,9 +97,6 @@ result_set::~result_set()
 		delete [] m_binds;
 }
 
-//
-// Get from name
-//
 stream_ref result_set::get_blob(const std::string &name) const
 {
 	return get_blob(column_index(name));
@@ -201,12 +192,12 @@ bool result_set::is_null(const std::string &name) const
 	return is_null(column_index(name));
 }
 
-//
-// Get from index
-//
 stream_ref result_set::get_blob(u32 index) const
 {
     check_result_exists();
+
+	if (index >= m_field_count)
+		throw std::out_of_range("Column index out of range");
 
     size_t len = column_size(index);
 
@@ -448,9 +439,6 @@ bool result_set::is_null(u32 index) const
 	return !m_row[index];
 }
 
-//
-// Get column count / type / name
-//
 u64 result_set::column_count() const
 {
 	return m_field_count;
@@ -460,6 +448,8 @@ value::type result_set::column_type(u32 index)
 {
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
+
+    bool is_unsigned = (m_fields[index].flags & UNSIGNED_FLAG) == UNSIGNED_FLAG;
 
 	switch (m_fields[index].type)
 	{
@@ -491,18 +481,18 @@ value::type result_set::column_type(u32 index)
 			return value::date_time;
 
 		case MYSQL_TYPE_TINY:
-			return value::signed8;
+			return (is_unsigned ? value::unsigned8 : value::signed8);
 
 		case MYSQL_TYPE_YEAR:
 		case MYSQL_TYPE_SHORT:
-			return value::signed16;
+			return (is_unsigned ? value::unsigned16 : value::signed16);
 
 		case MYSQL_TYPE_INT24:
 		case MYSQL_TYPE_LONG:
-			return value::signed32;
+			return (is_unsigned ? value::unsigned32 : value::signed32);
 
 		case MYSQL_TYPE_LONGLONG:
-			return value::signed64;
+			return (is_unsigned ? value::unsigned64 : value::signed64);
 
 		case MYSQL_TYPE_TINY_BLOB:
 		case MYSQL_TYPE_MEDIUM_BLOB:
@@ -521,7 +511,7 @@ value::type result_set::column_type(u32 index)
 	}
 }
 
-const char* result_set::column_name(u32 index)
+const std::string result_set::column_name(u32 index)
 {
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
@@ -547,9 +537,6 @@ unsigned long result_set::column_size(u32 index) const {
     return m_statement ? m_binds[index].length() : m_lengths[index];
 }
 
-//
-// Set row index
-//
 bool result_set::set_row_index(u64 index)
 {
 	if (m_statement)
@@ -559,9 +546,6 @@ bool result_set::set_row_index(u64 index)
 	return next();
 }
 
-//
-// Go to next row
-//
 bool result_set::next()
 {
 	if (!m_result_set)
@@ -574,12 +558,9 @@ bool result_set::next()
 	m_lengths = mysql_fetch_lengths(m_result_set);
 
 	// make sure no access to results is possible until a result is successfully fetched
-	return (m_has_result = m_row != NULL);
+	return (m_has_result = m_row != nullptr);
 }
 
-//
-// Get row count & index
-//
 u64 result_set::row_index() const
 {
 	if (m_statement)

@@ -18,12 +18,11 @@
 struct st_mysql;
 typedef struct st_mysql MYSQL;
 
-//
-// C++ wrapper over mariadb-native-client API
-//
-
 namespace mariadb
 {
+	/**
+	 * Wraps a Database connection.
+	 */
 	class connection : public last_error
 	{
 		friend class result_set;
@@ -32,84 +31,164 @@ namespace mariadb
 		friend class save_point;
 
 	public:
-		//
-		// Destructor
-		//
+		/**
+		 * Destroys connection and automatically disconnects
+		 */
 		virtual ~connection();
 
-		//
-		// Connect to the database
-		//
+		/**
+		 * Actually connects to the database using given account, sets SSL and additional options as well as auto commit
+		 *
+		 * @return True on success
+		 */
 		bool connect();
 
-		//
-		// Disconnect from the database
-		//
+		/**
+		 * Disconnects from the database
+		 */
 		void disconnect();
 
-		//
-		// Tell if a connection is currently active to the database
-		//
+		/**
+		 * Indicates whether the connection is active. Also detects stale connections
+		 *
+		 * @return True on active connection
+		 */
 		bool connected() const;
 
-		//
-		// Get account
-		//
+		/**
+		 * Gets the account associated with this connection
+		 *
+		 * @return Reference to the account
+		 */
 		account_ref account() const;
 
-		//
-		// Get / Set schema (database)
-		//
-		const char* schema() const;
-		bool set_schema(const char* schema);
+		/**
+		 * Gets the schema (database name)
+		 *
+		 * @return String containing the schema
+		 */
+		const std::string &schema() const;
 
-		//
-		// Get / Set character set
-		//
+        /**
+         * Sets the schema (database name).
+         * The connection needs to be already established
+         *
+         * @param schema The new schema name
+         * @return True on success
+         */
+		bool set_schema(const std::string &schema);
+
+		/**
+		 * Gets the charset associated with this connection
+		 *
+		 * @return String containg the charset (see documentation of MariaDB for possible values)
+		 */
 		const std::string& charset() const;
+
+        /**
+         * Sets the charset.
+         * The connection needs to be already established
+         *
+         * @param value The new charset
+         * @return True on success
+         */
 		bool set_charset(const std::string& value);
 
-		//
-		// Execute a query with or without statement
-		//
+		/**
+		 * Execute a query without interest in a result.
+		 * The connection needs to be established.
+		 *
+		 * @param query SQL query to execute
+		 * @return The number of actually affected rows. 0 on error
+		 */
 		u64 execute(const std::string& query);
+
+        /**
+         * Execute a query (usually, but not limited to INSERT) with interest for the last row id.
+         * The connection needs to be established.
+         *
+         * @param query SQL query to execute
+         * @return Last row id of the inserted row. 0 on error
+         */
 		u64 insert(const std::string& query);
+
+        /**
+         * Execute a query with an result (if no result is returned, the result_set will be empty).
+         * The connection needs to be established.
+         * Note: The result is only valid as long as the connection is valid.
+         *
+         * @param query SQL query to execute
+         * @return Result of the query as result_set.
+         */
 		result_set_ref query(const std::string& query);
 
-		//
-		// Set auto commit mode
-		//
+		/**
+		 * Gets the status of the auto_commit setting.
+		 *
+		 * @return True if auto_commit is enabled
+		 */
 		bool auto_commit() const;
+
+        /**
+         * Sets the auto_commit setting. Default MariaDB setting is TRUE.
+         * The connection needs to be established.
+         * This setting controls the default behavior of holding all changes back until a COMMIT is issued.
+         * See MariaDB documentation for further information on this setting.
+         *
+         * @return True on success
+         */
 		bool set_auto_commit(bool auto_commit);
 
-	public:
-		//
-		// Create statement
-		//
+		/**
+		 * Create a prepared statement. Use "?" to issue bindings in the query which can then be filled in.
+		 * For information on how to properly use prepared statements please refer to the MariaDB manual.
+		 * The connection needs to be established.
+		 * Note that "?" bindings can only be established at certain locations in a SQL statement.
+		 * A misplaced "?" will result in an error when executing the statement.
+		 * The statement is only valid as long as the connection is valid.
+		 *
+		 * @return Reference to the created statement.
+		 */
 		statement_ref create_statement(const std::string &query);
 
-		//
-		// Commit / rollback support
-		//
+		/**
+		 * Create a transaction. Any change to the database will be held back until you COMMIT the transaction.
+		 * A not committed transaction automatically rolls all changes back on destruction.
+		 * Note: the transaction is only valid as long as this connection is valid.
+		 *
+		 * @param level The level of isolation to set while using this transaction. Defaults to repeatable read
+		 * @param consistent_snapshot Indicates whether to require a consistent snapshot before entering the transaction.
+		 * Note: refer to MariaDB manual for further information
+		 *
+		 * @return Reference to the created transaction.
+		 */
 		transaction_ref create_transaction(isolation::level level = isolation::repeatable_read, bool consistent_snapshot = true);
 
-	public:
-		//
-		// Create a new connection
-		//
+        /**
+         * Creates a new connection using the given account
+         *
+         * @param account The account used to provide the connection information
+         * @return Reference to the newly created connection
+         */
 		static connection_ref create(const account_ref& account);
 
 	private:
-		//
-		// Constructor
-		//
+		/**
+		 * Private constructor used to create a connection with the given account
+		 */
 		connection(const account_ref& account);
 
 	private:
-		bool        m_auto_commit;
-		MYSQL*      m_mysql;
+        // internal database connection pointer
+        MYSQL*      m_mysql;
+
+        // state of auto_commit setting
+        bool        m_auto_commit;
+        // name of current schema
 		std::string m_schema;
+        // current charset
 		std::string m_charset;
+        // currently used account
 		account_ref m_account;
 	};
 }
