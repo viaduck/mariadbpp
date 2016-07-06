@@ -53,7 +53,7 @@ namespace mariadb
 		//
 		// Remove save_point
 		//
-		void remove_save_point(save_point* save_point);
+		void remove_save_point(save_point* sv_point);
 
 		//
 		// Cleanup transaction

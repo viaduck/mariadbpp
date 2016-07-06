@@ -89,7 +89,7 @@ save_point_ref transaction::create_save_point()
 //
 // Remove save_point
 //
-void transaction::remove_save_point(save_point* save_point)
+void transaction::remove_save_point(save_point* sv_point)
 {
-	m_save_points.erase(std::remove(m_save_points.begin(), m_save_points.end(), save_point));
+	m_save_points.erase(std::remove(m_save_points.begin(), m_save_points.end(), sv_point));
 }

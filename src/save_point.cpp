@@ -7,8 +7,6 @@
 
 #include <algorithm>
 #include <mariadb++/connection.hpp>
-#include <mariadb++/save_point.hpp>
-#include "private.hpp"
 
 using namespace mariadb;
 
@@ -16,11 +14,9 @@ namespace
 {
 	handle g_save_point_id = 0;
 
-	const char* g_save_point_commands[] = {
-		"SAVEPOINT %s",
-		"ROLLBACK TO SAVEPOINT %s",
-		"RELEASE SAVEPOINT %s"
-	};
+    const char* g_save_point_create = "SAVEPOINT ";
+    const char* g_save_point_rollback = "ROLLBACK TO SAVEPOINT ";
+    const char* g_save_point_release = "RELEASE SAVEPOINT ";
 }
 
 //
@@ -29,13 +25,8 @@ namespace
 save_point::save_point(transaction* trans) :
 	m_transaction(trans)
 {
-	char command[32];
-
-	snprintf(command, sizeof(command), "SP%llu", ++g_save_point_id);
-	m_name = command;
-	snprintf(command, sizeof(command), g_save_point_commands[0], m_name.c_str());
-
-	m_transaction->m_connection->execute(command);
+	m_name = "SP" + std::to_string(++g_save_point_id);
+	m_transaction->m_connection->execute(g_save_point_create + m_name);
 }
 
 //
@@ -46,11 +37,8 @@ save_point::~save_point()
 	if (!m_transaction)
 		return;
 
-	char command[32];
-	snprintf(command, sizeof(command), g_save_point_commands[1], m_name.c_str());
-
 	m_transaction->remove_save_point(this);
-	m_transaction->m_connection->execute(command);
+	m_transaction->m_connection->execute(g_save_point_rollback + m_name);
 }
 
 //
@@ -61,10 +49,7 @@ void save_point::commit()
 	if (!m_transaction)
 		return;
 
-	char command[32];
-	snprintf(command, sizeof(command), g_save_point_commands[2], m_name.c_str());
-
 	m_transaction->remove_save_point(this);
-	m_transaction->m_connection->execute(command);
+	m_transaction->m_connection->execute(g_save_point_release + m_name);
 	m_transaction = NULL;
 }
