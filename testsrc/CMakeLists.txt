@@ -8,6 +8,10 @@ set(TEST_DATABASE "mariadbpptest" CACHE STRING "Database name for mariadbpp test
 configure_file(test_config.h.in test_config.h)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+### coverage
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
+
+
 add_executable(mariadbpp_tests SkeletonTest.h SelectTest.cpp SelectTest.h GeneralTest.cpp GeneralTest.h
                 AlterTableTest.cpp AlterTableTest.h ParameterizedQueryTest.cpp ParameterizedQueryTest.h
                 StructureTest.cpp StructureTest.h RollbackTest.cpp RollbackTest.h)
