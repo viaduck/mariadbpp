@@ -5,30 +5,20 @@
 //	License  : Boost Software License (http://www.boost.org/users/license.html)
 //
 
-#include <mysql/mysql.h>
 #include <mariadb++/account.hpp>
 #include <mariadb++/conversion_helper.hpp>
 
 using namespace mariadb;
 
-//
-// Constructor
-//
-account::account(const char* host_name, const char* user_name, const char* password, const char* schema, u32 port, const char* unix_socket) :
+account::account(const std::string &host_name, const std::string &user_name, const std::string &password,
+                 const std::string &schema, u32 port, const std::string &unix_socket) :
 	m_auto_commit(true),
 	m_port(port),
 	m_host_name(host_name),
 	m_user_name(user_name),
 	m_password(password),
-	m_schema(schema ? schema : "")
-{
-	if (unix_socket)
-		m_unix_socket = unix_socket;
-}
-
-account::~account()
-{	
-}
+	m_schema(schema),
+	m_unix_socket(unix_socket) { }
 
 const std::string& account::host_name() const
 {
@@ -85,37 +75,21 @@ const std::string& account::schema() const
 	return m_schema;
 }
 
-void account::set_schema(const char* schema)
+void account::set_schema(const std::string &schema)
 {
-	if (schema)
-		m_schema = schema;
-	else
-		m_schema.clear();
+    m_schema = schema;
 }
 
-void account::set_ssl(const char* key, const char* certificate, const char* ca, const char* ca_path, const char* cipher)
+void account::set_ssl(const std::string &key, const std::string &certificate, const std::string &ca,
+                      const std::string &ca_path, const std::string &cipher)
 {
-	if (key)
-	{
-		m_ssl_key = key;
-		m_ssl_certificate = certificate;
-		m_ssl_ca = ca;
-		m_ssl_ca_path = ca_path;
-		m_ssl_cipher = cipher;
-	}
-	else
-	{
-		m_ssl_key.clear();
-		m_ssl_certificate.clear();
-		m_ssl_ca.clear();
-		m_ssl_ca_path.clear();
-		m_ssl_cipher.clear();
-	}
+    m_ssl_key = key;
+    m_ssl_certificate = certificate;
+    m_ssl_ca = ca;
+    m_ssl_ca_path = ca_path;
+    m_ssl_cipher = cipher;
 }
 
-//
-// Set auto commit mode
-//
 bool account::auto_commit() const
 {
 	return m_auto_commit;
@@ -126,26 +100,20 @@ void account::set_auto_commit(bool auto_commit)
 	m_auto_commit = auto_commit;
 }
 
-//
-// Get / Set options
-//
 const std::map<std::string, std::string>& account::options() const
 {
 	return m_options;
 }
 
-const std::string& account::option(const char* name) const
+const std::string& account::option(const std::string &name) const
 {
 	const map_options_t::const_iterator value = m_options.find(name);
 
-	if (value != m_options.end())
-		return value->second;
-
-	static std::string null;
-	return null;
+    // return option value if found
+	return value == m_options.end() ? "" : value->second;
 }
 
-void account::set_option(const char* name, const char* value)
+void account::set_option(const std::string &name, const std::string &value)
 {
 	m_options[name] = value;
 }
@@ -155,10 +123,8 @@ void account::clear_options()
 	m_options.clear();
 }
 
-//
-// Account creation helper
-//
-account_ref account::create(const char* host_name, const char* user_name, const char* password, const char* schema, u32 port, const char* unix_socket)
+account_ref account::create(const std::string &host_name, const std::string &user_name, const std::string &password,
+                            const std::string &schema, u32 port, const std::string &unix_socket)
 {
 	return account_ref(new account(host_name, user_name, password, schema, port, unix_socket));
 }
