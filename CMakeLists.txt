@@ -2,6 +2,10 @@ project(mariadbclientpp)
 
 cmake_minimum_required(VERSION 2.8)
 
+# add additional cmake modules
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake-modules")
+
+
 #####################################################################################
 set(mariadb_LIBRARIES mysqlclient)
 

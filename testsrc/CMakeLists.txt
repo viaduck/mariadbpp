@@ -13,3 +13,9 @@ add_executable(mariadbpp_tests SkeletonTest.h SelectTest.cpp SelectTest.h Genera
                 StructureTest.cpp StructureTest.h RollbackTest.cpp RollbackTest.h)
 
 target_link_libraries(mariadbpp_tests mariadbclientpp gtest_main)
+
+## code coverage
+include(CodeCoverage)
+if (LCOV_PATH)
+    setup_target_for_coverage(mariadbpp_coverage mariadbpp_tests ${CMAKE_CURRENT_BINARY_DIR}/coverage)
+endif()
