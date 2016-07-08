@@ -196,143 +196,113 @@ mariadb::u16 mariadb::time::millisecond(u16 millisecond)
 
 mariadb::time mariadb::time::add_hours(s32 hours) const
 {
-	time tmp = *this;
+    mariadb::time tmp = *this;
 
-	if (!hours)
+    if (hours == 0)
 		return tmp;
 
-	s32 days = hours / 24;
-
-	hours = (hours % 24) + hour();
-
-	if (hours >= 24)
-	{
-		++days;
-		hours %= 24;
-	}
-	else if (hours < 0)
-	{
-		--days;
-		hours = 24 - hours;
-	}
-
+	// hour overflow does not matter, as we dont care about days
+	hours = (hours + hour() + 24) % 24;
 	tmp.hour(hours);
 	return tmp;
 }
 
 mariadb::time mariadb::time::add_minutes(s32 minutes) const
 {
-	time tmp = *this;
+	mariadb::time tmp = *this;
 
-	if (!minutes)
+	if (minutes == 0)
 		return tmp;
 
 	s32 hours = minutes / 60;
-
 	minutes = (minutes % 60) + minute();
 
 	if (minutes >= 60)
-	{
 		++hours;
-		minutes %= 60;
-	}
 	else if (minutes < 0)
-	{
 		--hours;
-		minutes = 60 - minutes;
-	}
 
-	if (hours > 0)
+	if (hours != 0)
 		tmp = tmp.add_hours(hours);
 
-	tmp.minute(minutes);
+	tmp.minute((minutes + 60) % 60);
 	return tmp;
 }
 
 mariadb::time mariadb::time::add_seconds(s32 seconds) const
 {
-	time tmp = *this;
+	mariadb::time tmp = *this;
 
-	if (!seconds)
+	if (seconds == 0)
 		return tmp;
 
 	s32 minutes = seconds / 60;
-
 	seconds = (seconds % 60) + second();
 
 	if (seconds >= 60)
-	{
 		++minutes;
-		seconds %= 60;
-	}
 	else if (seconds < 0)
-	{
 		--minutes;
-		seconds = 60 - seconds;
-	}
 
-	if (minutes > 0)
+	if (minutes != 0)
 		tmp = tmp.add_minutes(minutes);
 
-	tmp.second(seconds);
+	tmp.second((seconds + 60) % 60);
 	return tmp;
 }
 
 mariadb::time mariadb::time::add_milliseconds(s32 milliseconds) const
 {
-	time tmp = *this;
+	mariadb::time tmp = *this;
 
-	if (!milliseconds)
+	if (milliseconds == 0)
 		return tmp;
 
 	s32 seconds = milliseconds / 1000;
-
 	milliseconds = (milliseconds % 1000) + millisecond();
 
-	if (milliseconds >= 1000)
-	{
+	if (milliseconds > 999)
 		++seconds;
-		milliseconds %= 1000;
-	}
 	else if (milliseconds < 0)
-	{
 		--seconds;
-		milliseconds = 1000 - milliseconds;
-	}
 
-	if (seconds > 0)
+	if (seconds != 0)
 		tmp = tmp.add_seconds(seconds);
 
-	tmp.millisecond(milliseconds);
+	tmp.millisecond((milliseconds + 1000) % 1000);
 	return tmp;
 }
 
 mariadb::time mariadb::time::subtract(const time_span& dur) const
 {
-	bool negative = !dur.negative();
-
+    // copy and negate timespan
 	time_span tmp = dur;
-	tmp.negative(negative);
+	tmp.negative(!dur.negative());
+
+    // add negated
 	return add(tmp);
 }
 
 mariadb::time mariadb::time::add(const time_span& dur) const
 {
-	s32 negate = dur.negative() ? -1 : 1;
+    // negate if needed
+	s32 negative = dur.negative() ? -1 : 1;
 	time tmp = *this;
 
-	tmp.add_hours(negate * dur.hours());
-	tmp.add_minutes(negate * dur.minutes());
-	tmp.add_seconds(negate * dur.seconds());
-	tmp.add_milliseconds(negate * dur.milliseconds());
+	tmp.add_hours(negative * dur.hours());
+	tmp.add_minutes(negative * dur.minutes());
+	tmp.add_seconds(negative * dur.seconds());
+	tmp.add_milliseconds(negative * dur.milliseconds());
 	return tmp;
 }
 
 mariadb::time_span mariadb::time::time_between(const time& t) const
 {
+    // equal
 	if (t == *this)
 		return time_span(0, 0, 0, 0, 0);
 
+    // recursive call with negation
 	if (t > *this)
 	{
 		time_span dur = t.time_between(*this);
@@ -340,14 +310,12 @@ mariadb::time_span mariadb::time::time_between(const time& t) const
 		return dur;
 	}
 
-	bool negative = false;
+    // calculate the ms representation of both
 	s64 ms = (hour() * MS_PER_HOUR) + (minute() * MS_PER_MIN) + (second() * MS_PER_SEC) + millisecond();
 	s64 t_ms = (t.hour() * MS_PER_HOUR) + (t.minute() * MS_PER_MIN) + (t.second() * MS_PER_SEC) + t.millisecond();
 	s64 total_ms = 0;
 
-	//
-	// Need to stop one day after in this case
-	//
+    // subtract the lesser from greater // TODO: is this case ever reached since we have recusive call on t > this?
 	if (t_ms > ms)
 		total_ms = MS_PER_DAY - (t_ms - ms);
 	else
@@ -362,7 +330,7 @@ mariadb::time_span mariadb::time::time_between(const time& t) const
 	u32 seconds = static_cast<u32>(total_ms / MS_PER_SEC);
 	total_ms = total_ms % MS_PER_SEC;
 
-	return time_span(hours, minutes, seconds, static_cast<u32>(total_ms), negative);
+	return time_span(0, hours, minutes, seconds, static_cast<u32>(total_ms), false);
 }
 
 time_t mariadb::time::mktime() const
@@ -405,7 +373,7 @@ double mariadb::time::diff_time(const time& t) const
 
 mariadb::time mariadb::time::now()
 {
-	time_t local_time = ::time(NULL);
+	time_t local_time = ::time(nullptr);
 	tm ts;
 	localtime_safe(&ts, &local_time);
 
@@ -414,7 +382,7 @@ mariadb::time mariadb::time::now()
 
 mariadb::time mariadb::time::now_utc()
 {
-	time_t utc_time = ::time(NULL);
+	time_t utc_time = ::time(nullptr);
 	tm ts;
 	gmtime_safe(&ts, &utc_time);
 
@@ -423,6 +391,7 @@ mariadb::time mariadb::time::now_utc()
 
 bool mariadb::time::set(const std::string& t)
 {
+    // TODO: rewrite this completely
 	if (t.empty() ||
 		t.length() < 2)
 		return false;
@@ -446,6 +415,7 @@ bool mariadb::time::set(const std::string& t)
 
 const std::string mariadb::time::str_time(bool with_millisecond) const
 {
+    // TODO: rewrite this completely with streams
     char buffer[14];
 
     if (with_millisecond && millisecond())

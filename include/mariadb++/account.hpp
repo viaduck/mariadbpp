@@ -120,7 +120,7 @@ namespace mariadb
 		 *
 		 * @return Value of the found option or empty string if not found
 		 */
-		const std::string& option(const std::string &name) const;
+		const std::string option(const std::string &name) const;
 
         /**
          * Gets a map of all option key/value pairs previously set

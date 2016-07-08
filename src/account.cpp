@@ -105,7 +105,7 @@ const std::map<std::string, std::string>& account::options() const
 	return m_options;
 }
 
-const std::string& account::option(const std::string &name) const
+const std::string account::option(const std::string &name) const
 {
 	const map_options_t::const_iterator value = m_options.find(name);
 
