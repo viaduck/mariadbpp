@@ -21,13 +21,10 @@ using namespace mariadb;
 	return rs;\
 }
 
-//
-// Constructor
-//
 statement::statement(connection* conn, const std::string &query) :
 	m_statement(mysql_stmt_init(conn->m_mysql)),
-	m_my_binds(NULL),
-	m_binds(NULL),
+	m_my_binds(nullptr),
+	m_binds(nullptr),
 	m_bind_count(0)
 {
 	if (!m_statement)
@@ -49,9 +46,6 @@ statement::statement(connection* conn, const std::string &query) :
 	}
 }
 
-//
-// Destructor
-//
 statement::~statement()
 {
 	if (m_my_binds)
@@ -64,17 +58,11 @@ statement::~statement()
 		mysql_stmt_close(m_statement);
 }
 
-//
-// Set connection reference, used by concurrency namespace functions
-//
 void statement::set_connection(connection_ref& connection)
 {
 	m_connection = connection;
 }
 
-//
-// Execute the query
-//
 u64 statement::execute()
 {
 	if (m_my_binds && mysql_stmt_bind_param(m_statement, m_my_binds))
@@ -111,9 +99,6 @@ result_set_ref statement::query()
 	return rs;
 }
 
-//
-// Set a value to the sql command
-//
 void statement::set_blob(u32 index, stream_ref stream)
 {
 	if(!stream)
@@ -129,7 +114,7 @@ void statement::set_blob(u32 index, stream_ref stream)
 	u64 size = stream->tellg();
 	stream->seekg(0);
 
-	bind.set_input(MYSQL_TYPE_BLOB, &mybind, NULL, static_cast<long unsigned int>(size));
+	bind.set_input(MYSQL_TYPE_BLOB, &mybind, nullptr, static_cast<long unsigned int>(size));
 
 	stream->read(bind.buffer(), bind.length());
 }
@@ -202,10 +187,10 @@ void statement::set_decimal(u32 index, const decimal& dec)
 	MYSQL_BIND& mybind = m_my_binds[index];
 	std::string str = dec.str();
 
-	bind.set_input(MYSQL_TYPE_STRING, &mybind, str.c_str(), static_cast<unsigned long>((str.size())));
+	bind.set_input(MYSQL_TYPE_STRING, &mybind, str.c_str(), str.size());
 }
 
-void statement::set_string(u32 index, const char* value)
+void statement::set_string(u32 index, const std::string &value)
 {
 	if(index >= m_bind_count)
         throw std::out_of_range("Field index out of range");
@@ -213,7 +198,7 @@ void statement::set_string(u32 index, const char* value)
 	bind& bind = m_binds[index];
 	MYSQL_BIND& mybind = m_my_binds[index];
 
-	bind.set_input(MYSQL_TYPE_STRING, &mybind, value, static_cast<unsigned long>(strlen(value)));
+	bind.set_input(MYSQL_TYPE_STRING, &mybind, value.c_str(), value.size());
 }
 
 void statement::set_boolean(u32 index, bool value)

@@ -26,9 +26,6 @@ namespace
 	};
 }
 
-//
-// Constructor
-//
 transaction::transaction(connection* conn, isolation::level level, bool consistent_snapshot) :
 	m_connection(conn)
 {
@@ -36,9 +33,6 @@ transaction::transaction(connection* conn, isolation::level level, bool consiste
 	conn->execute(g_consistent_snapshot[consistent_snapshot]);
 }
 
-//
-// Destructor
-//
 transaction::~transaction()
 {
 	if (!m_connection)
@@ -49,20 +43,14 @@ transaction::~transaction()
 }
 
 
-//
-// Cleanup transaction
-//
 void transaction::cleanup()
 {
 	for(save_point* save_point : m_save_points)
-	{
-		save_point->m_transaction = NULL;
-	}
+		save_point->m_transaction = nullptr;
+
+    m_save_points.clear();
 }
 
-//
-// Commit the change
-//
 void transaction::commit()
 {
 	if (!m_connection)
@@ -70,12 +58,9 @@ void transaction::commit()
 
 	mysql_commit(m_connection->m_mysql);
 	cleanup();
-	m_connection = NULL;
+	m_connection = nullptr;
 }
 
-//
-// Create save point
-//
 save_point_ref transaction::create_save_point()
 {
 	if (!m_connection)
@@ -86,9 +71,6 @@ save_point_ref transaction::create_save_point()
 	return save_point_ref(sp);
 }
 
-//
-// Remove save_point
-//
 void transaction::remove_save_point(save_point* sv_point)
 {
 	m_save_points.erase(std::remove(m_save_points.begin(), m_save_points.end(), sv_point));
