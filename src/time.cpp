@@ -27,9 +27,6 @@
 	return false;\
 }
 
-//
-// Constructors
-//
 mariadb::time::time(u8 hour, u8 minute, u8 second, u16 millisecond)
 {
 	set(hour, minute, second, millisecond);
@@ -63,9 +60,6 @@ mariadb::time::time(const std::string& t)
 	set(t);
 }
 
-//
-// Operators
-//
 int mariadb::time::compare(const time& t) const
 {
 	if (hour() < t.hour())
@@ -130,7 +124,7 @@ bool mariadb::time::operator >= (const time& t) const
 
 bool mariadb::time::set(u8 hour, u8 minute, u8 second, u16 millisecond)
 {
-	if (hour >= 24 || minute >= 60 || second >= 60 || millisecond >= 1000)
+	if (hour > 23 || minute > 59 || second > 61 || millisecond > 999)
 		THROW_EXCEPTION(hour, minute, second, millisecond);
 
 	m_hour = hour;
@@ -147,7 +141,7 @@ mariadb::u8 mariadb::time::hour() const
 
 mariadb::u8 mariadb::time::hour(u8 hour)
 {
-	if (hour >= 24)
+	if (hour > 23)
 		THROW_EXCEPTION(hour, minute(), second(), millisecond());
 
 	m_hour = hour;
@@ -162,7 +156,7 @@ mariadb::u8 mariadb::time::minute() const
 
 mariadb::u8 mariadb::time::minute(u8 minute)
 {
-	if (minute >= 60)
+	if (minute > 59)
 		THROW_EXCEPTION(hour(), minute, second(), millisecond());
 
 	m_minute = minute;
@@ -177,7 +171,7 @@ mariadb::u8 mariadb::time::second() const
 
 mariadb::u8 mariadb::time::second(u8 second)
 {
-	if (second >= 60)
+	if (second > 61)
 		THROW_EXCEPTION(hour(), minute(), second, millisecond());
 
 	m_second = second;
@@ -192,7 +186,7 @@ mariadb::u16 mariadb::time::millisecond() const
 
 mariadb::u16 mariadb::time::millisecond(u16 millisecond)
 {
-	if (millisecond >= 1000)
+	if (millisecond > 999)
 		THROW_EXCEPTION(hour(), minute(), second(), millisecond);
 
 	m_millisecond = millisecond;
