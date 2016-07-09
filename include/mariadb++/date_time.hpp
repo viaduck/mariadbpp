@@ -13,6 +13,9 @@
 
 namespace mariadb
 {
+	/**
+	 * Class used to represent SQL date_time
+	 */
 	class date_time : public time
 	{
 	public:
@@ -56,7 +59,7 @@ namespace mariadb
 		//
 		bool set(u16 year, u8 month, u8 day);
 		bool set(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u16 millisecond);
-		bool set(const std::string& dt);
+		bool set(const std::string& dt) override ;
 
 		//
 		// Date operations

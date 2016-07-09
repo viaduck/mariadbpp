@@ -9,34 +9,24 @@
 
 using namespace mariadb;
 
-//
-// Constructors
-//
-time_span::time_span(u32 days, u32 hours, u32 minutes, u32 seconds, u32 milliseconds, bool negative) :
-	m_days(0),
-	m_hours(0),
-	m_minutes(0),
-	m_seconds(0),
-	m_milliseconds(0)
+time_span::time_span(u32 days, u8 hours, u8 minutes, u8 seconds, u16 milliseconds, bool negative)
 {
 	set(days, hours, minutes, seconds, milliseconds, negative);
 }
 
-time_span::time_span(const time_span& dur) :
-	m_days(0),
-	m_hours(0),
-	m_minutes(0),
-	m_seconds(0),
-	m_milliseconds(0)
+time_span::time_span(const time_span& dur)
 {
 	set(dur.days(), dur.hours(), dur.minutes(), dur.seconds(), dur.milliseconds(), dur.negative());
 }
 
-//
-// Operators
-//
 int time_span::compare(const time_span& ts) const
 {
+    if(negative() && !ts.negative())
+        return -1;
+
+    if(!negative() && ts.negative())
+        return 1;
+
 	if (zero() && ts.zero())
 		return 0;
 
@@ -107,7 +97,7 @@ bool time_span::operator >= (const time_span& ts) const
 	return compare(ts) >= 0;
 }
 
-void time_span::set(u32 _days, u32 _hours, u32 _minutes, u32 _seconds, u32 _milliseconds, bool _negative)
+void time_span::set(u32 _days, u8 _hours, u8 _minutes, u8 _seconds, u16 _milliseconds, bool _negative)
 {
 	negative(_negative);
 	days(_days);
@@ -133,8 +123,7 @@ u32 time_span::days() const
 
 u32 time_span::days(u32 days)
 {
-	m_days = days;
-	return m_days;
+	return (m_days = days);
 }
 
 u8 time_span::hours() const
@@ -142,11 +131,12 @@ u8 time_span::hours() const
 	return m_hours;
 }
 
-u8 time_span::hours(u32 hours)
+u8 time_span::hours(u8 hours)
 {
-	m_days += (hours / 24);
-	m_hours = hours % 24;
-	return m_hours;
+    if(hours > 23)
+        throw std::invalid_argument("Hours must be < 24");
+
+	return (m_hours = hours);
 }
 
 u8 time_span::minutes() const
@@ -154,16 +144,12 @@ u8 time_span::minutes() const
 	return m_minutes;
 }
 
-u8 time_span::minutes(u32 minutes)
+u8 time_span::minutes(u8 minutes)
 {
-	while (minutes >= 60)
-	{
-		hours(++m_hours);
-		minutes -= 60;
-	}
+    if(minutes > 59)
+        throw std::invalid_argument("Hours must be < 60");
 
-	m_minutes = minutes;
-	return m_minutes;
+	return (m_minutes = minutes);
 }
 
 u8 time_span::seconds() const
@@ -171,16 +157,12 @@ u8 time_span::seconds() const
 	return m_seconds;
 }
 
-u8 time_span::seconds(u32 seconds)
+u8 time_span::seconds(u8 seconds)
 {
-	while (seconds >= 60)
-	{
-		minutes(++m_minutes);
-		seconds -= 60;
-	}
+    if(seconds > 60)
+        throw std::invalid_argument("Hours must be < 61");
 
-	m_seconds = seconds;
-	return m_seconds;
+	return (m_seconds = seconds);
 }
 
 u16 time_span::milliseconds() const
@@ -188,16 +170,12 @@ u16 time_span::milliseconds() const
 	return m_milliseconds;
 }
 
-u16 time_span::milliseconds(u32 milliseconds)
+u16 time_span::milliseconds(u16 milliseconds)
 {
-	while (milliseconds >= 1000)
-	{
-		seconds(++m_seconds);
-		milliseconds -= 1000;
-	}
+    if(milliseconds > 999)
+        throw std::invalid_argument("Hours must be < 1000");
 
-	m_milliseconds = milliseconds;
-	return m_milliseconds;
+	return (m_milliseconds = milliseconds);
 }
 
 bool time_span::negative() const
@@ -207,29 +185,27 @@ bool time_span::negative() const
 
 bool time_span::negative(bool negative)
 {
-	m_negative = negative;
-
-	return m_negative;
+	return (m_negative = negative);
 }
 
 u64 time_span::total_hours() const
 {
-	return m_days * 24 + m_hours;
+	return m_days * 24u + m_hours;
 }
 
 u64 time_span::total_minutes() const
 {
-	return total_hours() * 60 + m_minutes;
+	return total_hours() * 60u + m_minutes;
 }
 
 u64 time_span::total_seconds() const
 {
-	return total_minutes() * 60 + m_seconds;
+	return total_minutes() * 60u + m_seconds;
 }
 
 u64 time_span::total_milliseconds() const
 {
-	return total_seconds() * 1000 + m_milliseconds;
+	return total_seconds() * 1000u + m_milliseconds;
 }
 
 std::ostream& mariadb::operator << (std::ostream& os, const time_span& ts)
@@ -237,7 +213,8 @@ std::ostream& mariadb::operator << (std::ostream& os, const time_span& ts)
 	if (ts.negative())
 		os << "negative ";
 
-	os << ts.days() << " days, " << (s32)ts.hours() << " hours, " << (s32)ts.minutes() << " minutes, " << (s32)ts.seconds() << " seconds, " << ts.milliseconds() << " milliseconds";
+	os  << ts.days() << " days, " << +ts.hours() << " hours, " << +ts.minutes()
+        << " minutes, " << +ts.seconds() << " seconds, " << ts.milliseconds() << " milliseconds";
 
 	return os;
 }

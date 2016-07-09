@@ -162,3 +162,37 @@ TEST_F(TimeTest, testNow) {
     ASSERT_NE(n1, n4);
     ASSERT_NE(un1, un4);
 }
+
+TEST_F(TimeTest, testSpan) {
+    time_span a;
+    time_span b(1, 3, 37, 42, 007);
+    time_span c(0, 3, 37, 42, 007, true);
+    EXPECT_ANY_THROW(time_span d(0, 33, 37, 42, 007, true));
+    EXPECT_ANY_THROW(time_span d(0, 33, 37, 42, 007, true));
+    EXPECT_ANY_THROW(time_span d(0, 3, 66, 42, 007));
+    EXPECT_ANY_THROW(time_span d(0, 3, 37, 100, 007));
+    EXPECT_ANY_THROW(time_span d(0, 3, 37, 42, 1001));
+    time_span e(b);
+
+    EXPECT_EQ(b, e);
+    EXPECT_TRUE(a.zero());
+    EXPECT_FALSE(a.negative());
+
+    EXPECT_NE(a, b);
+    EXPECT_NE(b, c);
+
+    // equal days
+    c.days(1);
+    EXPECT_NE(b, c);
+
+    // all equal
+    c.negative(false);
+    EXPECT_EQ(b, c);
+
+    // original das
+    c.days(0);
+    ASSERT_EQ(b.total_hours(), c.total_hours() + 24);
+    ASSERT_EQ(b.total_minutes(), c.total_minutes() + 24 * 60);
+    ASSERT_EQ(b.total_seconds(), c.total_seconds() + 24 * 60 * 60);
+    ASSERT_EQ(b.total_milliseconds(), c.total_milliseconds() + 24 * 60 * 60 * 1000);
+}
