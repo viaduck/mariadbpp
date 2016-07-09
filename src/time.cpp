@@ -11,6 +11,7 @@
 #include <mariadb++/date_time.hpp>
 #include <mariadb++/time.hpp>
 #include <mariadb++/conversion_helper.hpp>
+#include <iomanip>
 #include "private.hpp"
 
 #define MS_PER_SEC 1000
@@ -377,7 +378,7 @@ mariadb::time mariadb::time::now()
 	tm ts;
 	localtime_safe(&ts, &local_time);
 
-	return time(ts);
+	return mariadb::time(ts);
 }
 
 mariadb::time mariadb::time::now_utc()
@@ -386,43 +387,60 @@ mariadb::time mariadb::time::now_utc()
 	tm ts;
 	gmtime_safe(&ts, &utc_time);
 
-	return time(ts);
+	return mariadb::time(ts);
 }
 
 bool mariadb::time::set(const std::string& t)
 {
-    // TODO: rewrite this completely
-	if (t.empty() ||
-		t.length() < 2)
-		return false;
+    std::stringstream stream(t);
 
-	u8 h = string_cast<u8>(t.substr(0, 2).c_str());
-	u8 min = 0;
-	double s = 0;
+    u8 h, m, s;
+    u16 s_h = 0, s_m = 0, s_s = 0, s_ms = 0;
+    char delim;
 
-	if (t.length() >= 3)
-	{
-		min = string_cast<u8>(t.substr(3, 2).c_str());
+    // read formatted hours, check overflow before cast
+    if(stream >> s_h && s_h < 24) {
+        h = static_cast<u8>(s_h);
+        if(stream.eof())
+            return set(h, 0, 0, 0);
 
-		if (t.length() >= 6)
-			s = string_cast<double>(t.substr(6).c_str());
-	}
+        // read formatted minutes, check overflow before cast
+        if(stream >> delim && stream >> s_m && s_m < 60) {
+            m = static_cast<u8>(s_m);
+            if(stream.eof())
+                return set(h, m, 0, 0);
 
-	u16 ms = static_cast<u16>((s - static_cast<u8>(s)) * 1000);
+            // read formatted seconds, check overflow before cast
+            if(stream >> delim && stream >> s_s && s_s < 62) {
+                s = static_cast<u8>(s_s);
+                if(stream.eof())
+                    return set(h, m, s, 0);
 
-	return set(h, min, static_cast<u8>(s), ms);
+                // read formatted millis
+                if(stream >> delim && stream >> s_ms)
+                    return set(h, m, s, s_ms);
+            }
+        }
+    }
+
+    throw std::invalid_argument("invalid time format");
 }
 
 const std::string mariadb::time::str_time(bool with_millisecond) const
 {
-    // TODO: rewrite this completely with streams
-    char buffer[14];
+    std::stringstream stream;
+    stream.fill('0');
 
-    if (with_millisecond && millisecond())
-		snprintf(buffer, sizeof(buffer), "%02i:%02i:%02i.%03i", hour(), minute(), second(), millisecond());
-	else
-		snprintf(buffer, sizeof(buffer), "%02i:%02i:%02i", hour(), minute(), second());
-	return std::string(buffer);
+    /*
+     * Note: the magic unary + forces conversion of unsigned char (u8) to a numeric printing type, otherwise it will
+     * be printed as char
+     */
+    stream << std::setw(2) << +hour() << ":" << std::setw(2) << +minute() << ":" << std::setw(2) << +second();
+
+    if(with_millisecond)
+        stream << "." << std::setw(3) << millisecond();
+
+    return stream.str();
 }
 
 std::ostream& mariadb::operator << (std::ostream& os, const time& t)

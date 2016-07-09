@@ -36,12 +36,15 @@ TEST_F(TimeTest, testConstructors) {
     mariadb::time g("00:00:00.000");
     mariadb::time h("23:59:59.999");
     mariadb::time i("13:37:42.000");
+    mariadb::time j("18-59.59?0");
+    mariadb::time k("8:9:5-01");
+    mariadb::time l("8:59:59.0");
     EXPECT_ANY_THROW(mariadb::time d("24"));
     EXPECT_ANY_THROW(mariadb::time d("23:60"));
     EXPECT_ANY_THROW(mariadb::time d("23:59:62"));
-    //EXPECT_ANY_THROW(mariadb::time d("23:59:59.1000"));
+    EXPECT_ANY_THROW(mariadb::time d("23:59:59.1000"));
     EXPECT_ANY_THROW(mariadb::time d("23:59:a59.1000"));
-    //EXPECT_ANY_THROW(mariadb::time d("8:59:59.0"));
+    EXPECT_ANY_THROW(mariadb::time m("859"));
 
     EXPECT_NE(a, b);
     EXPECT_EQ(b, c);
@@ -50,6 +53,13 @@ TEST_F(TimeTest, testConstructors) {
     EXPECT_EQ(a, g);
     EXPECT_NE(g, h);
     EXPECT_EQ(e, i);
+
+    EXPECT_EQ("00:00:00.000", g.str_time(true));
+    EXPECT_EQ("23:59:59.999", h.str_time(true));
+    EXPECT_EQ("13:37:42.000", i.str_time(true));
+    EXPECT_EQ("18:59:59.000", j.str_time(true));
+    EXPECT_EQ("08:09:05.001", k.str_time(true));
+    EXPECT_EQ("08:59:59", l.str_time());
 }
 
 TEST_F(TimeTest, testArithm) {

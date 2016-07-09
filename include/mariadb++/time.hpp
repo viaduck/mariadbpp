@@ -62,7 +62,8 @@ namespace mariadb
 
         /**
          * Construct time from string
-         * The format needs to be hh[:mm][:ss][.nnn]
+         * The format needs to be hh[:mm][:ss][:nnn]
+         * where less digits are possible and the delimiter may be any non digit
          *
          * @param t String containing time representation
          */
@@ -154,6 +155,12 @@ namespace mariadb
 		/**
 		 * Set the time from string
 		 * The format needs to be hh[:mm][:ss][.nnn]
+		 * where less digits are possible and the delimiter may be any non digit
+		 *
+		 * Examples:
+		 * h
+		 * h:mm.s?n
+		 * hh,mm!ss-n
 		 *
 		 * @return True on success
 		 */
@@ -226,15 +233,50 @@ namespace mariadb
          */
 		time_span time_between(const time& t) const;
 
-		//
-		// Time conversions
-		//
+		/**
+		 * Converts the time to time_t (time.h representation)
+		 *
+		 * @return Time as time.h time_t
+		 */
 		time_t mktime() const;
+
+		/**
+	     * Calculates the time difference using ::difftime.
+	     * Calculates (this - t)
+	     *
+	     * @return Difference in seconds as double
+		 */
 		double diff_time(const time& t) const;
+
+        /**
+         * Converts the time to MySQL time representation. Note that MySQL time does not support milliseconds
+         *
+         * @return Time as MYSQL_TIME with no milliseconds
+         */
 		MYSQL_TIME mysql_time() const;
-		static time now();
-		static time now_utc();
-		const std::string str_time(bool with_millisecond = false) const;
+
+        /**
+         * Converts the time to a string with the format hh:mm:ss[.nnn]
+         *
+         * @param with_millisecond Indicates if milliseconds should be printed or not.
+         *
+         * @return String representing time with optional milliseconds
+         */
+        const std::string str_time(bool with_millisecond = false) const;
+
+        /**
+         * Uses time.h to determine the current time in the local timezone.
+         *
+         * @return Time representing now
+         */
+        static time now();
+
+        /**
+         * Uses time.h to determine the current time in UTC timezone.
+         *
+         * @return Time representing now in UTC
+         */
+        static time now_utc();
 
 	protected:
 		u8  m_hour;
