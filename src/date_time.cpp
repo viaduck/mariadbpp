@@ -677,7 +677,7 @@ bool date_time::set(const std::string& dt)
                     std::getline(stream, rest);
 
                     // set time from string
-                    return time::set(rest);
+                    return set(s_y, m, d) && time::set(rest);
                 }
             }
         }
