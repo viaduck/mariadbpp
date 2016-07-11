@@ -6,7 +6,6 @@
 //
 
 #include "private.hpp"
-#include <mariadb++/mariadb++.hpp>
 #include <mysql/mysql.h>
 
 namespace mariadb
@@ -21,15 +20,4 @@ namespace mariadb
 	{
 		g_log_error = log_error;
 	}
-
-	
-	mariodb_guard::mariodb_guard()
-	{
-		mysql_library_init(0, NULL, NULL);
-	}
-
-	mariodb_guard::~mariodb_guard()
-	{
-		mysql_library_end();
-	}	
 }

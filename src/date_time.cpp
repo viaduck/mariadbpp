@@ -10,6 +10,7 @@
 #include <mariadb++/exceptions.hpp>
 #include <mariadb++/date_time.hpp>
 #include <mariadb++/conversion_helper.hpp>
+#include <c++/iomanip>
 #include "private.hpp"
 
 using namespace mariadb;
@@ -34,9 +35,6 @@ namespace
 	return false;\
 }
 
-//
-// Constructors
-//
 date_time::date_time(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u16 millisecond)
 {
 	set(year, month, day, hour, minute, second, millisecond);
@@ -75,9 +73,6 @@ date_time::date_time(const std::string& dt)
 	set(dt);
 }
 
-//
-// Operators
-//
 int date_time::compare(const date_time& dt) const
 {
 	if (year() < dt.year())
@@ -525,9 +520,12 @@ time_span date_time::time_between(const date_time& dt) const
 
 bool date_time::is_leap_year(u16 year)
 {
-	return
-		!(year % 400) ||
-		(!(year % 4) && (year % 100)); // TODO: condition redundant?
+	/*
+	 * Leap year rule:
+	 * every year divisible by 400 is a leap year
+	 * every year divisible by 4 is a leap year if its not divisible by 100
+	 */
+	return (year % 400 == 0) || (year % 4 == 0 && year % 100 != 0);
 }
 
 bool date_time::valid_date(u16 year, u8 month, u8 day)
@@ -543,7 +541,7 @@ bool date_time::valid_date(u16 year, u8 month, u8 day)
 
 u16 date_time::days_in_year(u16 year)
 {
-	return is_leap_year(year) ? 366 : 365;
+	return is_leap_year(year) ? u16(366) : u16(365);
 }
 
 u8 date_time::days_in_month(u16 year, u8 month)
@@ -649,39 +647,65 @@ date_time date_time::now_utc()
 
 bool date_time::set(const std::string& dt)
 {
-	if (dt.empty() ||
-		dt.length() < 10)
-		return false;
+    std::stringstream stream(dt);
 
-	u16 y = string_cast<u16>(dt.substr(0, 4));
-	u8 m = string_cast<u8>(dt.substr(5, 2));
-	u8 d = string_cast<u8>(dt.substr(8, 2));
+    u8 m, d;
+    u16 s_y = 0, s_m = 0, s_d = 0;
+    char delim;
 
-	if (dt.length() >= 13)
-		time::set(dt.substr(11));
+    // read formatted years, check overflow before cast
+    if(stream >> s_y) {
+        if(stream.eof())
+            return set(s_y, 0, 0);
 
-	return set(y, m, d, hour(), minute(), second(), millisecond());
+        // read formatted months, check overflow before cast
+        if(stream >> delim && stream >> s_m && s_m < 13) {
+            m = static_cast<u8>(s_m);
+            if(stream.eof())
+                return set(s_y, m, 0);
+
+            // read formatted days, check overflow before cast
+            if(stream >> delim && stream >> s_d && s_d < 32) {
+                d = static_cast<u8>(s_d);
+                if (stream.eof())
+                    return set(s_y, m, d);
+
+                // time delimiter
+                if (stream >> delim) {
+                    // extract remaining string
+                    std::string rest;
+                    std::getline(stream, rest);
+
+                    // set time from string
+                    return time::set(rest);
+                }
+            }
+        }
+    }
+
+    throw std::invalid_argument("invalid date format");
 }
 
 const std::string date_time::str(bool with_millisecond) const
 {
-    char buffer[32];
+    std::stringstream stream;
+    stream.fill('0');
 
-	if (with_millisecond && millisecond())
-		snprintf(buffer, sizeof(buffer), "%04i-%02i-%02i %02i:%02i:%02i.%03i", year(), month(), day(), hour(), minute(), second(), millisecond());
-	else
-		snprintf(buffer, sizeof(buffer), "%04i-%02i-%02i %02i:%02i:%02i", year(), month(), day(), hour(), minute(), second());
-
-	return std::string(buffer);
+    stream << str_date() << " " << time::str_time(with_millisecond);
+    return stream.str();
 }
 
 const std::string date_time::str_date() const
 {
-    char buffer[32];
+    std::stringstream stream;
+    stream.fill('0');
 
-	snprintf(buffer, sizeof(buffer), "%04i-%02i-%02i", year(), month(), day());
-
-	return std::string(buffer);
+    /*
+    * Note: the magic unary + forces conversion of unsigned char (u8) to a numeric printing type, otherwise it will
+    * be printed as char
+    */
+    stream << std::setw(4) << year() << "-" << std::setw(2) << +month() << "-" << std::setw(2) << +day() ;
+    return stream.str();
 }
 
 std::ostream& mariadb::operator << (std::ostream& os, const date_time& dt)
