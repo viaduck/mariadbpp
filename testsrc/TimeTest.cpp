@@ -196,3 +196,89 @@ TEST_F(TimeTest, testSpan) {
     ASSERT_EQ(b.total_seconds(), c.total_seconds() + 24 * 60 * 60);
     ASSERT_EQ(b.total_milliseconds(), c.total_milliseconds() + 24 * 60 * 60 * 1000);
 }
+
+void readdTest(date_time smaller, date_time bigger) {
+    ASSERT_EQ(bigger, smaller.add(bigger.time_between(smaller)));
+}
+
+TEST_F(TimeTest, testDateTime) {
+    date_time a;
+    date_time b(2012, 12, 21, 13, 37, 42, 007);
+    date_time before(2012, 12, 19, 13, 37, 42, 007);
+    date_time c(2008, 2, 29);
+    EXPECT_ANY_THROW(date_time d(2009, 2, 29));
+    EXPECT_ANY_THROW(date_time d(2009, 1, 0));
+    EXPECT_ANY_THROW(date_time d(2009, 4, 31));
+    date_time e(c);
+
+    date_time f(1900, 1, 1, 13, 37, 42);
+    mariadb::time ta(13, 37, 42);
+    date_time g(ta);
+
+    EXPECT_EQ(b, before.add_days(2));
+    EXPECT_EQ(e, c);
+    EXPECT_NE(a, b);
+    EXPECT_EQ(f, g);
+
+    // test time.h constructors
+    tm sometime;
+    sometime.tm_year = 112;
+    sometime.tm_mon = 11;
+    sometime.tm_mday = 21;
+    sometime.tm_hour = 13;
+    sometime.tm_min = 37;
+    sometime.tm_sec = 42;
+
+    tm invtime;
+    invtime.tm_year = 110;
+    invtime.tm_mon = 12;
+    invtime.tm_mday = 1;
+
+    time_t someothertime = ::time(nullptr);
+
+    date_time h(sometime);
+    EXPECT_ANY_THROW(date_time d(invtime));
+
+    date_time i(someothertime);
+
+    EXPECT_EQ(h.add_milliseconds(007), b);
+    EXPECT_NE(a, i);
+
+    date_time aa("2012-12-21 13:37:42.007");
+    date_time ba("2008-02-29 13:37:42.007");
+    EXPECT_ANY_THROW(date_time ca("2007-02-29 13:37:42.007"));
+    EXPECT_ANY_THROW(date_time ca("2007-02-29 a13:37:42.007"));
+    EXPECT_ANY_THROW(date_time ca("2007-02-29 13:37:a42.007"));
+    EXPECT_ANY_THROW(date_time ca("2007-02-29 13:37:42.007"));
+    EXPECT_ANY_THROW(date_time ca("2007-02-29 113:37:42.007"));
+    EXPECT_ANY_THROW(date_time ca("2007-02-29 13:37:42.a007"));
+    EXPECT_ANY_THROW(date_time ca("2007-a02-29 13:37:42.007"));
+
+    EXPECT_EQ(b, aa);
+
+    u16 doy = aa.day_of_year();
+    date_time da = date_time::reverse_day_of_year(aa.year(), doy);
+    EXPECT_EQ(da, aa.date());
+
+    readdTest(before, b);
+
+    // leap year
+    readdTest(date_time(2000, 1, 1), date_time(2000, 2, 1));
+
+    readdTest(date_time(2000, 9, 1), date_time(2010, 2, 1));
+    readdTest(date_time(2000, 2, 1), date_time(2010, 9, 1));
+
+    // non-leap
+    readdTest(date_time(2001, 1, 1), date_time(2001, 2, 1));
+
+    readdTest(date_time(2001, 9, 1), date_time(2010, 2, 1));
+    readdTest(date_time(2001, 2, 1), date_time(2010, 9, 1));
+
+    EXPECT_EQ("2012-12-21 13:37:42.007", aa.str(true));
+    EXPECT_EQ("2012-12-21 13:37:42", aa.str(false));
+    EXPECT_EQ("2012-12-21", aa.str_date());
+
+    EXPECT_EQ("2008-02-29 13:37:42.007", ba.str(true));
+    EXPECT_EQ("2008-02-29 13:37:42", ba.str(false));
+    EXPECT_EQ("2008-02-29", ba.str_date());
+}

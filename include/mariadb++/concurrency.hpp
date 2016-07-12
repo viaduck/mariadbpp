@@ -83,7 +83,7 @@ namespace mariadb
 
 		//
 		// Wait for a handle to signal
-		// TODO: why is stdbool.h included here?
+		//
 		extern bool wait_handle(handle h, u64 wait_time_ms = 100);
 
 	}

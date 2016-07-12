@@ -276,7 +276,7 @@ date_time date_time::add_days(s32 days) const
 		return tmp;
 
 	s32 dir = days > 0 ? 1 : -1;
-	s32 y = year();
+	u16 y = year();
 	s32 days_in = days_in_year(y);
 	s32 day_of = day_of_year() + days;
 
@@ -455,7 +455,7 @@ date_time date_time::substract(const time& t) const
 time_span date_time::time_between(const date_time& dt) const
 {
 	if (dt == *this)
-		return time_span(0, 0, 0, 0, 0);
+		return time_span();
 
 	if (dt > *this)
 	{
@@ -464,7 +464,6 @@ time_span date_time::time_between(const date_time& dt) const
 		return dur;
 	}
 
-	bool negative = false;
 	s64 ms = (hour() * MS_PER_HOUR) + (minute() * MS_PER_MIN) + (second() * MS_PER_SEC) + millisecond();
 	s64 dt_ms = (dt.hour() * MS_PER_HOUR) + (dt.minute() * MS_PER_MIN) + (dt.second() * MS_PER_SEC) + dt.millisecond();
 	s64 total_ms = 0;
@@ -494,9 +493,9 @@ time_span date_time::time_between(const date_time& dt) const
 	total_ms = total_ms % MS_PER_SEC;
 
 	u32 milliseconds = static_cast<u32>(total_ms);
+
 	u32 totaldays = 0;
-	u32 currentyear = year();
-	u32 currentday = day_of_year();
+	u16 currentyear = year();
 
 	while (currentyear > stop_date_time.year())
 	{
@@ -506,16 +505,20 @@ time_span date_time::time_between(const date_time& dt) const
 			totaldays += days_in_year(currentyear);
 
 		currentyear--;
-		currentday = day_of_year();
 	}
 
-	while (currentday > stop_date_time.day_of_year())
+    if(year() == stop_date_time.year())
+        totaldays += day_of_year() - stop_date_time.day_of_year();
+    else
+        totaldays += days_in_year(currentyear) - stop_date_time.day_of_year();
+
+	/*while (currentday > stop_date_time.day_of_year())
 	{
 		totaldays++;
 		currentday--;
-	}
+	}*/
 
-	return time_span(totaldays, hours, minutes, seconds, milliseconds, negative);
+	return time_span(totaldays, hours, minutes, seconds, milliseconds, false);
 }
 
 bool date_time::is_leap_year(u16 year)
@@ -624,6 +627,7 @@ double date_time::diff_time(const date_time& dt) const
 
 date_time date_time::now()
 {
+    // TODO: use std::chrono in the future for millisecond accuracy
 	time_t local_time = ::time(NULL);
 	tm time_struct;
 	localtime_safe(&time_struct, &local_time);
@@ -670,15 +674,12 @@ bool date_time::set(const std::string& dt)
                 if (stream.eof())
                     return set(s_y, m, d);
 
-                // time delimiter
-                if (stream >> delim) {
-                    // extract remaining string
-                    std::string rest;
-                    std::getline(stream, rest);
+                // extract remaining string
+                std::string rest;
+                std::getline(stream, rest);
 
-                    // set time from string
-                    return set(s_y, m, d) && time::set(rest);
-                }
+                // set time from string
+                return set(s_y, m, d) && time::set(rest);
             }
         }
     }
