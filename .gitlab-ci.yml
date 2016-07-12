@@ -24,4 +24,4 @@ test:
     stage: build
     artifacts:
         paths:
-        - build/testsrc/coverage/           # coverage data
+        - build/test/coverage/           # coverage data
