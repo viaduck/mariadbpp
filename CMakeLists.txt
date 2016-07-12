@@ -54,5 +54,11 @@ install(FILES ${mariadbclientpp_PUBLIC_HEADERS}
 	DESTINATION include/mariadb++
 )
 
+# doxygen
+include(Doxygen)
+if (DOXYGEN_FOUND)
+	setup_doxygen(mariadbpp_doc ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
+endif()
+
 add_subdirectory(external/googletest)
 add_subdirectory(test)

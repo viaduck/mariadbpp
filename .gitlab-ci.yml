@@ -21,7 +21,9 @@ test:
         - make
         - test/mariadbpp_tests             # runs gtest target
         - make mariadbpp_coverage             # generate code coverage report
+        - make mariadbpp_doc                  # generate doxygen code documentation
     stage: build
     artifacts:
         paths:
         - build/test/coverage/           # coverage data
+        - build/doc/html/                # doxygen documentation
