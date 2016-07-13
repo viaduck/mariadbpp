@@ -60,5 +60,7 @@ if (DOXYGEN_FOUND)
 	setup_doxygen(mariadbpp_doc ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
 endif()
 
-add_subdirectory(external/googletest)
+if (NOT TARGET gtest)
+	add_subdirectory(external/googletest)
+endif()
 add_subdirectory(test)
