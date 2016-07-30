@@ -26,6 +26,10 @@ if(MARIADB_USES_EXCEPTION)
 	add_definitions(-DMARIADB_USES_EXCEPTION)
 endif()
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	add_definitions(-DDEBUG)
+endif()
+
 
 if (CMAKE_VERSION VERSION_LESS "3.1")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
