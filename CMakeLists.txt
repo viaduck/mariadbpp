@@ -20,7 +20,7 @@ include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}/external/googletest/include"
 )
 
-set(MARIADB_USES_EXCEPTION ON CACHED)
+set(MARIADB_USES_EXCEPTION ON CACHE BOOL "Whether to use exceptions in mariadbpp")
 
 if(MARIADB_USES_EXCEPTION)
 	add_definitions(-DMARIADB_USES_EXCEPTION)
