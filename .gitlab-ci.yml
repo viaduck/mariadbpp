@@ -1,4 +1,4 @@
-image: debian:openssl-build
+image: custom/debian:jessie-mod
 services:
     - mariadb:latest
     
