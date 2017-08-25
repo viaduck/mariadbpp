@@ -10,7 +10,7 @@
 
 #include <string.h>
 #include <mariadb++/types.hpp>
-#include <bits/ios_base.h>
+#include <iostream>
 
 namespace mariadb
 {

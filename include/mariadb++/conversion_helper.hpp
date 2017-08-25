@@ -3,6 +3,11 @@
 
 #include <limits>
 
+#ifdef WIN32
+#undef max
+#undef min
+#endif
+
 template <typename T, typename K>
 inline T checked_cast(K value) {
     if(value < std::numeric_limits<T>::min() || value > std::numeric_limits<T>::max())
