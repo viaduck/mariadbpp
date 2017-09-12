@@ -15,7 +15,6 @@ set(mariadb_LIBRARIES mysqlclient)
 #find_package(MySQL REQUIRED)
 
 include_directories(
-	"${CMAKE_CURRENT_SOURCE_DIR}/include"
 	"${CMAKE_CURRENT_BINARY_DIR}/include"
 	"${CMAKE_CURRENT_SOURCE_DIR}/external/googletest/include"
 )
@@ -48,6 +47,10 @@ source_group("Source Files" FILES ${mariadbclientpp_SOURCES})
 
 add_library(mariadbclientpp STATIC ${mariadbclientpp_SOURCES} ${mariadbclientpp_PUBLIC_HEADERS} ${mariadbclientpp_PRIVATE_HEADERS})
 target_link_libraries(mariadbclientpp ${mariadb_LIBRARIES} pthread)
+
+target_include_directories(mariadbclientpp PUBLIC
+		${CMAKE_CURRENT_SOURCE_DIR}/include
+		)
 
 install(TARGETS mariadbclientpp
 	ARCHIVE DESTINATION lib
