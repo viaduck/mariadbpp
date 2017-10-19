@@ -108,12 +108,15 @@ bool connection::connect()
 	if (connected())
 		return true;
 
-	m_mysql = mysql_init(nullptr);
-
-	if (!m_mysql)
+	if(m_mysql == nullptr)
 	{
-		MARIADB_ERROR(0, "Cannot create MYSQL object.");
-		return false;
+		m_mysql = mysql_init(nullptr);
+
+		if (!m_mysql)
+		{
+			MARIADB_ERROR(0, "Cannot create MYSQL object.");
+			return false;
+		}
 	}
 
 	if (!m_account->ssl_key().empty())
