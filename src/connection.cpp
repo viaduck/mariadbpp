@@ -75,7 +75,7 @@ bool connection::connected() const
 	if (m_mysql == nullptr)
 		return false;
 	else
-		return mysql_stat(m_mysql) != nullptr;
+		return !mysql_ping(m_mysql);
 }
 
 account_ref connection::account() const
