@@ -25,11 +25,39 @@ typedef struct st_mysql_bind MYSQL_BIND;
 
 typedef char **MYSQL_ROW;
 
+typedef struct st_mysql_stmt MYSQL_STMT;
+
 namespace mariadb
 {
 	class bind;
 	class connection;
 	class statement;
+
+	class statement_data;
+	typedef std::shared_ptr<statement_data> statement_data_ref;
+
+	/*
+	 * This data is shared between a statement and its result_set,
+	 * therefore it needs to be destroyed only when
+	 * - the statement is freed
+	 * - all of the result_sets are freed
+	 *
+	 * A shared_ptr is used to keep the data alive in the statement and the result_set.
+	 */
+	struct statement_data {
+		explicit statement_data(MYSQL_STMT *stmt) : m_statement(stmt) { }
+
+		~statement_data();
+
+		// number of binds in this query
+		unsigned long  m_bind_count = 0;
+		// pointer to underlying statement
+		MYSQL_STMT*    m_statement;
+		// pointer to underlying bindings
+		MYSQL_BIND*    m_my_binds = nullptr;
+		// pointer to bind managers
+		bind*          m_binds = nullptr;
+	};
 
 	/**
 	 * Class used to store query and statement results
@@ -436,7 +464,7 @@ namespace mariadb
         /**
          * Create result_set from statement
          */
-		result_set(statement* stmt);
+		result_set(const statement_data_ref &stmt);
 
 	private:
         // pointer to result set
@@ -451,7 +479,7 @@ namespace mariadb
         // pointer to each bind manager
         bind*              m_binds;
         // optional pointer to statement
-        statement*         m_statement;
+        statement_data_ref m_stmt_data;
         // map caching column name by index
         map_indexes_t      m_indexes;
         // array of content lengths for the columns of current row

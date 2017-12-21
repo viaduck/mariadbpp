@@ -22,7 +22,7 @@ result_set::result_set(connection* connection) :
 	m_fields(NULL),
 	m_my_binds(NULL),
 	m_binds(NULL),
-	m_statement(NULL),
+	m_stmt_data(NULL),
     m_row(nullptr),
     m_has_result(false)
 {
@@ -36,26 +36,26 @@ result_set::result_set(connection* connection) :
 	}
 }
 
-result_set::result_set(statement* statement) :
+result_set::result_set(const statement_data_ref &stmt_data) :
 	m_field_count(0),
 	m_lengths(NULL),
 	m_result_set(NULL),
 	m_fields(NULL),
 	m_my_binds(NULL),
 	m_binds(NULL),
-	m_statement(statement),
+	m_stmt_data(stmt_data),
     m_row(nullptr),
     m_has_result(false)
 {
 	int max_length = 1;
-	mysql_stmt_attr_set(m_statement->m_statement, STMT_ATTR_UPDATE_MAX_LENGTH, &max_length);
+	mysql_stmt_attr_set(stmt_data->m_statement, STMT_ATTR_UPDATE_MAX_LENGTH, &max_length);
 
-	if (mysql_stmt_store_result(m_statement->m_statement))
-		STMT_ERROR(m_statement->m_statement)
+	if (mysql_stmt_store_result(stmt_data->m_statement))
+		STMT_ERROR(stmt_data->m_statement)
 	else
 	{
-		m_field_count = mysql_stmt_field_count(m_statement->m_statement);
-		m_result_set = mysql_stmt_result_metadata(m_statement->m_statement);
+		m_field_count = mysql_stmt_field_count(stmt_data->m_statement);
+		m_result_set = mysql_stmt_result_metadata(stmt_data->m_statement);
 
         if (m_field_count > 0) {
             m_fields = mysql_fetch_fields(m_result_set);
@@ -71,9 +71,20 @@ result_set::result_set(statement* statement) :
                 m_row[i] = m_binds[i].buffer();
             }
 
-            mysql_stmt_bind_result(m_statement->m_statement, m_my_binds);
+            mysql_stmt_bind_result(stmt_data->m_statement, m_my_binds);
         }
 	}
+}
+
+statement_data::~statement_data() {
+	if (m_my_binds)
+		delete [] m_my_binds;
+
+	if (m_binds)
+		delete [] m_binds;
+
+	if (m_statement)
+		mysql_stmt_close(m_statement);
 }
 
 result_set::~result_set()
@@ -84,13 +95,12 @@ result_set::~result_set()
 	if (m_my_binds)
 		delete [] m_my_binds;
 
-	if (m_statement)
+	if (m_stmt_data)
 	{
 		if (m_row)
 			delete [] m_row;
 
-		// fixme: Leaking mysql results
-	//	mysql_stmt_free_result(m_statement->m_statement);
+		mysql_stmt_free_result(m_stmt_data->m_statement);
 	}
 
 	if (m_binds)
@@ -241,7 +251,7 @@ date_time result_set::get_date(u32 index) const
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-    if (m_statement)
+    if (m_stmt_data)
 		return mariadb::date_time(m_binds[index].m_time);
 
 	return date_time(m_row[index]).date();
@@ -254,7 +264,7 @@ date_time result_set::get_date_time(u32 index) const
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-    if (m_statement)
+    if (m_stmt_data)
 		return mariadb::date_time(m_binds[index].m_time);
 
 	return date_time(m_row[index]);
@@ -267,7 +277,7 @@ mariadb::time result_set::get_time(u32 index) const
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-    if (m_statement)
+    if (m_stmt_data)
 		return mariadb::time(m_binds[index].m_time);
 
 	return mariadb::time(m_row[index]);
@@ -290,7 +300,7 @@ bool result_set::get_boolean(u32 index) const
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-    if (m_statement)
+    if (m_stmt_data)
 		return (m_binds[index].m_unsigned64 != 0);
 
 	return string_cast<bool>(m_row[index]);
@@ -303,7 +313,7 @@ u8 result_set::get_unsigned8(u32 index) const
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-    if (m_statement)
+    if (m_stmt_data)
 		return checked_cast<u8>(0x00000000000000ff & m_binds[index].m_unsigned64);
 
 	return string_cast<u8>(m_row[index]);
@@ -316,7 +326,7 @@ s8 result_set::get_signed8(u32 index) const
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-    if (m_statement)
+    if (m_stmt_data)
 		return checked_cast<s8>(0x00000000000000ff & m_binds[index].m_signed64);
 
 	return string_cast<s8>(m_row[index]);
@@ -329,7 +339,7 @@ u16 result_set::get_unsigned16(u32 index) const
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-    if (m_statement)
+    if (m_stmt_data)
 		return checked_cast<u16>(0x000000000000ffff & m_binds[index].m_unsigned64);
 
 	return string_cast<u16>(m_row[index]);
@@ -342,7 +352,7 @@ s16 result_set::get_signed16(u32 index) const
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-    if (m_statement)
+    if (m_stmt_data)
 		return checked_cast<s16>(0x000000000000ffff & m_binds[index].m_signed64);
 
 	return string_cast<s16>(m_row[index]);
@@ -355,7 +365,7 @@ u32 result_set::get_unsigned32(u32 index) const
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-    if (m_statement)
+    if (m_stmt_data)
 		return checked_cast<u32>(0x00000000ffffffff & m_binds[index].m_unsigned64);
 
 	return string_cast<u32>(m_row[index]);
@@ -368,7 +378,7 @@ s32 result_set::get_signed32(u32 index) const
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-    if (m_statement)
+    if (m_stmt_data)
 		return m_binds[index].m_signed32[0];
 
 	return string_cast<s32>(m_row[index]);
@@ -381,7 +391,7 @@ u64 result_set::get_unsigned64(u32 index) const
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-    if (m_statement)
+    if (m_stmt_data)
 		return m_binds[index].m_unsigned64;
 
 	return string_cast<u64>(m_row[index]);
@@ -394,7 +404,7 @@ s64 result_set::get_signed64(u32 index) const
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-    if (m_statement)
+    if (m_stmt_data)
 		return m_binds[index].m_signed64;
 
 	return string_cast<s64>(m_row[index]);
@@ -407,7 +417,7 @@ f32 result_set::get_float(u32 index) const
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-    if (m_statement)
+    if (m_stmt_data)
 		return m_binds[index].m_float32[0];
 
 	return string_cast<f32>(m_row[index]);
@@ -420,7 +430,7 @@ f64 result_set::get_double(u32 index) const
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-    if (m_statement)
+    if (m_stmt_data)
 		return checked_cast<f64>(m_binds[index].m_double64);
 
 	return string_cast<f64>(m_row[index]);
@@ -433,7 +443,7 @@ bool result_set::is_null(u32 index) const
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-	if (m_statement)
+	if (m_stmt_data)
 		return m_binds[index].is_null();
 
 	return !m_row[index];
@@ -534,13 +544,13 @@ unsigned long result_set::column_size(u32 index) const {
     if (index >= m_field_count)
         throw std::out_of_range("Column index out of range");
 
-    return m_statement ? m_binds[index].length() : m_lengths[index];
+    return m_stmt_data ? m_binds[index].length() : m_lengths[index];
 }
 
 bool result_set::set_row_index(u64 index)
 {
-	if (m_statement)
-		mysql_stmt_data_seek(m_statement->m_statement, index);
+	if (m_stmt_data)
+		mysql_stmt_data_seek(m_stmt_data->m_statement, index);
 	else
 		mysql_data_seek(m_result_set, index);
 	return next();
@@ -551,8 +561,8 @@ bool result_set::next()
 	if (!m_result_set)
 		return (m_has_result = false);
 
-	if (m_statement)
-		return (m_has_result = !mysql_stmt_fetch(m_statement->m_statement));
+	if (m_stmt_data)
+		return (m_has_result = !mysql_stmt_fetch(m_stmt_data->m_statement));
 
 	m_row = mysql_fetch_row(m_result_set);
 	m_lengths = mysql_fetch_lengths(m_result_set);
@@ -563,16 +573,16 @@ bool result_set::next()
 
 u64 result_set::row_index() const
 {
-	if (m_statement)
-		return (u64)mysql_stmt_row_tell(m_statement->m_statement);
+	if (m_stmt_data)
+		return (u64)mysql_stmt_row_tell(m_stmt_data->m_statement);
 
 	return (u64)mysql_row_tell(m_result_set);
 }
 
 u64 result_set::row_count() const
 {
-	if (m_statement)
-		return (u64)mysql_stmt_num_rows(m_statement->m_statement);
+	if (m_stmt_data)
+		return (u64)mysql_stmt_num_rows(m_stmt_data->m_statement);
 
 	return (u64)mysql_num_rows(m_result_set);
 }

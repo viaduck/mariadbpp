@@ -11,8 +11,6 @@
 #include <mariadb++/last_error.hpp>
 #include <mariadb++/result_set.hpp>
 
-typedef struct st_mysql_stmt MYSQL_STMT;
-
 namespace mariadb
 {
 	class connection;
@@ -30,11 +28,6 @@ namespace mariadb
 		friend class worker;
 
 	public:
-		/**
-		 * Destructor
-		 */
-		virtual ~statement();
-
         /**
          * Binds a binary blob to a parameter
          *
@@ -227,16 +220,10 @@ namespace mariadb
 		statement(connection* conn, const std::string &query);
 
 	private:
-        // number of binds in this query
-		unsigned long  m_bind_count;
         // reference to parent connection
 		connection_ref m_connection;
-        // pointer to underlying statement
-		MYSQL_STMT*    m_statement;
-        // pointer to underlying bindings
-		MYSQL_BIND*    m_my_binds;
-        // pointer to bind managers
-		bind*          m_binds;
+		// reference to internal data, shared with all results
+		statement_data_ref m_data;
 	};
 
 	typedef std::shared_ptr<statement> statement_ref;
