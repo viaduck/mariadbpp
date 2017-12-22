@@ -95,7 +95,7 @@ result_set::~result_set() {
 
 u64 result_set::column_count() const { return m_field_count; }
 
-value::type result_set::column_type(u32 index) {
+value::type result_set::column_type(u32 index) const {
     if (index >= m_field_count) throw std::out_of_range("Column index out of range");
 
     bool is_unsigned = (m_fields[index].flags & UNSIGNED_FLAG) == UNSIGNED_FLAG;
@@ -215,7 +215,69 @@ void result_set::check_result_exists() const {
     if (!m_has_result) throw std::out_of_range("No row was fetched");
 }
 
-MAKE_GETTER(blob, stream_ref)
+void result_set::check_type(u32 index, value::type requested) const {
+    value::type actual = column_type(index);
+    bool type_error;
+
+    // check requested type vs actual type.
+    switch (requested) {
+        // these types require exact type match
+        case value::type::float32:
+        case value::type::double64:
+        case value::type::decimal:
+
+        case value::type::time:
+        case value::type::date_time:
+        case value::type::date:
+
+        case value::type::enumeration:
+            type_error = actual != requested;
+            break;
+
+        // these types require size match
+        case value::type::unsigned8:
+        case value::type::signed8:
+            type_error = actual != value::type::signed8 && actual != value::type::unsigned8;
+            break;
+        case value::type::unsigned16:
+        case value::type::signed16:
+            type_error = actual != value::type::signed16 && actual != value::type::unsigned16;
+            break;
+        case value::type::unsigned32:
+        case value::type::signed32:
+            type_error = actual != value::type::signed32 && actual != value::type::unsigned32;
+            break;
+        case value::type::unsigned64:
+        case value::type::signed64:
+            type_error = actual != value::type::signed64 && actual != value::type::unsigned64;
+            break;
+
+        // bool can also be a signed8
+        case value::type::boolean:
+            type_error = actual != requested && actual != value::type::signed8;
+            break;
+
+        // only string, blob, data and null are interchangeable
+        case value::type::string:
+        case value::type::blob:
+        case value::type::data:
+            type_error = actual != value::type::string &&
+                         actual != value::type::blob &&
+                         actual != value::type::data &&
+                         actual != value::type::null;
+            break;
+
+        default:
+            type_error = false;
+    }
+
+    if (type_error) {
+        printf("requested type %d does not match actual type %d", (int)requested, (int)actual);
+        MARIADB_ERROR_THROW_CONNECTION(12, "type error");
+    }
+}
+
+MAKE_GETTER(blob, stream_ref, value::type::blob)
     size_t len = column_size(index);
 
     if (len == 0) return stream_ref();
@@ -225,105 +287,105 @@ MAKE_GETTER(blob, stream_ref)
     return stream_ref(ss);
 }
 
-MAKE_GETTER(data, data_ref)
+MAKE_GETTER(data, data_ref, value::type::data)
     size_t len = column_size(index);
 
     return len == 0 ? data_ref() : data_ref(new data<char>(m_row[index], len));
 }
 
-MAKE_GETTER(string, std::string)
+MAKE_GETTER(string, std::string, value::type::string)
     return std::string(m_row[index], column_size(index));
 }
 
-MAKE_GETTER(date, date_time)
+MAKE_GETTER(date, date_time, value::type::date)
     if (m_stmt_data) return mariadb::date_time(m_binds[index].m_time);
 
     return date_time(m_row[index]).date();
 }
 
-MAKE_GETTER(date_time, date_time)
+MAKE_GETTER(date_time, date_time, value::type::date_time)
     if (m_stmt_data) return mariadb::date_time(m_binds[index].m_time);
 
     return date_time(m_row[index]);
 }
 
-MAKE_GETTER(time, mariadb::time)
+MAKE_GETTER(time, mariadb::time, value::type::time)
     if (m_stmt_data) return mariadb::time(m_binds[index].m_time);
 
     return mariadb::time(m_row[index]);
 }
 
-MAKE_GETTER(decimal, decimal)
+MAKE_GETTER(decimal, decimal, value::type::decimal)
     return decimal(m_row[index]);
 }
 
-MAKE_GETTER(boolean, bool)
+MAKE_GETTER(boolean, bool, value::type::boolean)
     if (m_stmt_data) return (m_binds[index].m_unsigned64 != 0);
 
     return string_cast<bool>(m_row[index]);
 }
 
-MAKE_GETTER(unsigned8, u8)
+MAKE_GETTER(unsigned8, u8, value::type::unsigned8)
     if (m_stmt_data) return checked_cast<u8>(0x00000000000000ff & m_binds[index].m_unsigned64);
 
     return string_cast<u8>(m_row[index]);
 }
 
-MAKE_GETTER(signed8, s8)
+MAKE_GETTER(signed8, s8, value::type::signed8)
     if (m_stmt_data) return checked_cast<s8>(0x00000000000000ff & m_binds[index].m_signed64);
 
     return string_cast<s8>(m_row[index]);
 }
 
-MAKE_GETTER(unsigned16, u16)
+MAKE_GETTER(unsigned16, u16, value::type::unsigned16)
     if (m_stmt_data) return checked_cast<u16>(0x000000000000ffff & m_binds[index].m_unsigned64);
 
     return string_cast<u16>(m_row[index]);
 }
 
-MAKE_GETTER(signed16, s16)
+MAKE_GETTER(signed16, s16, value::type::signed16)
     if (m_stmt_data) return checked_cast<s16>(0x000000000000ffff & m_binds[index].m_signed64);
 
     return string_cast<s16>(m_row[index]);
 }
 
-MAKE_GETTER(unsigned32, u32)
+MAKE_GETTER(unsigned32, u32, value::type::unsigned32)
     if (m_stmt_data) return checked_cast<u32>(0x00000000ffffffff & m_binds[index].m_unsigned64);
 
     return string_cast<u32>(m_row[index]);
 }
 
-MAKE_GETTER(signed32, s32)
+MAKE_GETTER(signed32, s32, value::type::signed32)
     if (m_stmt_data) return m_binds[index].m_signed32[0];
 
     return string_cast<s32>(m_row[index]);
 }
 
-MAKE_GETTER(unsigned64, u64)
+MAKE_GETTER(unsigned64, u64, value::type::unsigned64)
     if (m_stmt_data) return m_binds[index].m_unsigned64;
 
     return string_cast<u64>(m_row[index]);
 }
 
-MAKE_GETTER(signed64, s64)
+MAKE_GETTER(signed64, s64, value::type::signed64)
     if (m_stmt_data) return m_binds[index].m_signed64;
 
     return string_cast<s64>(m_row[index]);
 }
 
-MAKE_GETTER(float, f32)
+MAKE_GETTER(float, f32, value::type::float32)
     if (m_stmt_data) return m_binds[index].m_float32[0];
 
     return string_cast<f32>(m_row[index]);
 }
 
-MAKE_GETTER(double, f64)
+MAKE_GETTER(double, f64, value::type::double64)
     if (m_stmt_data) return checked_cast<f64>(m_binds[index].m_double64);
 
     return string_cast<f64>(m_row[index]);
 }
 
-MAKE_GETTER(is_null, bool)
+MAKE_GETTER(is_null, bool, value::type::null)
     if (m_stmt_data) return m_binds[index].is_null();
 
     return !m_row[index];

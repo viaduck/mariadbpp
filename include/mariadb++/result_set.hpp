@@ -34,10 +34,11 @@ typedef struct st_mysql_stmt MYSQL_STMT;
     MAKE_GETTER_SIG_STR(nm, rtype, ); \
     MAKE_GETTER_SIG_INT(nm, rtype, )
 
-#define MAKE_GETTER(nm, rtype)                                                            \
+#define MAKE_GETTER(nm, rtype, vtype)                                                     \
     MAKE_GETTER_SIG_STR(nm, rtype, result_set::) { return get_##nm(column_index(name)); } \
     MAKE_GETTER_SIG_INT(nm, rtype, result_set::) {                                        \
         check_result_exists();                                                            \
+        check_type(index, vtype);                                                         \
                                                                                           \
         if (index >= m_field_count) throw std::out_of_range("Column index out of range");
 
@@ -108,7 +109,7 @@ class result_set : public last_error {
      * @param index Index of the column to examine
      * @return Type enum indicating column type
      */
-    value::type column_type(u32 index);
+    value::type column_type(u32 index) const;
 
     /**
      * Gets the name of a column by index
@@ -151,6 +152,14 @@ class result_set : public last_error {
      * Throws if the result set was created, but no row was ever fetched (using next())
      */
     void check_result_exists() const;
+
+    /**
+     * Throws if the actual type of column at index cannot be converted to the requested type
+     *
+     * @param index Index of column to check
+     * @param requested Requested type
+     */
+    void check_type(u32 index, value::type requested) const;
 
     /**
      * Set the current row index in result_set (seek to result).
