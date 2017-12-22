@@ -11,26 +11,24 @@
 #include <string>
 #include "types.hpp"
 
-namespace mariadb
-{
-	class last_error
-	{
-	public:
-		//
-		// Constructor
-		//
-		last_error();
+namespace mariadb {
+class last_error {
+   public:
+    //
+    // Constructor
+    //
+    last_error();
 
-		//
-		// Get last error
-		//
-		u32 error_no() const;
-		const std::string& error() const;
+    //
+    // Get last error
+    //
+    u32 error_no() const;
+    const std::string& error() const;
 
-	protected:
-		u32         m_last_error_no;
-		std::string m_last_error;
-	};
+   protected:
+    u32 m_last_error_no;
+    std::string m_last_error;
+};
 }
 
 #endif
