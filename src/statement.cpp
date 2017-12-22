@@ -84,251 +84,106 @@ result_set_ref statement::query()
 	return rs;
 }
 
-void statement::set_blob(u32 index, stream_ref stream)
-{
-	if(!stream)
+MAKE_SETTER(blob, stream_ref)
+	if (!value)
 		return;
 
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	stream->seekg(0, std::ios_base::end);
-	u64 size = stream->tellg();
-	stream->seekg(0);
+	value->seekg(0, std::ios_base::end);
+	u64 size = value->tellg();
+    value->seekg(0);
 
 	bind.set_input(MYSQL_TYPE_BLOB, &mybind, nullptr, static_cast<long unsigned int>(size));
 
-	stream->read(bind.buffer(), bind.length());
+    value->read(bind.buffer(), bind.length());
 }
 
-void statement::set_data(u32 index, const data_ref& data)
-{
-	if(!data)
+MAKE_SETTER_2(data, const data_ref&, MYSQL_TYPE_BLOB)
+	if (!value)
 		return;
 
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	bind.set_input(MYSQL_TYPE_BLOB, &mybind);
-	bind.m_data = data;
-	mybind.buffer = (void*)data->get();
-	mybind.buffer_length = data->size();
+    bind.m_data = value;
+    mybind.buffer = (void*)value->get();
+    mybind.buffer_length = value->size();
 }
 
-void statement::set_date_time(u32 index, const date_time& dt)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
+MAKE_SETTER_2(date_time, const date_time&, MYSQL_TYPE_DATETIME)
+    bind.m_time = value.mysql_time();
+    mybind.buffer = (void*)&bind.m_time;
+    mybind.buffer_length = sizeof(MYSQL_TIME);
+}
 
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	bind.set_input(MYSQL_TYPE_DATETIME, &mybind);
-	bind.m_time = dt.mysql_time();
+MAKE_SETTER_2(date, const date_time&, MYSQL_TYPE_DATE)
+	bind.m_time = value.date().mysql_time();
 	mybind.buffer = (void*)&bind.m_time;
 	mybind.buffer_length = sizeof(MYSQL_TIME);
 }
 
-void statement::set_date(u32 index, const date_time& dt)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	bind.set_input(MYSQL_TYPE_DATE, &mybind);
-	bind.m_time = dt.date().mysql_time();
+MAKE_SETTER_2(time, const mariadb::time&, MYSQL_TYPE_TIME)
+	bind.m_time = value.mysql_time();
 	mybind.buffer = (void*)&bind.m_time;
 	mybind.buffer_length = sizeof(MYSQL_TIME);
 }
 
-void statement::set_time(u32 index, const mariadb::time& tm)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	bind.set_input(MYSQL_TYPE_TIME, &mybind);
-	bind.m_time = tm.mysql_time();
-	mybind.buffer = (void*)&bind.m_time;
-	mybind.buffer_length = sizeof(MYSQL_TIME);
-}
-
-void statement::set_decimal(u32 index, const decimal& dec)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-	std::string str = dec.str();
+MAKE_SETTER(decimal, const decimal&)
+	std::string str = value.str();
 
 	bind.set_input(MYSQL_TYPE_STRING, &mybind, str.c_str(), str.size());
 }
 
-void statement::set_string(u32 index, const std::string &value)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
+MAKE_SETTER(string, const std::string&)
 	bind.set_input(MYSQL_TYPE_STRING, &mybind, value.c_str(), value.size());
 }
 
-void statement::set_boolean(u32 index, bool value)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	bind.set_input(MYSQL_TYPE_TINY, &mybind);
+MAKE_SETTER_2(boolean, bool, MYSQL_TYPE_TINY)
 	bind.m_unsigned64 = value;
 }
 
-void statement::set_unsigned8(u32 index, u8 value)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	bind.set_input(MYSQL_TYPE_TINY, &mybind);
+MAKE_SETTER_2(unsigned8, u8, MYSQL_TYPE_TINY)
 	bind.m_unsigned64 = value;
 	mybind.is_unsigned = true;
 }
 
-void statement::set_signed8(u32 index, s8 value)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	bind.set_input(MYSQL_TYPE_TINY, &mybind);
-	bind.m_signed64 = value;
+MAKE_SETTER_2(signed8, s8, MYSQL_TYPE_TINY)
+    bind.m_signed64 = value;
 }
 
-void statement::set_unsigned16(u32 index, u16 value)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	bind.set_input(MYSQL_TYPE_SHORT, &mybind);
-	bind.m_unsigned64 = value;
-	mybind.is_unsigned = true;
+MAKE_SETTER_2(unsigned16, u16, MYSQL_TYPE_SHORT)
+    bind.m_unsigned64 = value;
+    mybind.is_unsigned = true;
 }
 
-void statement::set_signed16(u32 index, s16 value)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	bind.set_input(MYSQL_TYPE_SHORT, &mybind);
-	bind.m_signed64 = value;
+MAKE_SETTER_2(signed16, s16, MYSQL_TYPE_SHORT)
+    bind.m_signed64 = value;
 }
 
-void statement::set_unsigned32(u32 index, u32 value)
-{
-	if(index >= m_data->m_bind_count)
-		throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	bind.set_input(MYSQL_TYPE_LONG, &mybind);
-	bind.m_unsigned64 = value;
-	mybind.is_unsigned = true;
+MAKE_SETTER_2(unsigned32, u32, MYSQL_TYPE_LONG)
+    bind.m_unsigned64 = value;
+    mybind.is_unsigned = true;
 }
 
-void statement::set_signed32(u32 index, s32 value)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	bind.set_input(MYSQL_TYPE_LONG, &mybind);
-	bind.m_signed64 = value;
+MAKE_SETTER_2(signed32, s32, MYSQL_TYPE_LONG)
+    bind.m_signed64 = value;
 }
 
-void statement::set_unsigned64(u32 index, u64 value)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	bind.set_input(MYSQL_TYPE_LONGLONG, &mybind);
-	bind.m_unsigned64 = value;
-	mybind.is_unsigned = true;
+MAKE_SETTER_2(unsigned64, u64, MYSQL_TYPE_LONGLONG)
+    bind.m_unsigned64 = value;
+    mybind.is_unsigned = true;
 }
 
-void statement::set_signed64(u32 index, s64 value)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	bind.set_input(MYSQL_TYPE_LONGLONG, &mybind);
-	bind.m_signed64 = value;
+MAKE_SETTER_2(signed64, s64, MYSQL_TYPE_LONGLONG)
+    bind.m_signed64 = value;
 }
 
-void statement::set_float(u32 index, f32 value)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	bind.set_input(MYSQL_TYPE_FLOAT, &mybind);
-	bind.m_float32[0] = value;
+MAKE_SETTER_2(float, f32, MYSQL_TYPE_FLOAT)
+    bind.m_float32[0] = value;
 }
 
-void statement::set_double(u32 index, f64 value)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
-
-	bind.set_input(MYSQL_TYPE_DOUBLE, &mybind);
-	bind.m_double64 = value;
+MAKE_SETTER_2(double, f64, MYSQL_TYPE_DOUBLE)
+    bind.m_double64 = value;
 }
 
-void statement::set_null(u32 index)
-{
-	if(index >= m_data->m_bind_count)
-        throw std::out_of_range("Field index out of range");
-
-	bind& bind = m_data->m_binds[index];
-	MYSQL_BIND& mybind = m_data->m_my_binds[index];
+void statement::set_null(u32 index) {
+	MAKE_SETTER_BODY
 
 	bind.set_input(MYSQL_TYPE_NULL, &mybind);
 }

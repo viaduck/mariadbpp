@@ -63,7 +63,7 @@ TEST_F(ParameterizedQueryTest, bindAnyDataType)
 	ParamTest_TEST(errorQuery->set_signed32(0, 100), queryResult->get_signed32(0), "preis", 100);
 	ParamTest_TEST(errorQuery->set_date_time(0, t), queryResult->get_date_time(0), "tim", t);
 	ParamTest_TEST(errorQuery->set_decimal(0, d), queryResult->get_decimal(0), "d", d);
-	ParamTest_TEST(errorQuery->set_null(0), queryResult->is_null(0), "nul", true);
+	ParamTest_TEST(errorQuery->set_null(0), queryResult->get_is_null(0), "nul", true);
 }
 
 TEST_F(ParameterizedQueryTest, bindExecute)

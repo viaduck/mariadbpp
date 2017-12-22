@@ -27,6 +27,23 @@ typedef char **MYSQL_ROW;
 
 typedef struct st_mysql_stmt MYSQL_STMT;
 
+#define MAKE_GETTER_SIG_STR(nm, rtype, fq) rtype fq get_##nm(const std::string &name) const
+#define MAKE_GETTER_SIG_INT(nm, rtype, fq) rtype fq get_##nm(u32 index) const
+
+#define MAKE_GETTER_DECL(nm, rtype) \
+    MAKE_GETTER_SIG_STR(nm, rtype, );   \
+    MAKE_GETTER_SIG_INT(nm, rtype, )
+
+#define MAKE_GETTER(nm, rtype) \
+    MAKE_GETTER_SIG_STR(nm, rtype, result_set::) { \
+        return get_##nm(column_index(name)); \
+    }\
+    MAKE_GETTER_SIG_INT(nm, rtype, result_set::) {\
+        check_result_exists();      \
+                                    \
+        if (index >= m_field_count)     \
+            throw std::out_of_range("Column index out of range");
+
 namespace mariadb
 {
 	class bind;
@@ -74,312 +91,6 @@ namespace mariadb
 		 * Destructs the result_set and frees all result data
 		 */
 		virtual ~result_set();
-
-		/**
-		 * Gets a binary blob result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Reference to the binary data stream
-		 */
-		stream_ref get_blob(const std::string &name) const;
-
-        /**
-		 * Gets a binary blob result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Reference to the binary data blob
-		 */
-		data_ref get_data(const std::string &name) const;
-
-        /**
-		 * Gets a date result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Reference to the date
-		 */
-		date_time get_date(const std::string &name) const;
-
-        /**
-		 * Gets a date_time result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Reference to the date_time
-		 */
-		date_time get_date_time(const std::string &name) const;
-
-        /**
-		 * Gets a time result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Reference to the time
-		 */
-		time get_time(const std::string &name) const;
-
-        /**
-		 * Gets a decimal result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Reference to the decimal
-		 */
-		decimal get_decimal(const std::string &name) const;
-
-        /**
-		 * Gets a string result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return String result
-		 */
-		std::string get_string(const std::string &name) const;
-
-        /**
-		 * Gets a boolean result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Boolean result
-		 */
-		bool get_boolean(const std::string &name) const;
-
-        /**
-		 * Gets a unsigned 8-bit integer result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Unsigned 8-bit result
-		 */
-		u8 get_unsigned8(const std::string &name) const;
-
-        /**
-		 * Gets a signed 8-bit integer result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Signed 8-bit result
-		 */
-		s8 get_signed8(const std::string &name) const;
-
-        /**
-		 * Gets a unsigned 16-bit integer result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Unsigned 16-bit result
-		 */
-		u16 get_unsigned16(const std::string &name) const;
-
-        /**
-		 * Gets a Signed 16-bit integer result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Signed 16-bit result
-		 */
-		s16 get_signed16(const std::string &name) const;
-
-        /**
-		 * Gets a unsigned 32-bit integer result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Unsigned 32-bit result
-		 */
-		u32 get_unsigned32(const std::string &name) const;
-
-        /**
-		 * Gets a signed 32-bit integer result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Signed 32-bit result
-		 */
-		s32 get_signed32(const std::string &name) const;
-
-        /**
-		 * Gets a unsigned 64-bit integer result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Unsigned 64-bit result
-		 */
-		u64 get_unsigned64(const std::string &name) const;
-
-        /**
-		 * Gets a signed 64-bit integer result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Signed 64-bit result
-		 */
-		s64 get_signed64(const std::string &name) const;
-
-        /**
-		 * Gets a float result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Float result
-		 */
-		f32 get_float(const std::string &name) const;
-
-        /**
-		 * Gets a double result by column name
-		 *
-		 * @param name Column name (case-sensitive) to get
-		 * @return Double result
-		 */
-		f64 get_double(const std::string &name) const;
-
-        /**
-		 * Indicates whether a result is null by column name
-		 *
-		 * @param name Column name (case-sensitive) to check
-		 * @return True on null
-		 */
-		bool is_null(const std::string &name) const;
-
-        // get by index
-
-        /**
-         * Gets a binary blob result by column index
-         *
-         * @param name Column index to get
-         * @return Reference to the binary data stream
-         */
-		stream_ref get_blob(u32 index) const;
-
-        /**
-		 * Gets a binary blob result by column index
-		 *
-		 * @param name Column index to get
-		 * @return Reference to the binary data blob
-		 */
-		data_ref get_data(u32 index) const;
-
-        /**
-		 * Gets a date result by column index
-		 *
-		 * @param name Column index to get
-		 * @return Reference to the date
-		 */
-		date_time get_date(u32 index) const;
-
-        /**
-		 * Gets a date_time result by column index
-		 *
-		 * @param name Column index to get
-		 * @return Reference to the date_time
-		 */
-		date_time get_date_time(u32 index) const;
-
-        /**
-		 * Gets a time result by column index
-		 *
-		 * @param name Column index to get
-		 * @return Reference to the time
-		 */
-		time get_time(u32 index) const;
-
-        /**
-		 * Gets a decimal result by column index
-		 *
-		 * @param name Column index to get
-		 * @return Reference to the decimal
-		 */
-		decimal get_decimal(u32 index) const;
-
-        /**
-		 * Gets a string result by column index
-		 *
-		 * @param name Column index to get
-		 * @return String result
-		 */
-		std::string get_string(u32 index) const;
-
-        /**
-		 * Gets a boolean result by column index
-		 *
-		 * @param name Column index to get
-		 * @return Boolean result
-		 */
-		bool get_boolean(u32 index) const;
-
-        /**
-		 * Gets a unsigned 8-bit integer result by column index
-		 *
-		 * @param name Column index to get
-		 * @return Unsigned 8-bit result
-		 */
-		u8 get_unsigned8(u32 index) const;
-
-        /**
-		 * Gets a signed 8-bit integer result by column index
-		 *
-		 * @param name Column index to get
-		 * @return Signed 8-bit result
-		 */
-		s8 get_signed8(u32 index) const;
-
-        /**
-		 * Gets a unsigned 16-bit integer result by column index
-		 *
-		 * @param name Column index to get
-		 * @return Unsigned 16-bit result
-		 */
-		u16 get_unsigned16(u32 index) const;
-
-        /**
-        * Gets a Signed 16-bit integer result by column index
-        *
-        * @param name Column index to get
-        * @return Signed 16-bit result
-        */
-		s16 get_signed16(u32 index) const;
-
-        /**
-		 * Gets a unsigned 32-bit integer result by column index
-		 *
-		 * @param name Column index to get
-		 * @return Unsigned 32-bit result
-		 */
-		u32 get_unsigned32(u32 index) const;
-
-        /**
-		 * Gets a signed 32-bit integer result by column index
-		 *
-		 * @param name Column index to get
-		 * @return Signed 32-bit result
-		 */
-		s32 get_signed32(u32 index) const;
-
-        /**
-		 * Gets a unsigned 64-bit integer result by column index
-		 *
-		 * @param name Column index to get
-		 * @return Unsigned 64-bit result
-		 */
-		u64 get_unsigned64(u32 index) const;
-
-        /**
-		 * Gets a signed 64-bit integer result by column index
-		 *
-		 * @param name Column index to get
-		 * @return Signed 64-bit result
-		 */
-		s64 get_signed64(u32 index) const;
-
-        /**
-		 * Gets a float result by column index
-		 *
-		 * @param name Column index to get
-		 * @return Float result
-		 */
-		f32 get_float(u32 index) const;
-
-        /**
-        * Gets a double result by column index
-        *
-        * @param name Column index to get
-        * @return Double result
-        */
-		f64 get_double(u32 index) const;
-
-        /**
-		 * Indicates whether a result is null by column index
-		 *
-		 * @param name Column index to check
-		 * @return True on null
-		 */
-		bool is_null(u32 index) const;
 
 		/**
 		 * Get the count of columns contained in this result_set
@@ -455,16 +166,37 @@ namespace mariadb
          */
 		bool set_row_index(u64 index);
 
+        // declare all getters
+        MAKE_GETTER_DECL(blob, stream_ref);
+        MAKE_GETTER_DECL(data, data_ref);
+        MAKE_GETTER_DECL(date, date_time);
+        MAKE_GETTER_DECL(date_time, date_time);
+        MAKE_GETTER_DECL(time, time);
+        MAKE_GETTER_DECL(decimal, decimal);
+        MAKE_GETTER_DECL(string, std::string);
+        MAKE_GETTER_DECL(boolean, bool);
+        MAKE_GETTER_DECL(unsigned8, u8);
+        MAKE_GETTER_DECL(signed8, s8);
+        MAKE_GETTER_DECL(unsigned16, u16);
+        MAKE_GETTER_DECL(signed16, s16);
+        MAKE_GETTER_DECL(unsigned32, u32);
+        MAKE_GETTER_DECL(signed32, s32);
+        MAKE_GETTER_DECL(unsigned64, u64);
+        MAKE_GETTER_DECL(signed64, s64);
+        MAKE_GETTER_DECL(float, f32);
+        MAKE_GETTER_DECL(double, f64);
+        MAKE_GETTER_DECL(is_null, bool);
+
 	private:
 		/**
 		 * Create result_set from connection
 		 */
-		result_set(connection* conn);
+		explicit result_set(connection* conn);
 
         /**
          * Create result_set from statement
          */
-		result_set(const statement_data_ref &stmt);
+		explicit result_set(const statement_data_ref &stmt);
 
 	private:
         // pointer to result set
