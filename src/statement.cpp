@@ -10,7 +10,7 @@
 #include <mariadb++/connection.hpp>
 #include <mariadb++/result_set.hpp>
 #include <mariadb++/statement.hpp>
-#include "bind.hpp"
+#include <mariadb++/bind.hpp>
 #include "private.hpp"
 
 using namespace mariadb;
@@ -31,11 +31,10 @@ statement::statement(connection* conn, const std::string& query)
         m_data->m_bind_count = mysql_stmt_param_count(m_data->m_statement);
 
         if (m_data->m_bind_count > 0) {
-            m_data->m_binds = new bind[m_data->m_bind_count];
-            m_data->m_my_binds = new MYSQL_BIND[m_data->m_bind_count];
+            m_data->m_raw_binds = new MYSQL_BIND[m_data->m_bind_count];
 
-            if (m_data->m_my_binds)
-                memset(m_data->m_my_binds, '\0', sizeof(MYSQL_BIND) * m_data->m_bind_count);
+            for (uint32_t i = 0; i < m_data->m_bind_count; i++)
+                m_data->m_binds.emplace_back(&m_data->m_raw_binds[i]);
         }
     }
 }
@@ -43,7 +42,7 @@ statement::statement(connection* conn, const std::string& query)
 void statement::set_connection(connection_ref& connection) { m_connection = connection; }
 
 u64 statement::execute() {
-    if (m_data->m_my_binds && mysql_stmt_bind_param(m_data->m_statement, m_data->m_my_binds))
+    if (m_data->m_raw_binds && mysql_stmt_bind_param(m_data->m_statement, m_data->m_raw_binds))
         STMT_ERROR_RETURN_FALSE(m_data->m_statement);
 
     if (mysql_stmt_execute(m_data->m_statement)) STMT_ERROR_RETURN_FALSE(m_data->m_statement);
@@ -52,7 +51,7 @@ u64 statement::execute() {
 }
 
 u64 statement::insert() {
-    if (m_data->m_my_binds && mysql_stmt_bind_param(m_data->m_statement, m_data->m_my_binds))
+    if (m_data->m_raw_binds && mysql_stmt_bind_param(m_data->m_statement, m_data->m_raw_binds))
         STMT_ERROR_RETURN_FALSE(m_data->m_statement);
 
     if (mysql_stmt_execute(m_data->m_statement)) STMT_ERROR_RETURN_FALSE(m_data->m_statement);
@@ -63,7 +62,7 @@ u64 statement::insert() {
 result_set_ref statement::query() {
     result_set_ref rs;
 
-    if (m_data->m_my_binds && mysql_stmt_bind_param(m_data->m_statement, m_data->m_my_binds))
+    if (m_data->m_raw_binds && mysql_stmt_bind_param(m_data->m_statement, m_data->m_raw_binds))
         STMT_ERROR_RETURN_RS(m_data->m_statement);
 
     if (mysql_stmt_execute(m_data->m_statement)) STMT_ERROR_RETURN_RS(m_data->m_statement);
@@ -79,97 +78,99 @@ MAKE_SETTER(blob, stream_ref)
     u64 size = value->tellg();
     value->seekg(0);
 
-    bind.set_input(MYSQL_TYPE_BLOB, &mybind, nullptr, static_cast<long unsigned int>(size));
-
+    // allocate empty buffer
+    bind.set(MYSQL_TYPE_BLOB, nullptr, static_cast<long unsigned int>(size));
+    // copy stream over
     value->read(bind.buffer(), bind.length());
 }
 
-MAKE_SETTER_2(data, const data_ref&, MYSQL_TYPE_BLOB)
+MAKE_SETTER(data, const data_ref&)
     if (!value) return;
 
     bind.m_data = value;
-    mybind.buffer = (void*)value->get();
-    mybind.buffer_length = value->size();
+    bind.set(MYSQL_TYPE_BLOB, value->get(), value->size());
 }
 
-MAKE_SETTER_2(date_time, const date_time&, MYSQL_TYPE_DATETIME)
+MAKE_SETTER(date_time, const date_time&)
     bind.m_time = value.mysql_time();
-    mybind.buffer = (void*)&bind.m_time;
-    mybind.buffer_length = sizeof(MYSQL_TIME);
+    bind.set(MYSQL_TYPE_DATETIME);
 }
 
-MAKE_SETTER_2(date, const date_time&, MYSQL_TYPE_DATE)
+MAKE_SETTER(date, const date_time&)
     bind.m_time = value.date().mysql_time();
-    mybind.buffer = (void*)&bind.m_time;
-    mybind.buffer_length = sizeof(MYSQL_TIME);
+    bind.set(MYSQL_TYPE_DATE);
 }
 
-MAKE_SETTER_2(time, const mariadb::time&, MYSQL_TYPE_TIME)
+MAKE_SETTER(time, const mariadb::time&)
     bind.m_time = value.mysql_time();
-    mybind.buffer = (void*)&bind.m_time;
-    mybind.buffer_length = sizeof(MYSQL_TIME);
+    bind.set(MYSQL_TYPE_TIME);
 }
 
 MAKE_SETTER(decimal, const decimal&)
     std::string str = value.str();
-
-    bind.set_input(MYSQL_TYPE_STRING, &mybind, str.c_str(), str.size());
+    bind.set(MYSQL_TYPE_STRING, str.c_str(), str.size());
 }
 
 MAKE_SETTER(string, const std::string&)
-    bind.set_input(MYSQL_TYPE_STRING, &mybind, value.c_str(), value.size());
+    bind.set(MYSQL_TYPE_STRING, value.c_str(), value.size());
 }
 
-MAKE_SETTER_2(boolean, bool, MYSQL_TYPE_TINY)
+MAKE_SETTER(boolean, bool)
     bind.m_unsigned64 = value;
+    bind.set(MYSQL_TYPE_TINY);
 }
 
-MAKE_SETTER_2(unsigned8, u8, MYSQL_TYPE_TINY)
+MAKE_SETTER(unsigned8, u8)
     bind.m_unsigned64 = value;
-    mybind.is_unsigned = true;
+    bind.set(MYSQL_TYPE_TINY, nullptr, 0, true);
 }
 
-MAKE_SETTER_2(signed8, s8, MYSQL_TYPE_TINY)
+MAKE_SETTER(signed8, s8)
     bind.m_signed64 = value;
+    bind.set(MYSQL_TYPE_TINY);
 }
 
-MAKE_SETTER_2(unsigned16, u16, MYSQL_TYPE_SHORT)
+MAKE_SETTER(unsigned16, u16)
     bind.m_unsigned64 = value;
-    mybind.is_unsigned = true;
+    bind.set(MYSQL_TYPE_SHORT, nullptr, 0, true);
 }
 
-MAKE_SETTER_2(signed16, s16, MYSQL_TYPE_SHORT)
+MAKE_SETTER(signed16, s16)
     bind.m_signed64 = value;
+    bind.set(MYSQL_TYPE_SHORT);
 }
 
-MAKE_SETTER_2(unsigned32, u32, MYSQL_TYPE_LONG)
+MAKE_SETTER(unsigned32, u32)
     bind.m_unsigned64 = value;
-    mybind.is_unsigned = true;
+    bind.set(MYSQL_TYPE_LONG, nullptr, 0, true);
 }
 
-MAKE_SETTER_2(signed32, s32, MYSQL_TYPE_LONG)
+MAKE_SETTER(signed32, s32)
     bind.m_signed64 = value;
+    bind.set(MYSQL_TYPE_LONG);
 }
 
-MAKE_SETTER_2(unsigned64, u64, MYSQL_TYPE_LONGLONG)
+MAKE_SETTER(unsigned64, u64)
     bind.m_unsigned64 = value;
-    mybind.is_unsigned = true;
+    bind.set(MYSQL_TYPE_LONGLONG, nullptr, 0, true);
 }
 
-MAKE_SETTER_2(signed64, s64, MYSQL_TYPE_LONGLONG)
+MAKE_SETTER(signed64, s64)
     bind.m_signed64 = value;
+    bind.set(MYSQL_TYPE_LONGLONG);
 }
 
-MAKE_SETTER_2(float, f32, MYSQL_TYPE_FLOAT)
+MAKE_SETTER(float, f32)
     bind.m_float32[0] = value;
+    bind.set(MYSQL_TYPE_FLOAT);
 }
 
-MAKE_SETTER_2(double, f64, MYSQL_TYPE_DOUBLE)
+MAKE_SETTER(double, f64)
     bind.m_double64 = value;
+    bind.set(MYSQL_TYPE_DOUBLE);
 }
 
 void statement::set_null(u32 index) {
     MAKE_SETTER_BODY
-
-    bind.set_input(MYSQL_TYPE_NULL, &mybind);
+    bind.set(MYSQL_TYPE_NULL);
 }

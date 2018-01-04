@@ -10,21 +10,21 @@
 #include <mariadb++/connection.hpp>
 #include <mariadb++/result_set.hpp>
 #include <mariadb++/conversion_helper.hpp>
-#include "bind.hpp"
+#include <mariadb++/bind.hpp>
 #include "private.hpp"
 
 using namespace mariadb;
 
 result_set::result_set(connection *connection)
     : m_field_count(0),
-      m_lengths(NULL),
+      m_lengths(nullptr),
       m_result_set(mysql_store_result(connection->m_mysql)),
-      m_fields(NULL),
-      m_my_binds(NULL),
-      m_binds(NULL),
-      m_stmt_data(NULL),
+      m_fields(nullptr),
+      m_raw_binds(nullptr),
+      m_stmt_data(nullptr),
       m_row(nullptr),
       m_has_result(false) {
+
     if (m_result_set) {
         m_field_count = mysql_num_fields(m_result_set);
         m_fields = mysql_fetch_fields(m_result_set);
@@ -35,14 +35,14 @@ result_set::result_set(connection *connection)
 
 result_set::result_set(const statement_data_ref &stmt_data)
     : m_field_count(0),
-      m_lengths(NULL),
-      m_result_set(NULL),
-      m_fields(NULL),
-      m_my_binds(NULL),
-      m_binds(NULL),
+      m_lengths(nullptr),
+      m_result_set(nullptr),
+      m_fields(nullptr),
+      m_raw_binds(nullptr),
       m_stmt_data(stmt_data),
       m_row(nullptr),
       m_has_result(false) {
+
     int max_length = 1;
     mysql_stmt_attr_set(stmt_data->m_statement, STMT_ATTR_UPDATE_MAX_LENGTH, &max_length);
 
@@ -54,27 +54,22 @@ result_set::result_set(const statement_data_ref &stmt_data)
 
         if (m_field_count > 0) {
             m_fields = mysql_fetch_fields(m_result_set);
-            m_binds = new bind[m_field_count];
-            m_my_binds = new MYSQL_BIND[m_field_count];
+            m_raw_binds = new MYSQL_BIND[m_field_count];
             m_row = new char *[m_field_count];
-
-            memset(m_my_binds, 0, sizeof(MYSQL_BIND) * m_field_count);
 
             for (u32 i = 0; i < m_field_count; ++i) {
                 m_indexes[m_fields[i].name] = i;
-                m_binds[i].set_output(m_fields[i], &m_my_binds[i]);
+                m_binds.emplace_back(&m_raw_binds[i], &m_fields[i]);
                 m_row[i] = m_binds[i].buffer();
             }
 
-            mysql_stmt_bind_result(stmt_data->m_statement, m_my_binds);
+            mysql_stmt_bind_result(stmt_data->m_statement, m_raw_binds);
         }
     }
 }
 
 statement_data::~statement_data() {
-    if (m_my_binds) delete[] m_my_binds;
-
-    if (m_binds) delete[] m_binds;
+    delete[] m_raw_binds;
 
     if (m_statement) mysql_stmt_close(m_statement);
 }
@@ -82,15 +77,13 @@ statement_data::~statement_data() {
 result_set::~result_set() {
     if (m_result_set) mysql_free_result(m_result_set);
 
-    if (m_my_binds) delete[] m_my_binds;
+    delete[] m_raw_binds;
 
     if (m_stmt_data) {
-        if (m_row) delete[] m_row;
+        delete[] m_row;
 
         mysql_stmt_free_result(m_stmt_data->m_statement);
     }
-
-    if (m_binds) delete[] m_binds;
 }
 
 u64 result_set::column_count() const { return m_field_count; }

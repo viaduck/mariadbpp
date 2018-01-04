@@ -7,53 +7,44 @@
 
 #include <mysql/mysql.h>
 #include <memory.h>
-#include "bind.hpp"
-#include "private.hpp"
+#include <mariadb++/bind.hpp>
 
 using namespace mariadb;
 
-//
-// Constructor
-//
-bind::bind() : m_is_null(0), m_error(0), m_bind(NULL) {}
+bind::bind(MYSQL_BIND* b) : m_bind(b),
+        m_is_null(0), m_error(0) {
 
-//
-// Get buffer length
-//
-long unsigned int bind::length() const { return m_bind->buffer_length; }
+    // clear bind
+    memset(b, 0, sizeof(MYSQL_BIND));
 
-//
-// Get buffer
-//
+    // set default data
+    m_bind->buffer = &m_unsigned64;
+    m_bind->buffer_length = 0;
+    m_bind->buffer_type = MYSQL_TYPE_NULL;
+    m_bind->is_null = &m_is_null;
+    m_bind->error = &m_error;
+    m_bind->length = &m_bind->buffer_length;
+}
+
+bind::bind(MYSQL_BIND *b, MYSQL_FIELD *f) : bind(b) {
+    set(f->type, nullptr, f->max_length, (f->flags & UNSIGNED_FLAG) == UNSIGNED_FLAG);
+}
+
 char* bind::buffer() const {
     if (m_data) return m_data->get();
 
     return (char*)&m_unsigned64;
 }
 
-//
-// Tell if the bind is null
-//
+unsigned long bind::length() const { return m_bind->buffer_length; }
+
 bool bind::is_null() const { return (m_is_null != 0); }
 
-//
-// Set mysql bind
-//
-void bind::set_output(const MYSQL_FIELD& field, MYSQL_BIND* bind) {
-    set_input(field.type, bind, NULL, field.max_length);
-}
+void bind::set(enum_field_types type, const char* buffer, unsigned long length, bool us) {
+    m_bind->buffer_type = type;
+    m_bind->is_unsigned = us ? 1 : 0;
 
-void bind::set_input(enum_field_types mysql_type, MYSQL_BIND* bind, const char* buffer,
-                     long unsigned int length) {
-    m_bind = bind;
-    m_bind->buffer = &m_unsigned64;
-    m_bind->buffer_type = mysql_type;
-    m_bind->buffer_length = 0;
-    m_bind->is_null = &m_is_null;
-    m_bind->error = &m_error;
-    m_bind->length = &m_bind->buffer_length;
-
-    switch (mysql_type) {
+    switch (type) {
         case MYSQL_TYPE_NULL:
             m_bind->buffer_length = 1;
             break;
@@ -91,6 +82,7 @@ void bind::set_input(enum_field_types mysql_type, MYSQL_BIND* bind, const char* 
         case MYSQL_TYPE_TIMESTAMP:
         case MYSQL_TYPE_DATETIME:
             m_bind->buffer = &m_time;
+            m_bind->buffer_length = sizeof(MYSQL_TIME);
             break;
 
         default:

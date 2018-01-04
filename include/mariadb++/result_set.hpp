@@ -9,23 +9,12 @@
 #define _MARIADB_RESULT_SET_HPP_
 
 #include <map>
+#include <vector>
+#include <mariadb++/bind.hpp>
 #include <mariadb++/data.hpp>
 #include <mariadb++/date_time.hpp>
 #include <mariadb++/decimal.hpp>
 #include <mariadb++/last_error.hpp>
-
-struct st_mysql_res;
-typedef struct st_mysql_res MYSQL_RES;
-
-struct st_mysql_field;
-typedef struct st_mysql_field MYSQL_FIELD;
-
-struct st_mysql_bind;
-typedef struct st_mysql_bind MYSQL_BIND;
-
-typedef char** MYSQL_ROW;
-
-typedef struct st_mysql_stmt MYSQL_STMT;
 
 #define MAKE_GETTER_SIG_STR(nm, rtype, fq) rtype fq get_##nm(const std::string& name) const
 #define MAKE_GETTER_SIG_INT(nm, rtype, fq) rtype fq get_##nm(u32 index) const
@@ -43,7 +32,6 @@ typedef struct st_mysql_stmt MYSQL_STMT;
         if (index >= m_field_count) throw std::out_of_range("Column index out of range");
 
 namespace mariadb {
-class bind;
 class connection;
 class statement;
 
@@ -67,10 +55,10 @@ struct statement_data {
     unsigned long m_bind_count = 0;
     // pointer to underlying statement
     MYSQL_STMT* m_statement;
-    // pointer to underlying bindings
-    MYSQL_BIND* m_my_binds = nullptr;
-    // pointer to bind managers
-    bind* m_binds = nullptr;
+    // pointer to raw binds
+    MYSQL_BIND* m_raw_binds = nullptr;
+    // pointer to managed binds
+    std::vector<bind> m_binds;
 };
 
 /**
@@ -209,11 +197,11 @@ class result_set : public last_error {
     MYSQL_FIELD* m_fields;
     // pointer to current row
     MYSQL_ROW m_row;
-    // pointer to binds if any
-    MYSQL_BIND* m_my_binds;
+    // pointer to raw binds
+    MYSQL_BIND* m_raw_binds;
 
-    // pointer to each bind manager
-    bind* m_binds;
+    // vector of managed binds
+    std::vector<bind> m_binds;
     // optional pointer to statement
     statement_data_ref m_stmt_data;
     // map caching column name by index

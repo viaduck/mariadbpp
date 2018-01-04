@@ -8,6 +8,7 @@
 #ifndef _MARIADB_BIND_HPP_
 #define _MARIADB_BIND_HPP_
 
+#include <mysql/mysql.h>
 #include <mariadb++/types.hpp>
 #include <mariadb++/data.hpp>
 
@@ -19,39 +20,32 @@ class bind {
     friend class result_set;
 
    public:
-    //
-    // Constructor
-    //
-    bind();
+    /**
+     * Construct a parameter bind
+     */
+    explicit bind(MYSQL_BIND *mysql_bind);
 
-    //
-    // Get buffer
-    //
+    /**
+     * Construct a result bind for given field type
+     */
+    bind(MYSQL_BIND *mysql_bind, MYSQL_FIELD *mysql_field);
+
     char* buffer() const;
 
-    //
-    // Get buffer length
-    //
     long unsigned int length() const;
 
-    //
-    // Tell if the bind is null
-    //
     bool is_null() const;
 
-    //
-    // Set mysql bind for input / output
-    //
-    void set_output(const MYSQL_FIELD& field, MYSQL_BIND* bind);
-    void set_input(enum_field_types mysql_type, MYSQL_BIND* bind, const char* buffer = NULL,
-                   long unsigned int length = 0);
+    void set(enum_field_types type, const char* buffer = nullptr, unsigned long length = 0, bool us = false);
 
    private:
-    my_bool m_is_null;
-    my_bool m_error;
-    data_ref m_data;
     MYSQL_BIND* m_bind;
     MYSQL_TIME m_time;
+
+    my_bool m_is_null;
+    my_bool m_error;
+
+    data_ref m_data;
 
     union {
         u64 m_unsigned64;
