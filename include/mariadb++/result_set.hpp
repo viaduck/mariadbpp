@@ -58,7 +58,7 @@ struct statement_data {
     // pointer to raw binds
     MYSQL_BIND* m_raw_binds = nullptr;
     // pointer to managed binds
-    std::vector<bind> m_binds;
+    std::vector<bind_ref> m_binds;
 };
 
 /**
@@ -201,7 +201,7 @@ class result_set : public last_error {
     MYSQL_BIND* m_raw_binds;
 
     // vector of managed binds
-    std::vector<bind> m_binds;
+    std::vector<bind_ref> m_binds;
     // optional pointer to statement
     statement_data_ref m_stmt_data;
     // map caching column name by index

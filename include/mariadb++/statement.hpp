@@ -18,7 +18,7 @@
 #define MAKE_SETTER_BODY                                                                    \
     if (index >= m_data->m_bind_count) throw std::out_of_range("Field index out of range"); \
                                                                                             \
-    bind& bind = m_data->m_binds.at(index);
+    bind& bind = *m_data->m_binds.at(index);
 
 #define MAKE_SETTER(nm, type)                \
     MAKE_SETTER_SIG(nm, type, statement::) { \

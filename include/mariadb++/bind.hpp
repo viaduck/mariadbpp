@@ -30,6 +30,15 @@ class bind {
      */
     bind(MYSQL_BIND *mysql_bind, MYSQL_FIELD *mysql_field);
 
+    /*
+     * Disallow copying and moving of a bind:
+     * As the bind can set its union as the bind "buffer", copying the bind would change the address of the union
+     */
+    bind(const bind &) = delete;
+    bind(bind &&) = delete;
+    bind &operator=(const bind &) = delete;
+    bind &operator=(bind &&) = delete;
+
     char* buffer() const;
 
     long unsigned int length() const;
@@ -53,8 +62,11 @@ class bind {
         s32 m_signed32[2];
         f64 m_double64;
         f32 m_float32[2];
+        u8  m_uchar8[4];
     };
 };
+
+    using bind_ref = std::unique_ptr<bind>;
 }
 
 #endif

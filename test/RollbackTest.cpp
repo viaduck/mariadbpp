@@ -74,12 +74,15 @@ TEST_F(RollbackTest, testMultiInsertIntegration) {
             ""
     };
 
+    const char *content = "01234567890123456789012345678901234567890123456789" \
+                          "01234567890123456789012345678901234567890123456789";
+
     u32 index = 0;
 
     while (queries[index] != "")
     {
         statement_ref sta = m_con->create_statement(queries[index]);
-        data_ref data = data_ref(new mariadb::data<char>(100));
+        data_ref data = data_ref(new mariadb::data<char>(content, 100));
 
         sta->set_data(0, data);
 

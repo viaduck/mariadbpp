@@ -78,11 +78,20 @@ TEST_F(ParameterizedQueryTest, bindDataBlob)
 {
 	mariadb::statement_ref errorQuery = m_con->create_statement("SELECT * FROM " + m_table_name + " WHERE id = ?;");
 
-	const char* c = reinterpret_cast<const char*>(new char[400]);
+	const char* c = "0123456789012345678901234567890123456789" \
+					"0123456789012345678901234567890123456789" \
+					"0123456789012345678901234567890123456789" \
+					"0123456789012345678901234567890123456789" \
+					"0123456789012345678901234567890123456789" \
+					"0123456789012345678901234567890123456789" \
+					"0123456789012345678901234567890123456789" \
+					"0123456789012345678901234567890123456789" \
+					"0123456789012345678901234567890123456789" \
+					"0123456789012345678901234567890123456789";
+
 	errorQuery->set_data(0, mariadb::data_ref(new mariadb::data<char>(c, 400)));
 
 	mariadb::result_set_ref queryResult = errorQuery->query();
-	delete[] c;
 
 	ASSERT_TRUE(!!queryResult);
 	ASSERT_FALSE(queryResult->next());

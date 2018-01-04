@@ -34,7 +34,7 @@ statement::statement(connection* conn, const std::string& query)
             m_data->m_raw_binds = new MYSQL_BIND[m_data->m_bind_count];
 
             for (uint32_t i = 0; i < m_data->m_bind_count; i++)
-                m_data->m_binds.emplace_back(&m_data->m_raw_binds[i]);
+                m_data->m_binds.emplace_back(new bind(&m_data->m_raw_binds[i]));
         }
     }
 }
