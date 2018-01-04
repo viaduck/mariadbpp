@@ -11,9 +11,7 @@
 
 using namespace mariadb;
 
-bind::bind(MYSQL_BIND* b) : m_bind(b),
-        m_is_null(0), m_error(0) {
-
+bind::bind(MYSQL_BIND* b) : m_bind(b), m_is_null(0), m_error(0) {
     // clear bind
     memset(b, 0, sizeof(MYSQL_BIND));
 
@@ -26,7 +24,7 @@ bind::bind(MYSQL_BIND* b) : m_bind(b),
     m_bind->length = &m_bind->buffer_length;
 }
 
-bind::bind(MYSQL_BIND *b, MYSQL_FIELD *f) : bind(b) {
+bind::bind(MYSQL_BIND* b, MYSQL_FIELD* f) : bind(b) {
     set(f->type, nullptr, f->max_length, (f->flags & UNSIGNED_FLAG) == UNSIGNED_FLAG);
 }
 

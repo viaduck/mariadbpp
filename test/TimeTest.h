@@ -5,16 +5,13 @@
 #ifndef MARIADBCLIENTPP_TIMETEST_H
 #define MARIADBCLIENTPP_TIMETEST_H
 
-
 #include "SkeletonTest.h"
 
 class TimeTest : public SkeletonTest {
-
-protected:
+   protected:
     virtual void CreateTestTable() override {
         // do nothing here
     }
 };
 
-
-#endif //MARIADBCLIENTPP_TIMETEST_H
+#endif  // MARIADBCLIENTPP_TIMETEST_H

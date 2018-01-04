@@ -9,18 +9,23 @@
 using namespace mariadb;
 
 class SkeletonTest : public ::testing::Test {
-public:
+   public:
     virtual void SetUp() override {
         // get test names and concatenate them
-        const ::testing::TestInfo* const test_info = ::testing::UnitTest::GetInstance()->current_test_info();
-        m_table_name = std::string(test_info->test_case_name()) + "_" + std::string(test_info->name());
+        const ::testing::TestInfo* const test_info =
+            ::testing::UnitTest::GetInstance()->current_test_info();
+        m_table_name =
+            std::string(test_info->test_case_name()) + "_" + std::string(test_info->name());
 
         // create user account
         using TestConfig = mariadb::testing::TestConfig;
         if (std::string(TestConfig::UnixSocket) != "")
-            m_account_setup = account::create("", TestConfig::User, TestConfig::Password, TestConfig::Database, 0, TestConfig::UnixSocket);
+            m_account_setup = account::create("", TestConfig::User, TestConfig::Password,
+                                              TestConfig::Database, 0, TestConfig::UnixSocket);
         else
-            m_account_setup = account::create(TestConfig::Hostname, TestConfig::User, TestConfig::Password, TestConfig::Database, TestConfig::Port);
+            m_account_setup =
+                account::create(TestConfig::Hostname, TestConfig::User, TestConfig::Password,
+                                TestConfig::Database, TestConfig::Port);
         ASSERT_TRUE(!!m_account_setup);
         m_account_setup->set_auto_commit(true);
 
@@ -35,11 +40,9 @@ public:
         CreateTestTable();
     }
 
-    virtual void TearDown() override {
-        m_con->disconnect();
-    }
+    virtual void TearDown() override { m_con->disconnect(); }
 
-protected:
+   protected:
     virtual void CreateTestTable() = 0;
 
     account_ref m_account_setup;
@@ -48,5 +51,4 @@ protected:
     connection_ref m_con;
 };
 
-
-#endif //MARIADBCLIENTPP_SKELETONTEST_H
+#endif  // MARIADBCLIENTPP_SKELETONTEST_H

@@ -17,7 +17,6 @@ TEST_F(StructureTest, testDateTime) {
     EXPECT_EQ(dt, dt2);
     EXPECT_EQ("2000-01-12 03:04:05", dt2.str(false));
     EXPECT_EQ("2000-01-12 03:04:05.666", dt2.str(true));
-
 }
 
 TEST_F(StructureTest, testTime) {

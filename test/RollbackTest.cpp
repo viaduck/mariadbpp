@@ -61,26 +61,24 @@ TEST_F(RollbackTest, testSavePointNoCommit) {
     EXPECT_EQ(0, rs->get_unsigned64(0));
 }
 
-
 TEST_F(RollbackTest, testMultiInsertIntegration) {
-
     std::string queries[] = {
-            "INSERT INTO " + m_table_name + " (data) VALUES(?);",
-            "INSERT INTO " + m_table_name + " (data, str) VALUES(?, ?);",
-            "INSERT INTO " + m_table_name + " (data, str, dt) VALUES(?, ?, ?);",
-            "INSERT INTO " + m_table_name + " (data, str, dt, t) VALUES(?, ?, ?, ?);",
-            "INSERT INTO " + m_table_name + " (data, str, dt, t, value) VALUES(?, ?, ?, ?, ?);",
-            "INSERT INTO " + m_table_name + " (data, str, dt, t, value, deci) VALUES(?, ?, ?, ?, ?, ?);",
-            ""
-    };
+        "INSERT INTO " + m_table_name + " (data) VALUES(?);",
+        "INSERT INTO " + m_table_name + " (data, str) VALUES(?, ?);",
+        "INSERT INTO " + m_table_name + " (data, str, dt) VALUES(?, ?, ?);",
+        "INSERT INTO " + m_table_name + " (data, str, dt, t) VALUES(?, ?, ?, ?);",
+        "INSERT INTO " + m_table_name + " (data, str, dt, t, value) VALUES(?, ?, ?, ?, ?);",
+        "INSERT INTO " + m_table_name +
+            " (data, str, dt, t, value, deci) VALUES(?, ?, ?, ?, ?, ?);",
+        ""};
 
-    const char *content = "01234567890123456789012345678901234567890123456789" \
-                          "01234567890123456789012345678901234567890123456789";
+    const char *content =
+        "01234567890123456789012345678901234567890123456789"
+        "01234567890123456789012345678901234567890123456789";
 
     u32 index = 0;
 
-    while (queries[index] != "")
-    {
+    while (queries[index] != "") {
         statement_ref sta = m_con->create_statement(queries[index]);
         data_ref data = data_ref(new mariadb::data<char>(content, 100));
 
@@ -104,7 +102,8 @@ TEST_F(RollbackTest, testMultiInsertIntegration) {
     // Validate the inserted value from last test
     //
 
-    result_set_ref rs = m_con->query("SELECT data, str, dt, t, value, deci FROM " + m_table_name + " ORDER BY id DESC LIMIT 1;");
+    result_set_ref rs = m_con->query("SELECT data, str, dt, t, value, deci FROM " + m_table_name +
+                                     " ORDER BY id DESC LIMIT 1;");
 
     EXPECT_TRUE(!!rs);
     EXPECT_TRUE(rs->next());
