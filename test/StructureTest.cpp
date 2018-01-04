@@ -47,14 +47,7 @@ TEST_F(StructureTest, testTimeSpan) {
 
 TEST_F(StructureTest, testDecimal) {
     decimal d("24.1234");
-    decimal d2(24.1234f, 4);
 
-    EXPECT_EQ(d, d2);
-
-    d -= d2;
-    EXPECT_FALSE(d.unbiased());
-
-    d += d2;
-    EXPECT_EQ(d, d2);
+    EXPECT_EQ(24.1234, d.double64());
     EXPECT_EQ("24.1234", d.str());
 }

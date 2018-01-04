@@ -87,7 +87,7 @@ TEST_F(RollbackTest, testMultiInsertIntegration) {
         if (index >= 2) sta->set_date_time(2, mariadb::date_time(2000, 1, 2, 3, 4, 5));
         if (index >= 3) sta->set_time(3, mariadb::time(11, 22, 33));
         if (index >= 4) sta->set_signed32(4, 666);
-        if (index >= 5) sta->set_decimal(5, "1.1234");
+        if (index >= 5) sta->set_decimal(5, decimal("1.1234"));
         EXPECT_NE(0, sta->insert());
 
         index++;

@@ -293,89 +293,89 @@ MAKE_GETTER(string, std::string, value::type::string)
 MAKE_GETTER(date, date_time, value::type::date)
     if (m_stmt_data) return mariadb::date_time(m_binds[index].m_time);
 
-    return date_time(m_row[index]).date();
+    return date_time(std::string(m_row[index], column_size(index))).date();
 }
 
 MAKE_GETTER(date_time, date_time, value::type::date_time)
     if (m_stmt_data) return mariadb::date_time(m_binds[index].m_time);
 
-    return date_time(m_row[index]);
+    return date_time(std::string(m_row[index], column_size(index)));
 }
 
 MAKE_GETTER(time, mariadb::time, value::type::time)
     if (m_stmt_data) return mariadb::time(m_binds[index].m_time);
 
-    return mariadb::time(m_row[index]);
+    return mariadb::time(std::string(m_row[index], column_size(index)));
 }
 
 MAKE_GETTER(decimal, decimal, value::type::decimal)
-    return decimal(m_row[index]);
+    return decimal(std::string(m_row[index], column_size(index)));
 }
 
 MAKE_GETTER(boolean, bool, value::type::boolean)
     if (m_stmt_data) return (m_binds[index].m_unsigned64 != 0);
 
-    return string_cast<bool>(m_row[index]);
+    return string_cast<bool>(std::string(m_row[index], column_size(index)));
 }
 
 MAKE_GETTER(unsigned8, u8, value::type::unsigned8)
     if (m_stmt_data) return checked_cast<u8>(0x00000000000000ff & m_binds[index].m_unsigned64);
 
-    return string_cast<u8>(m_row[index]);
+    return string_cast<u8>(std::string(m_row[index], column_size(index)));
 }
 
 MAKE_GETTER(signed8, s8, value::type::signed8)
     if (m_stmt_data) return checked_cast<s8>(0x00000000000000ff & m_binds[index].m_signed64);
 
-    return string_cast<s8>(m_row[index]);
+    return string_cast<s8>(std::string(m_row[index], column_size(index)));
 }
 
 MAKE_GETTER(unsigned16, u16, value::type::unsigned16)
     if (m_stmt_data) return checked_cast<u16>(0x000000000000ffff & m_binds[index].m_unsigned64);
 
-    return string_cast<u16>(m_row[index]);
+    return string_cast<u16>(std::string(m_row[index], column_size(index)));
 }
 
 MAKE_GETTER(signed16, s16, value::type::signed16)
     if (m_stmt_data) return checked_cast<s16>(0x000000000000ffff & m_binds[index].m_signed64);
 
-    return string_cast<s16>(m_row[index]);
+    return string_cast<s16>(std::string(m_row[index], column_size(index)));
 }
 
 MAKE_GETTER(unsigned32, u32, value::type::unsigned32)
     if (m_stmt_data) return checked_cast<u32>(0x00000000ffffffff & m_binds[index].m_unsigned64);
 
-    return string_cast<u32>(m_row[index]);
+    return string_cast<u32>(std::string(m_row[index], column_size(index)));
 }
 
 MAKE_GETTER(signed32, s32, value::type::signed32)
     if (m_stmt_data) return m_binds[index].m_signed32[0];
 
-    return string_cast<s32>(m_row[index]);
+    return string_cast<s32>(std::string(m_row[index], column_size(index)));
 }
 
 MAKE_GETTER(unsigned64, u64, value::type::unsigned64)
     if (m_stmt_data) return m_binds[index].m_unsigned64;
 
-    return string_cast<u64>(m_row[index]);
+    return string_cast<u64>(std::string(m_row[index], column_size(index)));
 }
 
 MAKE_GETTER(signed64, s64, value::type::signed64)
     if (m_stmt_data) return m_binds[index].m_signed64;
 
-    return string_cast<s64>(m_row[index]);
+    return string_cast<s64>(std::string(m_row[index], column_size(index)));
 }
 
 MAKE_GETTER(float, f32, value::type::float32)
     if (m_stmt_data) return m_binds[index].m_float32[0];
 
-    return string_cast<f32>(m_row[index]);
+    return string_cast<f32>(std::string(m_row[index], column_size(index)));
 }
 
 MAKE_GETTER(double, f64, value::type::double64)
     if (m_stmt_data) return checked_cast<f64>(m_binds[index].m_double64);
 
-    return string_cast<f64>(m_row[index]);
+    return string_cast<f64>(std::string(m_row[index], column_size(index)));
 }
 
 MAKE_GETTER(is_null, bool, value::type::null)

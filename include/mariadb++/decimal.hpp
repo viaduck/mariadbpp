@@ -11,89 +11,27 @@
 
 #include <string>
 #include <mariadb++/types.hpp>
+#include <mariadb++/conversion_helper.hpp>
 
 namespace mariadb {
 class decimal {
-   private:
-    static const double g_factors[];
+public:
+    explicit decimal(std::string str = "") : mStr(std::move(str)) { }
 
-   public:
-    //
-    // Constructors
-    //
-    decimal();
-    decimal(const decimal& src);
-    decimal(const char* string);
-    template <typename type>
-    explicit decimal(type value, u8 precision) : m_precision(precision) {
-        m_value = round(g_factors[precision] * value);
+    std::string str() const {
+        return mStr;
     }
 
-    //
-    // Methods
-    //
-    s64 factor() const;
-    u8 precision() const;
-    decimal abs() const;
-
-    //
-    // Operators
-    //
-    int compare(const decimal& dec) const;
-    decimal& operator=(const decimal& dec);
-    decimal& operator=(s64 dec);
-    decimal& operator=(s32 dec);
-    decimal& operator=(f32 dec);
-    decimal& operator=(f64 dec);
-    bool operator==(const decimal& dec) const;
-    bool operator<(const decimal& dec) const;
-    bool operator<=(const decimal& dec) const;
-    bool operator>(const decimal& dec) const;
-    bool operator>=(const decimal& dec) const;
-    bool operator!=(const decimal& dec) const;
-    const decimal operator+(const decimal& dec) const;
-    decimal& operator+=(const decimal& dec);
-    const decimal operator-(const decimal& dec) const;
-    decimal& operator-=(const decimal& dec);
-    const decimal operator*(const decimal& dec) const;
-    decimal& operator*=(const decimal& dec);
-    const decimal operator/(const decimal& dec) const;
-    decimal& operator/=(const decimal& dec);
-
-    //
-    // String
-    //
-    std::string str() const;
-
-    //
-    // Get decimal
-    //
-    f32 float32() const;
-    f64 double64() const;
-    f128 double128() const;
-
-    //
-    // Returns interget value = real_value * (10 ^ precision)
-    //
-    s64 unbiased() const;
-
-   private:
-    //
-    // Round
-    //
-    template <typename type>
-    s64 round(type value) {
-        return s64(value < 0.0 ? value - 0.5 : value + 0.5);
+    f32 float32() const {
+        return string_cast<f32>(mStr);
     }
 
-    //
-    // Convert a decimal to the same precision as this one
-    //
-    s64 convert(const decimal& dec) const;
+    f64 double64() const {
+        return string_cast<f64>(mStr);
+    }
 
-   private:
-    u8 m_precision;
-    s64 m_value;
+private:
+        std::string mStr;
 };
 }
 
