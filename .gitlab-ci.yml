@@ -3,6 +3,7 @@ services:
     - mariadb:latest
     
 variables:
+    GIT_SUBMODULE_STRATEGY: recursive
     MYSQL_DATABASE: "mariadbpptest"
     MYSQL_USER: "test"
     MYSQL_PASSWORD: "test"
@@ -13,7 +14,6 @@ stages:
 
 test:
     script:
-        - git submodule update --init
         - mkdir build
         - cd build
         - cmake ../ -DTEST_HOSTNAME=mariadb -DTEST_USERNAME=$MYSQL_USER -DTEST_PASSWORD=$MYSQL_PASSWORD -DTEST_PORT=3306 -DTEST_DATABASE=$MYSQL_DATABASE
