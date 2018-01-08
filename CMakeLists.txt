@@ -9,10 +9,13 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # dependencies
-# FIXME: add switch for mariadbclient in the future
-find_library(mariadb_LIBRARY mysqlclient)
+find_library(mariadb_LIBRARY mariadbclient)
 if (NOT mariadb_LIBRARY)
-    message(FATAL_ERROR "Could not find mysqlclient lib")
+
+	find_library(mariadb_LIBRARY mysqlclient)
+    if (NOT mariadb_LIBRARY)
+        message(FATAL_ERROR "Could not find mysqlclient lib")
+    endif()
 endif()
 
 # find files
