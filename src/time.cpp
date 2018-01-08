@@ -21,10 +21,9 @@
 
 #define THROW_EXCEPTION(_hour, _minute, _second, _millisecond)                                \
     {                                                                                         \
-        if (g_log_error)                                                                      \
-            std::cerr << "MariaDB Invalid time: hour - " << _hour << ", minute - " << _minute \
-                      << ", second - " << _second << ", millisecond - " << _millisecond       \
-                      << "\nIn function: " << __FUNCTION__ << '\n';                           \
+        std::cerr << "MariaDB Invalid time: hour - " << _hour << ", minute - " << _minute     \
+                  << ", second - " << _second << ", millisecond - " << _millisecond           \
+                  << "\nIn function: " << __FUNCTION__ << '\n';                               \
         MARIADB_ERROR_THROW_TIME(_hour, _minute, _second, _millisecond)                       \
         return false;                                                                         \
     }

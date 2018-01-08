@@ -1,73 +1,45 @@
+cmake_minimum_required(VERSION 3.1)
 project(mariadbclientpp)
 
-cmake_minimum_required(VERSION 2.8)
-
 # add additional cmake modules
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake-modules")
+list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake-modules")
 
+# c++ standard
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-#####################################################################################
-set(mariadb_LIBRARIES mysqlclient)
-
-#####################################################################################
 # dependencies
-
-#find_package(MySQL REQUIRED)
-
-include_directories(
-	"${CMAKE_CURRENT_BINARY_DIR}/include"
-	"${CMAKE_CURRENT_SOURCE_DIR}/external/googletest/include"
-)
-
-set(MARIADB_USES_EXCEPTION ON CACHE BOOL "Whether to use exceptions in mariadbpp")
-
-if(MARIADB_USES_EXCEPTION)
-	add_definitions(-DMARIADB_USES_EXCEPTION)
+# FIXME: add switch for mariadbclient in the future
+find_library(mariadb_LIBRARY mysqlclient)
+if (NOT mariadb_LIBRARY)
+    message(FATAL_ERROR "Could not find mysqlclient lib")
 endif()
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-	add_definitions(-DDEBUG)
-endif()
-
-
-if (CMAKE_VERSION VERSION_LESS "3.1")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-else()
-	set(CMAKE_CXX_STANDARD 11)
-endif()
-
+# find files
 file(GLOB mariadbclientpp_PUBLIC_HEADERS include/mariadb++/*)
-source_group("Public Header Files" FILES ${mariadbclientpp_PUBLIC_HEADERS})
-
 file(GLOB mariadbclientpp_PRIVATE_HEADERS src/*.hpp)
-source_group("Internal Header Files" FILES ${mariadbclientpp_PRIVATE_HEADERS})
-
 file(GLOB mariadbclientpp_SOURCES src/*.cpp)
-source_group("Source Files" FILES ${mariadbclientpp_SOURCES})
 
+# set up target
 add_library(mariadbclientpp STATIC ${mariadbclientpp_SOURCES} ${mariadbclientpp_PUBLIC_HEADERS} ${mariadbclientpp_PRIVATE_HEADERS})
-target_link_libraries(mariadbclientpp ${mariadb_LIBRARIES} pthread)
 
-target_include_directories(mariadbclientpp PUBLIC
-		${CMAKE_CURRENT_SOURCE_DIR}/include
-		)
+# target options
+target_link_libraries(mariadbclientpp ${mariadb_LIBRARY} pthread)
+target_include_directories(mariadbclientpp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+# install configuration
+install(FILES ${mariadbclientpp_PUBLIC_HEADERS} DESTINATION include/mariadb++)
 install(TARGETS mariadbclientpp
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib
 )
-install(FILES ${mariadbclientpp_PUBLIC_HEADERS}
-	DESTINATION include/mariadb++
-)
+
+# tests
+add_subdirectory(test)
 
 # doxygen
 include(Doxygen)
 if (DOXYGEN_FOUND)
 	setup_doxygen(mariadbpp_doc ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
 endif()
-
-if (NOT TARGET gtest)
-	add_subdirectory(external/googletest)
-endif()
-add_subdirectory(test)

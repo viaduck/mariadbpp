@@ -1,3 +1,4 @@
+# variables for running tests
 set(TEST_HOSTNAME "localhost" CACHE STRING "Hostname for mariadbpp tests")
 set(TEST_PORT 3306 CACHE INTEGER "Port for mariadbpp tests")
 set(TEST_UNIXSOCKET "" CACHE STRING "Unix socket for mariadbpp tests")
@@ -5,22 +6,35 @@ set(TEST_USERNAME "testuser" CACHE STRING "Database username for mariadbpp tests
 set(TEST_PASSWORD "bockwurst" CACHE STRING "Database username's password for mariadbpp tests")
 set(TEST_DATABASE "mariadbpptest" CACHE STRING "Database name for mariadbpp test")
 
+# write config to header in binary dir
 configure_file(test_config.h.in test_config.h)
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-### coverage
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage")
+include(FindOrBuildGTest)
 
+if (GTEST_FOUND)
+    # collect test files
+    file(GLOB mariadbpp_tests_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
+    file(GLOB mariadbpp_tests_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
-add_executable(mariadbpp_tests ${mariadbclientpp_SOURCES} ${mariadbclientpp_PUBLIC_HEADERS} SkeletonTest.h SelectTest.cpp
-                SelectTest.h GeneralTest.cpp GeneralTest.h AlterTableTest.cpp AlterTableTest.h ParameterizedQueryTest.cpp
-                ParameterizedQueryTest.h StructureTest.cpp StructureTest.h RollbackTest.cpp RollbackTest.h test_config.h
-                TimeTest.cpp TimeTest.h TruncationTest.cpp TruncationTest.h)
+    ### coverage
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+    if (NOT WIN32)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
+    endif()
 
-target_link_libraries(mariadbpp_tests mariadbclientpp gtest_main)
+    include_directories(${GTEST_INCLUDE_DIRS})
+    include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-## code coverage
-include(CodeCoverage)
-if (LCOV_PATH)
-    setup_target_for_coverage(mariadbpp_coverage mariadbpp_tests ${CMAKE_CURRENT_BINARY_DIR}/coverage)
+    add_executable(mariadbpp_tests ${mariadbclientpp_SOURCES} ${mariadbclientpp_PUBLIC_HEADERS}
+                                        ${mariadbpp_tests_HEADERS} ${mariadbpp_tests_SOURCES})
+
+    target_link_libraries(mariadbpp_tests mariadbclientpp gtest_main)
+
+    if (NOT WIN32 AND NOT ANDROID)
+        include(CodeCoverage)
+
+        if (LCOV_PATH)
+            setup_target_for_coverage(mariadbpp_coverage mariadbpp_tests ${CMAKE_CURRENT_BINARY_DIR}/coverage)
+        endif()
+    endif()
 endif()
