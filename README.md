@@ -13,7 +13,7 @@ C++ client library for MariaDB. Uses the C connector.
 2. Install `mariadbclient` or `mysqlclient` libraries.
 
 ### Building tests
-Create database and user according to the information in [test/CMakeLists.txt](test/CmakeLists.txt) or adjust these values.
+Create database and user according to the information in [test/CMakeLists.txt](test/CMakeLists.txt) or adjust these values.
 
 ## Usage
 Link against the `mariadbclientpp` CMake target in your project.  
