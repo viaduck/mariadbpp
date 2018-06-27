@@ -38,9 +38,6 @@ namespace mariadb {
 class connection;
 class statement;
 
-class statement_data;
-typedef std::shared_ptr<statement_data> statement_data_ref;
-
 /*
  * This data is shared between a statement and its result_set,
  * therefore it needs to be destroyed only when
@@ -63,6 +60,8 @@ struct statement_data {
     // pointer to managed binds
     std::vector<bind_ref> m_binds;
 };
+
+typedef std::shared_ptr<statement_data> statement_data_ref;
 
 /**
  * Class used to store query and statement results
