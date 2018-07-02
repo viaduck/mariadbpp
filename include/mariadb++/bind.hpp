@@ -14,6 +14,10 @@
 #include <mariadb++/types.hpp>
 #include <mariadb++/data.hpp>
 
+#if MYSQL_VERSION_ID > 80000
+typedef bool my_bool;
+#endif
+
 namespace mariadb {
 class statement;
 class result_set;
@@ -53,8 +57,8 @@ class bind {
     MYSQL_BIND* m_bind;
     MYSQL_TIME m_time;
 
-    bool m_is_null;
-    bool m_error;
+    my_bool m_is_null;
+    my_bool m_error;
 
     data_ref m_data;
 
