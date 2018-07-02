@@ -14,8 +14,10 @@
 #include <iostream>
 #include <mariadb++/time_span.hpp>
 
+#if MYSQL_VERSION_ID < 80000
 struct st_mysql_time;
 typedef struct st_mysql_time MYSQL_TIME;
+#endif
 
 namespace mariadb {
 /**

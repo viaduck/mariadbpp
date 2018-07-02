@@ -53,8 +53,8 @@ class bind {
     MYSQL_BIND* m_bind;
     MYSQL_TIME m_time;
 
-    my_bool m_is_null;
-    my_bool m_error;
+    bool m_is_null;
+    bool m_error;
 
     data_ref m_data;
 
