@@ -93,6 +93,14 @@ bool connection::connect() {
             MYSQL_ERROR_RETURN_FALSE(m_mysql);
     }
 
+    //
+    // set connect options
+    //
+    for (auto& pair : m_account->connect_options()) {
+        if (0 != mysql_options(m_mysql, pair.first, pair.second->value()))
+            MYSQL_ERROR_DISCONNECT(m_mysql);
+    }
+
     if (!mysql_real_connect(
             m_mysql, m_account->host_name().c_str(), m_account->user_name().c_str(),
             m_account->password().c_str(), nullptr, m_account->port(),
