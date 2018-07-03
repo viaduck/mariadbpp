@@ -1,0 +1,29 @@
+language: cpp
+dist: trusty
+
+addons:
+    mariadb: '10.0'
+    apt:
+        sources:
+            - ubuntu-toolchain-r-test
+        packages:
+            - g++-5
+            - libmariadbclient-dev
+            - libgtest-dev
+
+env:
+  global:
+    - MAKEFLAGS="-j 2"
+    - MYSQL_DATABASE="mariadbpp_tests"
+    - MYSQL_USER: "travis"
+    - MYSQL_PASSWORD: ""
+
+before_install:
+  - export CXX="g++-5" CC="gcc-5"
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS mariadbpp_tests;'
+
+script:
+    - mkdir build && cd build
+    - cmake ../ -DGTEST_SRC_DIR=/usr/src/gtest/ -DCMAKE_BUILD_TYPE=Debug -DTEST_USERNAME=$MYSQL_USER -DTEST_PASSWORD=$MYSQL_PASSWORD -DTEST_PORT=3306 -DTEST_DATABASE=$MYSQL_DATABASE && cmake --build .
+    # TODO travis user has right to create new databases so this test fails
+    - test/mariadbpp_tests --gtest_filter=-GeneralTest.testPermissions
