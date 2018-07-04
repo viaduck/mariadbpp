@@ -18,7 +18,7 @@
 #include <mariadb++/save_point.hpp>
 #include <mariadb++/result_set.hpp>
 
-#if MYSQL_VERSION_ID < 80000
+#if MYSQL_COMMUNITY_8 < 80000
 struct st_mysql;
 typedef struct st_mysql MYSQL;
 #endif
