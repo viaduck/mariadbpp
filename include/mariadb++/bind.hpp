@@ -14,6 +14,10 @@
 #include <mariadb++/types.hpp>
 #include <mariadb++/data.hpp>
 
+#if MYSQL_COMMUNITY_8 > 80000
+typedef bool my_bool;
+#endif
+
 namespace mariadb {
 class statement;
 class result_set;

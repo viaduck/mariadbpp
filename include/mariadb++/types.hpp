@@ -10,6 +10,7 @@
 #ifndef _MARIADB_TYPES_HPP_
 #define _MARIADB_TYPES_HPP_
 
+#include <mysql/mysql_version.h>
 #include <memory>
 
 namespace mariadb {
@@ -76,5 +77,18 @@ namespace mariadb {
     //
     typedef std::shared_ptr<std::istream> stream_ref;
 }
+
+#ifdef MARIADB_BASE_VERSION
+// It has my_bool, struct tags are lowercase
+#else
+// Oracle MySQL (possibly community)
+#if MYSQL_VERSION_ID >  80000
+// Assume MySQL Community 8.0+
+// Doesn't use my_bool, struct tags are UPPERCASE
+
+#define MYSQL_COMMUNITY_8 MYSQL_VERSION_ID
+#endif
+
+#endif
 
 #endif
