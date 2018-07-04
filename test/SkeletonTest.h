@@ -27,15 +27,12 @@ class SkeletonTest : public ::testing::Test {
 
         // create user account
         using TestConfig = mariadb::testing::TestConfig;
-        if (std::string(TestConfig::UnixSocket) != "")
-            m_account_setup = account::create("", TestConfig::User, TestConfig::Password,
-                                              TestConfig::Database, 0, TestConfig::UnixSocket);
-        else
-            m_account_setup =
-                account::create(TestConfig::Hostname, TestConfig::User, TestConfig::Password,
-                                TestConfig::Database, TestConfig::Port);
+        m_account_setup = account::create(TestConfig::Hostname, TestConfig::User, TestConfig::Password,
+                TestConfig::Database, TestConfig::Port, TestConfig::UnixSocket);
         ASSERT_TRUE(!!m_account_setup);
         m_account_setup->set_auto_commit(true);
+        m_account_setup->set_connect_option(MYSQL_OPT_CONNECT_TIMEOUT, new option_arg_int(10));
+        ASSERT_EQ(1u, m_account_setup->connect_options().size());
 
         // create database connection
         m_con = connection::create(m_account_setup);

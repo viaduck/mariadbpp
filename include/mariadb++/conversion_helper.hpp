@@ -79,7 +79,7 @@ inline double string_cast(std::string str) {
         if (endPos != str.size()) return 0;
 
         return parsedNumber;
-    } catch (std::out_of_range) {
+    } catch (std::out_of_range &) {
         // Not a Number double
         return std::numeric_limits<double>::quiet_NaN();
     }
@@ -94,7 +94,7 @@ inline float string_cast(std::string str) {
         if (endPos != str.size()) return 0;
 
         return parsedNumber;
-    } catch (std::out_of_range) {
+    } catch (std::out_of_range &) {
         // Not a Number float
         return std::numeric_limits<float>::quiet_NaN();
     }

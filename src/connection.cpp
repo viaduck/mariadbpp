@@ -22,7 +22,7 @@ using namespace mariadb;
     }
 
 connection::connection(const account_ref& account)
-    : m_auto_commit(true), m_mysql(NULL), m_account(account) {}
+    : m_mysql(NULL), m_auto_commit(true), m_account(account) {}
 
 connection_ref connection::create(const account_ref& account) {
     return connection_ref(new connection(account));
@@ -91,6 +91,14 @@ bool connection::connect() {
                           m_account->ssl_certificate().c_str(), m_account->ssl_ca().c_str(),
                           m_account->ssl_ca_path().c_str(), m_account->ssl_cipher().c_str()))
             MYSQL_ERROR_RETURN_FALSE(m_mysql);
+    }
+
+    //
+    // set connect options
+    //
+    for (auto& pair : m_account->connect_options()) {
+        if (0 != mysql_options(m_mysql, pair.first, pair.second->value()))
+            MYSQL_ERROR_DISCONNECT(m_mysql);
     }
 
     if (!mysql_real_connect(

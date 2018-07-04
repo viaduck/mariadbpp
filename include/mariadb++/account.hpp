@@ -13,10 +13,29 @@
 #include <string>
 #include <map>
 #include <mariadb++/types.hpp>
+#include <mysql/mysql.h>
 
 namespace mariadb {
 class account;
 typedef std::shared_ptr<account> account_ref;
+
+class option_arg {
+   public:
+    virtual const void *value() = 0;
+};
+
+#define MAKE_OPTION_ARG(name, type, return_value)                   \
+class option_arg_##name : public option_arg {                       \
+   public:                                                          \
+    explicit option_arg_##name(const type &arg) : m_value(arg) { }  \
+    const void *value() override { return return_value; }           \
+   protected:                                                       \
+    type m_value;                                                   \
+}
+
+MAKE_OPTION_ARG(bool, bool, &m_value);
+MAKE_OPTION_ARG(int, int, &m_value);
+MAKE_OPTION_ARG(string, std::string, m_value.c_str());
 
 /**
  * Class used to store account and connection information used by mariadb::connection when
@@ -26,6 +45,7 @@ typedef std::shared_ptr<account> account_ref;
 class account {
    public:
     typedef std::map<std::string, std::string> map_options_t;
+    typedef std::map<mysql_option, std::unique_ptr<option_arg>> map_connect_options_t;
 
    public:
     /**
@@ -126,7 +146,7 @@ class account {
     /**
      * Gets a map of all option key/value pairs previously set
      */
-    const std::map<std::string, std::string> &options() const;
+    const map_options_t &options() const;
 
     /**
      * Sets a named option key/value pair
@@ -137,6 +157,21 @@ class account {
      * Deletes all stored key/value pairs of named options
      */
     void clear_options();
+
+    /**
+     * Gets a map of all connect option key/value pairs previously set
+     */
+    const map_connect_options_t &connect_options() const;
+
+    /**
+     * Sets a connect option key/value pair using option_arg_{bool,int,string}
+     */
+    void set_connect_option(mysql_option option, option_arg *arg);
+
+    /**
+     * Deletes all stored key/value pairs of named options
+     */
+    void clear_connect_options();
 
     /**
      * Create an account
@@ -173,6 +208,7 @@ class account {
     std::string m_ssl_ca_path;
     std::string m_ssl_cipher;
     map_options_t m_options;
+    map_connect_options_t m_connect_options;
 };
 }
 

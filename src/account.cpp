@@ -61,7 +61,7 @@ bool account::auto_commit() const { return m_auto_commit; }
 
 void account::set_auto_commit(bool auto_commit) { m_auto_commit = auto_commit; }
 
-const std::map<std::string, std::string> &account::options() const { return m_options; }
+const account::map_options_t &account::options() const { return m_options; }
 
 const std::string account::option(const std::string &name) const {
     const map_options_t::const_iterator value = m_options.find(name);
@@ -75,6 +75,14 @@ void account::set_option(const std::string &name, const std::string &value) {
 }
 
 void account::clear_options() { m_options.clear(); }
+
+const account::map_connect_options_t &account::connect_options() const { return m_connect_options; }
+
+void account::clear_connect_options() { m_connect_options.clear(); }
+
+void account::set_connect_option(mysql_option option, option_arg *arg) {
+    m_connect_options[option] = std::unique_ptr<option_arg>(arg);
+}
 
 account_ref account::create(const std::string &host_name, const std::string &user_name,
                             const std::string &password, const std::string &schema, u32 port,

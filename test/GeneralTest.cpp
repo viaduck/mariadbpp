@@ -17,11 +17,6 @@ TEST_F(GeneralTest, testCreateFail) {
     ASSERT_ANY_THROW(m_con->execute("CREATE TABLE ()"));
 }
 
-TEST_F(GeneralTest, testPermissions) {
-    ASSERT_ANY_THROW(m_con->execute("CREATE DATABASE testtest;"));
-    ASSERT_ANY_THROW(m_con->execute("DROP DATABASE testtest;"));
-}
-
 TEST_F(GeneralTest, testMissingConnection) {
     // create connection without connecting
     account_ref no_acc = account::create("0.0.0.0", "", "");
