@@ -25,5 +25,4 @@ before_install:
 script:
     - mkdir build && cd build
     - cmake ../ -DGTEST_SRC_DIR=/usr/src/gtest/ -DCMAKE_BUILD_TYPE=Debug -DTEST_USERNAME=$MYSQL_USER -DTEST_PASSWORD=$MYSQL_PASSWORD -DTEST_PORT=3306 -DTEST_DATABASE=$MYSQL_DATABASE && cmake --build .
-    # TODO travis user has right to create new databases so this test fails
-    - test/mariadbpp_tests --gtest_filter=-GeneralTest.testPermissions
+    - test/mariadbpp_tests
