@@ -19,13 +19,13 @@
 using namespace mariadb;
 
 result_set::result_set(connection *connection)
-    : m_field_count(0),
-      m_lengths(nullptr),
-      m_result_set(mysql_store_result(connection->m_mysql)),
+    : m_result_set(mysql_store_result(connection->m_mysql)),
       m_fields(nullptr),
+      m_row(nullptr),
       m_raw_binds(nullptr),
       m_stmt_data(nullptr),
-      m_row(nullptr),
+      m_lengths(nullptr),
+      m_field_count(0),
       m_has_result(false) {
 
     if (m_result_set) {
@@ -37,13 +37,13 @@ result_set::result_set(connection *connection)
 }
 
 result_set::result_set(const statement_data_ref &stmt_data)
-    : m_field_count(0),
-      m_lengths(nullptr),
-      m_result_set(nullptr),
+    : m_result_set(nullptr),
       m_fields(nullptr),
+      m_row(nullptr),
       m_raw_binds(nullptr),
       m_stmt_data(stmt_data),
-      m_row(nullptr),
+      m_lengths(nullptr),
+      m_field_count(0),
       m_has_result(false) {
 
     int max_length = 1;

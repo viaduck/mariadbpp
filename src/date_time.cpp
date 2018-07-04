@@ -37,34 +37,34 @@ const u8 g_month_lengths[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
         return false;                                                                            \
     }
 
-date_time::date_time(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u16 millisecond) {
+date_time::date_time(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u16 millisecond) : time() {
     set(year, month, day, hour, minute, second, millisecond);
 }
 
-date_time::date_time(const date_time& dt) {
+date_time::date_time(const date_time& dt) : time() {
     set(dt.year(), dt.month(), dt.day(), dt.hour(), dt.minute(), dt.second(), dt.millisecond());
 }
 
-date_time::date_time(const time& t) {
+date_time::date_time(const time& t) : time() {
     set(1900, 1, 1, t.hour(), t.minute(), t.second(), t.millisecond());
 }
 
-date_time::date_time(const tm& t) {
+date_time::date_time(const tm& t) : time() {
     set(t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, 0);
 }
 
-date_time::date_time(const time_t& time) {
+date_time::date_time(const time_t& time) : mariadb::time() {
     tm t;
     localtime_safe(&t, &time);
 
     set(t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, 0);
 }
 
-date_time::date_time(const MYSQL_TIME& t) {
+date_time::date_time(const MYSQL_TIME& t) : time() {
     set(t.year, t.month, t.day, t.hour, t.minute, t.second, 0);
 }
 
-date_time::date_time(const std::string& dt) { set(dt); }
+date_time::date_time(const std::string& dt) : time() { set(dt); }
 
 int date_time::compare(const date_time& dt) const {
     if (year() < dt.year()) return -1;

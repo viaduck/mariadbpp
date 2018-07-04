@@ -22,7 +22,7 @@ using namespace mariadb;
     }
 
 connection::connection(const account_ref& account)
-    : m_auto_commit(true), m_mysql(NULL), m_account(account) {}
+    : m_mysql(NULL), m_auto_commit(true), m_account(account) {}
 
 connection_ref connection::create(const account_ref& account) {
     return connection_ref(new connection(account));
