@@ -14,10 +14,7 @@
 #include <iostream>
 #include <mariadb++/time_span.hpp>
 
-#if MYSQL_COMMUNITY_8 < 80000
-struct st_mysql_time;
-typedef struct st_mysql_time MYSQL_TIME;
-#endif
+#include <mysql/mysql_time.h>
 
 namespace mariadb {
 /**
