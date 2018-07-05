@@ -80,9 +80,18 @@ const account::map_connect_options_t &account::connect_options() const { return 
 
 void account::clear_connect_options() { m_connect_options.clear(); }
 
-void account::set_connect_option(mysql_option option, option_arg *arg) {
-    m_connect_options[option] = std::unique_ptr<option_arg>(arg);
+void account::set_connect_option(mysql_option option, bool arg) {
+    m_connect_options[option] = std::unique_ptr<option_arg>(new option_arg_bool(arg));
 }
+
+void account::set_connect_option(mysql_option option, int arg) {
+    m_connect_options[option] = std::unique_ptr<option_arg>(new option_arg_int(arg));
+}
+
+void account::set_connect_option(mysql_option option, const std::string &arg) {
+    m_connect_options[option] = std::unique_ptr<option_arg>(new option_arg_string(arg));
+}
+
 
 account_ref account::create(const std::string &host_name, const std::string &user_name,
                             const std::string &password, const std::string &schema, u32 port,

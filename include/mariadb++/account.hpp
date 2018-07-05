@@ -164,9 +164,17 @@ class account {
     const map_connect_options_t &connect_options() const;
 
     /**
-     * Sets a connect option key/value pair using option_arg_{bool,int,string}
+     * Sets a connect option key/value pair with bool argument
      */
-    void set_connect_option(mysql_option option, option_arg *arg);
+    void set_connect_option(mysql_option option, bool arg);
+    /**
+     * Sets a connect option key/value pair with int argument
+     */
+    void set_connect_option(mysql_option option, int arg);
+    /**
+     * Sets a connect option key/value pair with string argument
+     */
+    void set_connect_option(mysql_option option, const std::string &arg);
 
     /**
      * Deletes all stored key/value pairs of named options

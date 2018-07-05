@@ -31,7 +31,7 @@ class SkeletonTest : public ::testing::Test {
                 TestConfig::Database, TestConfig::Port, TestConfig::UnixSocket);
         ASSERT_TRUE(!!m_account_setup);
         m_account_setup->set_auto_commit(true);
-        m_account_setup->set_connect_option(MYSQL_OPT_CONNECT_TIMEOUT, new option_arg_int(10));
+        m_account_setup->set_connect_option(MYSQL_OPT_CONNECT_TIMEOUT, 10);
         ASSERT_EQ(1u, m_account_setup->connect_options().size());
 
         // create database connection
