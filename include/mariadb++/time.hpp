@@ -14,8 +14,7 @@
 #include <iostream>
 #include <mariadb++/time_span.hpp>
 
-struct st_mysql_time;
-typedef struct st_mysql_time MYSQL_TIME;
+#include <mysql/mysql_time.h>
 
 namespace mariadb {
 /**

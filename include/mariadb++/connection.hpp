@@ -18,8 +18,7 @@
 #include <mariadb++/save_point.hpp>
 #include <mariadb++/result_set.hpp>
 
-struct st_mysql;
-typedef struct st_mysql MYSQL;
+#include <mysql/mysql.h>
 
 namespace mariadb {
 /**
