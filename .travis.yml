@@ -1,15 +1,48 @@
 language: cpp
 dist: trusty
 
-addons:
-    mariadb: '10.0'
-    apt:
-        sources:
+matrix:
+  include:
+    - language: cpp
+      dist: trusty
+      sudo: required
+      addons:
+        mariadb: '10.0'
+        apt:
+          sources:
             - ubuntu-toolchain-r-test
-        packages:
+          packages:
+            - g++-5
+            - libgtest-dev
+
+      script:
+        # first build mariadb c connector
+        - curl -o connector.tar.gz https://downloads.mariadb.com/Connectors/c/connector-c-3.0.4/mariadb-connector-c-3.0.4-src.tar.gz && tar xf connector.tar.gz && cd mariadb-connector-c-3.0.4-src/
+        - mkdir build && cd build
+        - cmake ../ -DCMAKE_INSTALL_PREFIX=/usr/ && make libmariadb && sudo make install
+        - cd ../../
+        # now build mariadbpp
+        - mkdir build && cd build
+        - cmake ../ -DGTEST_SRC_DIR=/usr/src/gtest/ -DCMAKE_BUILD_TYPE=Debug -DTEST_USERNAME=$MYSQL_USER -DTEST_PASSWORD=$MYSQL_PASSWORD -DTEST_PORT=3306 -DTEST_DATABASE=$MYSQL_DATABASE && cmake --build .
+        - test/mariadbpp_tests
+
+      env:
+        - LABEL="Linux MariaDB Connector C"
+
+    - language: cpp
+      dist: trusty
+      addons:
+        mariadb: '10.0'
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
             - g++-5
             - libmariadbclient-dev
             - libgtest-dev
+      
+      env:
+        - LABEL="Linux libmariadbclient-dev"
 
 env:
   global:
@@ -23,6 +56,6 @@ before_install:
   - mysql -e 'CREATE DATABASE IF NOT EXISTS mariadbpp_tests;'
 
 script:
-    - mkdir build && cd build
-    - cmake ../ -DGTEST_SRC_DIR=/usr/src/gtest/ -DCMAKE_BUILD_TYPE=Debug -DTEST_USERNAME=$MYSQL_USER -DTEST_PASSWORD=$MYSQL_PASSWORD -DTEST_PORT=3306 -DTEST_DATABASE=$MYSQL_DATABASE && cmake --build .
-    - test/mariadbpp_tests
+  - mkdir build && cd build
+  - cmake ../ -DGTEST_SRC_DIR=/usr/src/gtest/ -DCMAKE_BUILD_TYPE=Debug -DTEST_USERNAME=$MYSQL_USER -DTEST_PASSWORD=$MYSQL_PASSWORD -DTEST_PORT=3306 -DTEST_DATABASE=$MYSQL_DATABASE && cmake --build .
+  - test/mariadbpp_tests
