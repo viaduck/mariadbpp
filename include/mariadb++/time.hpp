@@ -14,7 +14,7 @@
 #include <iostream>
 #include <mariadb++/time_span.hpp>
 
-#include <mysql/mysql_time.h>
+#include <mysql.h>
 
 namespace mariadb {
 /**

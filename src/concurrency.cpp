@@ -8,7 +8,7 @@
 //    (See accompanying file LICENSE or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#include <mysql/mysql.h>
+#include <mysql.h>
 #include <mariadb++/types.hpp>
 
 #include <atomic>

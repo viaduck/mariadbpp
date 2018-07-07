@@ -13,7 +13,7 @@
 #include <string>
 #include <map>
 #include <mariadb++/types.hpp>
-#include <mysql/mysql.h>
+#include <mysql.h>
 
 namespace mariadb {
 class account;

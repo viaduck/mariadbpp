@@ -18,7 +18,7 @@
 #include <mariadb++/save_point.hpp>
 #include <mariadb++/result_set.hpp>
 
-#include <mysql/mysql.h>
+#include <mysql.h>
 
 namespace mariadb {
 /**

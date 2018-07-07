@@ -10,7 +10,7 @@
 #ifndef _MARIADB_TYPES_HPP_
 #define _MARIADB_TYPES_HPP_
 
-#include <mysql/mysql_version.h>
+#include <mysql.h>
 #include <memory>
 
 namespace mariadb {

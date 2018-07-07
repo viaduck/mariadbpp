@@ -10,7 +10,7 @@
 #ifndef _MARIADB_BIND_HPP_
 #define _MARIADB_BIND_HPP_
 
-#include <mysql/mysql.h>
+#include <mysql.h>
 #include <mariadb++/types.hpp>
 #include <mariadb++/data.hpp>
 

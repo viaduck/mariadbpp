@@ -14,14 +14,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # dependencies
-find_library(mariadb_LIBRARY mariadbclient)
-if (NOT mariadb_LIBRARY)
-
-	find_library(mariadb_LIBRARY mysqlclient)
-    if (NOT mariadb_LIBRARY)
-        message(FATAL_ERROR "Could not find mysqlclient lib")
-    endif()
-endif()
+find_package(MariaDBClient REQUIRED)
 
 # find files
 file(GLOB mariadbclientpp_PUBLIC_HEADERS include/mariadb++/*)
@@ -29,11 +22,11 @@ file(GLOB mariadbclientpp_PRIVATE_HEADERS src/*.hpp)
 file(GLOB mariadbclientpp_SOURCES src/*.cpp)
 
 # set up target
-add_library(mariadbclientpp STATIC ${mariadbclientpp_SOURCES} ${mariadbclientpp_PUBLIC_HEADERS} ${mariadbclientpp_PRIVATE_HEADERS})
+add_library(mariadbclientpp ${mariadbclientpp_SOURCES} ${mariadbclientpp_PUBLIC_HEADERS} ${mariadbclientpp_PRIVATE_HEADERS})
 
 # target options
-target_link_libraries(mariadbclientpp ${mariadb_LIBRARY} pthread)
-target_include_directories(mariadbclientpp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(mariadbclientpp ${MariaDBClient_LIBRARIES} pthread)
+target_include_directories(mariadbclientpp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${MariaDBClient_INCLUDE_DIRS})
 
 # install configuration
 install(FILES ${mariadbclientpp_PUBLIC_HEADERS} DESTINATION include/mariadb++)
