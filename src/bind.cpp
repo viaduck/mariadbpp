@@ -103,6 +103,9 @@ void bind::set(enum_field_types type, const char* buffer, unsigned long length, 
                 m_bind->buffer_length = m_data->size();
 
                 if (buffer) memcpy(m_bind->buffer, buffer, length);
+            } else {
+                m_bind->buffer = nullptr;
+                m_bind->buffer_length = 0;
             }
             break;
     }

@@ -115,3 +115,80 @@ TEST_F(ParameterizedQueryTest, bindWithoutParameters) {
 
     EXPECT_ANY_THROW(errorQuery->set_unsigned32(1, 100));
 }
+
+TEST_F(ParameterizedQueryTest, bindReuseSimple) {
+    mariadb::statement_ref insertQuery = m_con->create_statement("INSERT INTO " + m_table_name + "(preis) VALUES(?);");
+
+    // bind 1
+    insertQuery->set_unsigned32(0, 177);
+    u64 row1 = insertQuery->insert();
+
+    // bind 2
+    insertQuery->set_unsigned32(0, 1337);
+    u64 row2 = insertQuery->insert();
+
+    // bind 3 - reuse
+    u64 row3 = insertQuery->insert();
+
+    mariadb::statement_ref selectQuery = m_con->create_statement("SELECT preis FROM " + m_table_name + " WHERE id = ?");
+
+    // test 1
+    selectQuery->set_unsigned64(0, row1);
+    mariadb::result_set_ref result = selectQuery->query();
+    ASSERT_TRUE(!!result);
+    ASSERT_TRUE(result->next());
+    EXPECT_EQ(177u, result->get_unsigned32(0));
+
+    // test2
+    selectQuery->set_unsigned64(0, row2);
+    mariadb::result_set_ref result2 = selectQuery->query();
+    ASSERT_TRUE(!!result2);
+    ASSERT_TRUE(result2->next());
+    EXPECT_EQ(1337u, result2->get_unsigned32(0));
+
+    // test3
+    selectQuery->set_unsigned64(0, row3);
+    mariadb::result_set_ref result3 = selectQuery->query();
+    ASSERT_TRUE(!!result3);
+    ASSERT_TRUE(result3->next());
+    EXPECT_EQ(1337u, result3->get_unsigned32(0));
+}
+
+TEST_F(ParameterizedQueryTest, bindReuseString) {
+    mariadb::statement_ref insertQuery = m_con->create_statement("INSERT INTO " + m_table_name + "(str) VALUES(?);");
+
+    // bind 1
+    insertQuery->set_string(0, "asdf");
+    u64 row1 = insertQuery->insert();
+
+    // bind 2
+    insertQuery->set_string(0, "qwertz");
+    u64 row2 = insertQuery->insert();
+
+    // bind 3
+    insertQuery->set_string(0, "");
+    u64 row3 = insertQuery->insert();
+
+    mariadb::statement_ref selectQuery = m_con->create_statement("SELECT str FROM " + m_table_name + " WHERE id = ?;");
+
+    // test 1
+    selectQuery->set_unsigned64(0, row1);
+    mariadb::result_set_ref result = selectQuery->query();
+    ASSERT_TRUE(!!result);
+    ASSERT_TRUE(result->next());
+    EXPECT_EQ("asdf", result->get_string(0));
+
+    // test2
+    selectQuery->set_unsigned64(0, row2);
+    mariadb::result_set_ref result2 = selectQuery->query();
+    ASSERT_TRUE(!!result2);
+    ASSERT_TRUE(result2->next());
+    EXPECT_EQ("qwertz", result2->get_string(0));
+
+    // test3
+    selectQuery->set_unsigned64(0, row3);
+    mariadb::result_set_ref result3 = selectQuery->query();
+    ASSERT_TRUE(!!result3);
+    ASSERT_TRUE(result3->next());
+    EXPECT_EQ("", result3->get_string(0));
+}
