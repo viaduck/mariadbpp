@@ -164,7 +164,7 @@ class time {
      *
      * @return True on success
      */
-    virtual bool set(const std::string& t);
+    bool set(const std::string& t);
 
     /**
      * Set the time from given values
