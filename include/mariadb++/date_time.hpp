@@ -179,7 +179,7 @@ class date_time : public time {
      * @param dt String containing ISO date
      * @return True on success
      */
-    bool set(const std::string& dt) override;
+    bool set(const std::string& dt);
 
     /**
      * Add years to current date.
