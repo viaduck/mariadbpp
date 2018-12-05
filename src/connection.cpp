@@ -35,7 +35,7 @@ const std::string& connection::schema() const { return m_schema; }
 bool connection::set_schema(const std::string& schema) {
     if (!connect()) return false;
 
-    if (mysql_select_db(m_mysql, schema.c_str())) MYSQL_ERROR_RETURN_FALSE(m_mysql);
+    if (mysql_select_db(m_mysql, schema.c_str())) MYSQL_ERROR(m_mysql);
 
     m_schema = schema;
     return true;
@@ -46,7 +46,7 @@ const std::string& connection::charset() const { return m_charset; }
 bool connection::set_charset(const std::string& value) {
     if (!connect()) return false;
 
-    if (mysql_set_character_set(m_mysql, value.c_str())) MYSQL_ERROR_RETURN_FALSE(m_mysql);
+    if (mysql_set_character_set(m_mysql, value.c_str())) MYSQL_ERROR(m_mysql);
 
     m_charset = value;
     return true;
@@ -68,7 +68,7 @@ bool connection::set_auto_commit(bool auto_commit) {
 
     if (!connect()) return false;
 
-    if (mysql_autocommit(m_mysql, auto_commit)) MYSQL_ERROR_RETURN_FALSE(m_mysql);
+    if (mysql_autocommit(m_mysql, auto_commit)) MYSQL_ERROR(m_mysql);
 
     m_auto_commit = auto_commit;
     return true;
@@ -90,7 +90,7 @@ bool connection::connect() {
         if (mysql_ssl_set(m_mysql, m_account->ssl_key().c_str(),
                           m_account->ssl_certificate().c_str(), m_account->ssl_ca().c_str(),
                           m_account->ssl_ca_path().c_str(), m_account->ssl_cipher().c_str()))
-            MYSQL_ERROR_RETURN_FALSE(m_mysql);
+            MYSQL_ERROR(m_mysql);
     }
 
     //
@@ -106,7 +106,7 @@ bool connection::connect() {
             m_account->password().c_str(), nullptr, m_account->port(),
             m_account->unix_socket().empty() ? nullptr : m_account->unix_socket().c_str(),
             CLIENT_MULTI_STATEMENTS))
-        MYSQL_ERROR_RETURN_FALSE(m_mysql);
+        MYSQL_ERROR(m_mysql);
 
     if (!set_auto_commit(m_account->auto_commit())) MYSQL_ERROR_DISCONNECT(m_mysql);
 
