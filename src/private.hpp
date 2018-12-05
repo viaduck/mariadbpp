@@ -62,12 +62,6 @@ inline int gmtime_safe(struct tm* _tm, const time_t* _time) {
 #define MYSQL_ERROR(mysql) \
     { MYSQL_ERROR_NO_BRAKET(mysql) }
 
-#define MYSQL_ERROR_RETURN_FALSE(mysql) \
-    {                                   \
-        MYSQL_ERROR_NO_BRAKET(mysql)    \
-        return false;                   \
-    }
-
 #define STMT_ERROR_NO_BRAKET(statement)            \
     m_last_error_no = mysql_stmt_errno(statement); \
     m_last_error = mysql_stmt_error(statement);    \
