@@ -14,11 +14,12 @@
 
 using namespace mariadb;
 
-#define MYSQL_ERROR_DISCONNECT(mysql) \
-    {                                 \
-        MYSQL_ERROR_NO_BRAKET(mysql)  \
-        disconnect();                 \
-        return false;                 \
+#define MYSQL_ERROR_DISCONNECT(mysql)                 \
+    {                                                 \
+        m_last_error_no = mysql_errno(mysql);         \
+        m_last_error = mysql_error(mysql);            \
+        disconnect();                                 \
+        MARIADB_ERROR(m_last_error_no, m_last_error); \
     }
 
 connection::connection(const account_ref& account)
@@ -82,7 +83,6 @@ bool connection::connect() {
 
         if (!m_mysql) {
             MARIADB_ERROR(0, "Cannot create MYSQL object.");
-            return false;
         }
     }
 
@@ -141,7 +141,6 @@ result_set_ref connection::query(const std::string& query) {
 
     if (mysql_real_query(m_mysql, query.c_str(), query.size())) {
         MYSQL_ERROR_NO_BRAKET(m_mysql);
-        return rs;
     }
 
     rs.reset(new result_set(this));
@@ -155,7 +154,6 @@ u64 connection::execute(const std::string& query) {
 
     if (mysql_real_query(m_mysql, query.c_str(), query.size())) {
         MYSQL_ERROR_NO_BRAKET(m_mysql);
-        return affected_rows;
     }
 
     int status;
@@ -168,13 +166,11 @@ u64 connection::execute(const std::string& query) {
             affected_rows += mysql_affected_rows(m_mysql);
         else {
             MYSQL_ERROR_NO_BRAKET(m_mysql);
-            return affected_rows;
         }
 
         status = mysql_next_result(m_mysql);
         if (status > 0) {
             MYSQL_ERROR_NO_BRAKET(m_mysql);
-            return affected_rows;
         }
     } while (status == 0);
 
@@ -186,7 +182,6 @@ u64 connection::insert(const std::string& query) {
 
     if (mysql_real_query(m_mysql, query.c_str(), query.size())) {
         MYSQL_ERROR_NO_BRAKET(m_mysql);
-        return 0;
     }
 
     return mysql_insert_id(m_mysql);
