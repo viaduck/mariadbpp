@@ -70,10 +70,4 @@ inline int gmtime_safe(struct tm* _tm, const time_t* _time) {
 #define STMT_ERROR(statement) \
     { STMT_ERROR_NO_BRAKET(statement) }
 
-#define STMT_ERROR_RETURN_FALSE(statement) \
-    {                                      \
-        STMT_ERROR_NO_BRAKET(statement)    \
-        return false;                      \
-    }
-
 #endif

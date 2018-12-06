@@ -45,18 +45,18 @@ void statement::set_connection(connection_ref& connection) { m_connection = conn
 
 u64 statement::execute() {
     if (m_data->m_raw_binds && mysql_stmt_bind_param(m_data->m_statement, m_data->m_raw_binds))
-        STMT_ERROR_RETURN_FALSE(m_data->m_statement);
+        STMT_ERROR(m_data->m_statement);
 
-    if (mysql_stmt_execute(m_data->m_statement)) STMT_ERROR_RETURN_FALSE(m_data->m_statement);
+    if (mysql_stmt_execute(m_data->m_statement)) STMT_ERROR(m_data->m_statement);
 
     return mysql_stmt_affected_rows(m_data->m_statement);
 }
 
 u64 statement::insert() {
     if (m_data->m_raw_binds && mysql_stmt_bind_param(m_data->m_statement, m_data->m_raw_binds))
-        STMT_ERROR_RETURN_FALSE(m_data->m_statement);
+        STMT_ERROR(m_data->m_statement);
 
-    if (mysql_stmt_execute(m_data->m_statement)) STMT_ERROR_RETURN_FALSE(m_data->m_statement);
+    if (mysql_stmt_execute(m_data->m_statement)) STMT_ERROR(m_data->m_statement);
 
     return mysql_stmt_insert_id(m_data->m_statement);
 }
