@@ -29,7 +29,6 @@
                   << ", second - " << _second << ", millisecond - " << _millisecond           \
                   << "\nIn function: " << __FUNCTION__ << '\n';                               \
         MARIADB_ERROR_THROW_TIME(_hour, _minute, _second, _millisecond)                       \
-        return false;                                                                         \
     }
 
 mariadb::time::time(u8 hour, u8 minute, u8 second, u16 millisecond) {

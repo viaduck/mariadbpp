@@ -35,7 +35,6 @@ const u8 g_month_lengths[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
                   << ", second - " << _second << ", millisecond - " << _millisecond              \
                   << "\nIn function: " << __FUNCTION__ << '\n';                                  \
         MARIADB_ERROR_THROW_DATE(_year, _month, _day, _hour, _minute, _second, _millisecond)     \
-        return false;                                                                            \
     }
 
 date_time::date_time(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u16 millisecond) : time() {

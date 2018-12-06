@@ -21,7 +21,6 @@ using namespace mariadb;
 #define STMT_ERROR_RETURN_RS(statement) \
     {                                   \
         STMT_ERROR_NO_BRAKET(statement) \
-        return rs;                      \
     }
 
 statement::statement(connection* conn, const std::string& query)
