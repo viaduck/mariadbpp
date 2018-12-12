@@ -66,6 +66,7 @@ TEST_F(ParameterizedQueryTest, bindAnyDataType) {
                    "TESTSTRING");
     ParamTest_TEST(errorQuery->set_boolean(0, true), queryResult->get_boolean(0), "b", true);
     ParamTest_TEST(errorQuery->set_double(0, 0.03), queryResult->get_double(0), "dd", 0.03);
+    ParamTest_TEST(errorQuery->set_double(0, -0.03), queryResult->get_double(0), "dd", -0.03);
     ParamTest_TEST(errorQuery->set_signed32(0, 100), queryResult->get_signed32(0), "preis", 100);
     ParamTest_TEST(errorQuery->set_date_time(0, t), queryResult->get_date_time(0), "tim", t);
     ParamTest_TEST(errorQuery->set_decimal(0, d), queryResult->get_decimal(0).str(), "d", "0.02");
