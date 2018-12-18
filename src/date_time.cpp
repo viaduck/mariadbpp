@@ -14,6 +14,7 @@
 #include <mariadb++/date_time.hpp>
 #include <mariadb++/conversion_helper.hpp>
 #include <iomanip>
+#include <chrono>
 #include "private.hpp"
 
 using namespace mariadb;
@@ -61,7 +62,7 @@ date_time::date_time(const time_t& time) : mariadb::time() {
 }
 
 date_time::date_time(const MYSQL_TIME& t) : time() {
-    set(t.year, t.month, t.day, t.hour, t.minute, t.second, 0);
+    set(t.year, t.month, t.day, t.hour, t.minute, t.second, t.second_part / 1000);
 }
 
 date_time::date_time(const std::string& dt) : time() { set(dt); }
@@ -497,8 +498,8 @@ MYSQL_TIME date_time::mysql_time() const {
     t.hour = hour();
     t.minute = minute();
     t.second = second();
+    t.second_part = millisecond() * 1000u;
     t.neg = false;
-    t.second_part = 0;
     t.time_type =
         !t.hour && !t.minute && !t.second ? MYSQL_TIMESTAMP_DATE : MYSQL_TIMESTAMP_DATETIME;
 
@@ -512,23 +513,30 @@ double date_time::diff_time(const date_time& dt) const {
     return ::difftime(time_val, dt_time_val);
 }
 
-date_time date_time::now() {
-    // TODO: use std::chrono in the future for millisecond accuracy
-    time_t local_time = ::time(NULL);
-    tm time_struct;
-    localtime_safe(&time_struct, &local_time);
-
-    return date_time(time_struct);
-}
-
 date_time date_time::date() const { return date_time(year(), month(), day()); }
 
+date_time date_time::now() {
+    using namespace std::chrono;
+    auto now = system_clock::now();
+
+    time_t local_time = system_clock::to_time_t(now);
+    tm ts;
+    localtime_safe(&ts, &local_time);
+
+    auto millis = duration_cast<milliseconds>(now.time_since_epoch()).count() % 1000;
+    return date_time(ts).add_milliseconds(static_cast<s32>(millis));
+}
+
 date_time date_time::now_utc() {
-    time_t utc_time = ::time(NULL);
+    using namespace std::chrono;
+    auto now = system_clock::now();
+
+    time_t utc_time = system_clock::to_time_t(now);
     tm ts;
     gmtime_safe(&ts, &utc_time);
 
-    return date_time(ts);
+    auto millis = duration_cast<milliseconds>(now.time_since_epoch()).count() % 1000;
+    return date_time(ts).add_milliseconds(static_cast<s32>(millis));
 }
 
 bool date_time::set(const std::string& dt) {
@@ -588,6 +596,6 @@ const std::string date_time::str_date() const {
 }
 
 std::ostream& mariadb::operator<<(std::ostream& os, const date_time& dt) {
-    os << dt.str();
+    os << dt.str(true);
     return os;
 }

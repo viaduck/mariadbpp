@@ -15,6 +15,7 @@
 #include <mariadb++/time.hpp>
 #include <mariadb++/conversion_helper.hpp>
 #include <iomanip>
+#include <chrono>
 #include "private.hpp"
 
 #define MS_PER_SEC 1000
@@ -46,7 +47,7 @@ mariadb::time::time(const time_t& t) {
     set(ts.tm_hour, ts.tm_min, ts.tm_sec, 0);
 }
 
-mariadb::time::time(const MYSQL_TIME& t) { set(t.hour, t.minute, t.second, 0); }
+mariadb::time::time(const MYSQL_TIME& t) { set(t.hour, t.minute, t.second, t.second_part / 1000); }
 
 mariadb::time::time(const std::string& t) { set(t); }
 
@@ -284,8 +285,8 @@ MYSQL_TIME mariadb::time::mysql_time() const {
     t.hour = hour();
     t.minute = minute();
     t.second = second();
+    t.second_part = millisecond() * 1000u;
     t.neg = false;
-    t.second_part = 0;
     t.time_type = MYSQL_TIMESTAMP_TIME;
     return t;
 }
@@ -298,19 +299,27 @@ double mariadb::time::diff_time(const time& t) const {
 }
 
 mariadb::time mariadb::time::now() {
-    time_t local_time = ::time(nullptr);
+    using namespace std::chrono;
+    auto now = system_clock::now();
+
+    time_t local_time = system_clock::to_time_t(now);
     tm ts;
     localtime_safe(&ts, &local_time);
 
-    return mariadb::time(ts);
+    auto millis = duration_cast<milliseconds>(now.time_since_epoch()).count() % 1000;
+    return mariadb::time(ts).add_milliseconds(static_cast<s32>(millis));
 }
 
 mariadb::time mariadb::time::now_utc() {
-    time_t utc_time = ::time(nullptr);
+    using namespace std::chrono;
+    auto now = system_clock::now();
+
+    time_t utc_time = system_clock::to_time_t(now);
     tm ts;
     gmtime_safe(&ts, &utc_time);
 
-    return mariadb::time(ts);
+    auto millis = duration_cast<milliseconds>(now.time_since_epoch()).count() % 1000;
+    return mariadb::time(ts).add_milliseconds(static_cast<s32>(millis));
 }
 
 bool mariadb::time::set(const std::string& t) {
@@ -362,6 +371,6 @@ const std::string mariadb::time::str_time(bool with_millisecond) const {
 }
 
 std::ostream& mariadb::operator<<(std::ostream& os, const time& t) {
-    os << t.str_time();
+    os << t.str_time(true);
     return os;
 }

@@ -59,6 +59,7 @@ TEST_F(ParameterizedQueryTest, bindAnyDataType) {
 
     decimal d = decimal("0.02");
     mariadb::date_time t(mariadb::date_time::now());
+    mariadb::time ti(mariadb::time::now());
 
     ParamTest_TEST(errorQuery->set_unsigned32(0, (unsigned int)299), queryResult->get_unsigned32(0),
                    "preis", 299);
@@ -69,6 +70,7 @@ TEST_F(ParameterizedQueryTest, bindAnyDataType) {
     ParamTest_TEST(errorQuery->set_double(0, -0.03), queryResult->get_double(0), "dd", -0.03);
     ParamTest_TEST(errorQuery->set_signed32(0, 100), queryResult->get_signed32(0), "preis", 100);
     ParamTest_TEST(errorQuery->set_date_time(0, t), queryResult->get_date_time(0), "tim", t);
+    ParamTest_TEST(errorQuery->set_time(0, ti), queryResult->get_time(0), "tiim", ti);
     ParamTest_TEST(errorQuery->set_decimal(0, d), queryResult->get_decimal(0).str(), "d", "0.02");
     ParamTest_TEST(errorQuery->set_null(0), queryResult->get_is_null(0), "nul", true);
 }
