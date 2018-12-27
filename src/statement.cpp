@@ -89,8 +89,6 @@ MAKE_SETTER(blob, stream_ref)
 
 MAKE_SETTER(data, const data_ref&)
     if (!value) return;
-
-    bind.m_data = value;
     bind.set(MYSQL_TYPE_BLOB, value->get(), value->size());
 }
 
