@@ -21,7 +21,7 @@ inline T checked_cast(K value) {
     if (value < std::numeric_limits<T>::lowest() || value > std::numeric_limits<T>::max()) return T();
 
     return static_cast<T>(value);
-};
+}
 
 template <typename T>
 inline T string_cast(const std::string &str) {
