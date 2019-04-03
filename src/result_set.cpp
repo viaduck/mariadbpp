@@ -33,6 +33,7 @@ result_set::result_set(connection *connection)
         m_fields = mysql_fetch_fields(m_result_set);
 
         for (u32 i = 0; i < m_field_count; ++i) m_indexes[m_fields[i].name] = i;
+        m_has_result = true;
     }
 }
 
@@ -55,6 +56,9 @@ result_set::result_set(const statement_data_ref &stmt_data)
         m_field_count = mysql_stmt_field_count(stmt_data->m_statement);
         m_result_set = mysql_stmt_result_metadata(stmt_data->m_statement);
 
+        if(m_result_set)
+		   m_has_result = true;
+	
         if (m_field_count > 0) {
             m_fields = mysql_fetch_fields(m_result_set);
             m_raw_binds = new MYSQL_BIND[m_field_count];
