@@ -26,7 +26,7 @@ result_set::result_set(connection *connection)
       m_stmt_data(nullptr),
       m_lengths(nullptr),
       m_field_count(0),
-      m_has_result(false) {
+      m_was_fetched(false) {
 
     if (m_result_set) {
         m_field_count = mysql_num_fields(m_result_set);
@@ -44,7 +44,7 @@ result_set::result_set(const statement_data_ref &stmt_data)
       m_stmt_data(stmt_data),
       m_lengths(nullptr),
       m_field_count(0),
-      m_has_result(false) {
+      m_was_fetched(false) {
 
     int max_length = 1;
     mysql_stmt_attr_set(stmt_data->m_statement, STMT_ATTR_UPDATE_MAX_LENGTH, &max_length);
@@ -184,15 +184,15 @@ bool result_set::set_row_index(u64 index) {
 }
 
 bool result_set::next() {
-    if (!m_result_set) return (m_has_result = false);
+    if (!m_result_set) return (m_was_fetched = false);
 
-    if (m_stmt_data) return (m_has_result = !mysql_stmt_fetch(m_stmt_data->m_statement));
+    if (m_stmt_data) return (m_was_fetched = !mysql_stmt_fetch(m_stmt_data->m_statement));
 
     m_row = mysql_fetch_row(m_result_set);
     m_lengths = mysql_fetch_lengths(m_result_set);
 
     // make sure no access to results is possible until a result is successfully fetched
-    return (m_has_result = m_row != nullptr);
+    return (m_was_fetched = m_row != nullptr);
 }
 
 u64 result_set::row_index() const {
@@ -207,8 +207,8 @@ u64 result_set::row_count() const {
     return (u64)mysql_num_rows(m_result_set);
 }
 
-void result_set::check_result_exists() const {
-    if (!m_has_result) throw std::out_of_range("No row was fetched");
+void result_set::check_row_fetched() const {
+    if (!m_was_fetched) throw std::out_of_range("No row was fetched");
 }
 
 void result_set::check_type(u32 index, value::type requested) const {

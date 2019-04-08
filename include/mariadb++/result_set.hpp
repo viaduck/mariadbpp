@@ -29,7 +29,7 @@
 #define MAKE_GETTER(nm, rtype, vtype)                                                     \
     MAKE_GETTER_SIG_STR(nm, rtype, result_set::) { return get_##nm(column_index(name)); } \
     MAKE_GETTER_SIG_INT(nm, rtype, result_set::) {                                        \
-        check_result_exists();                                                            \
+        check_row_fetched();                                                              \
         check_type(index, vtype);                                                         \
                                                                                           \
         if (index >= m_field_count) throw std::out_of_range("Column index out of range");
@@ -139,19 +139,6 @@ class result_set : public last_error {
     bool next();
 
     /**
-     * Throws if the result set was created, but no row was ever fetched (using next())
-     */
-    void check_result_exists() const;
-
-    /**
-     * Throws if the actual type of column at index cannot be converted to the requested type
-     *
-     * @param index Index of column to check
-     * @param requested Requested type
-     */
-    void check_type(u32 index, value::type requested) const;
-
-    /**
      * Set the current row index in result_set (seek to result).
      * Also immediately fetches the selected row.
      *
@@ -192,7 +179,19 @@ class result_set : public last_error {
      */
     explicit result_set(const statement_data_ref& stmt);
 
-   private:
+    /**
+     * Throws if the result set was created, but no row was ever fetched (using next())
+     */
+    void check_row_fetched() const;
+
+    /**
+     * Throws if the actual type of column at index cannot be converted to the requested type
+     *
+     * @param index Index of column to check
+     * @param requested Requested type
+     */
+    void check_type(u32 index, value::type requested) const;
+
     // pointer to result set
     MYSQL_RES* m_result_set;
     // pointer to array of fields
@@ -214,7 +213,7 @@ class result_set : public last_error {
     // count of fields per row
     u32 m_field_count;
     // indicates if a row was fetched using next()
-    bool m_has_result;
+    bool m_was_fetched;
 };
 
 typedef std::shared_ptr<result_set> result_set_ref;
