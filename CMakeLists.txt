@@ -27,6 +27,7 @@ add_library(mariadbclientpp ${mariadbclientpp_SOURCES} ${mariadbclientpp_PUBLIC_
 # target options
 target_link_libraries(mariadbclientpp ${MariaDBClient_LIBRARIES} pthread)
 target_include_directories(mariadbclientpp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${MariaDBClient_INCLUDE_DIRS})
+target_compile_options(mariadbclientpp PRIVATE -Wall -Wextra)
 
 # install configuration
 install(FILES ${mariadbclientpp_PUBLIC_HEADERS} DESTINATION include/mariadb++)
