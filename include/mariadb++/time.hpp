@@ -70,6 +70,11 @@ class time {
     time(const std::string& t);
 
     /**
+     * Allow proper destruction in derived classes
+     */
+    virtual ~time() = default;
+
+    /**
      * Compare this instance to given instance
      *
      * @param t Time to compare to
