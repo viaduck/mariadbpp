@@ -6,7 +6,7 @@
 cmake_minimum_required(VERSION 3.1)
 project(mariadbclientpp)
 
-option(MARIADBPP_TEST "Run mariadbpp tests" ON)
+option(MARIADBPP_TEST "Build mariadbpp tests" ON)
 option(MARIADBPP_DOC "Build mariadbpp docs" ON)
 
 # add additional cmake modules
