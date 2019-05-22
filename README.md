@@ -34,7 +34,7 @@ statement_ref stmt = con->create_statement(...);
 
 // insert, update, select on the statement
 u64 id = stmt->insert();
-u64 affected = stmt->execut();
+u64 affected = stmt->execute();
 result_set_ref result = stmt->query();
 
 // reading from a result set
