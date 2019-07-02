@@ -89,7 +89,7 @@ result_set::~result_set() {
     }
 }
 
-u64 result_set::column_count() const { return m_field_count; }
+u32 result_set::column_count() const { return m_field_count; }
 
 value::type result_set::column_type(u32 index) const {
     if (index >= m_field_count) throw std::out_of_range("Column index out of range");

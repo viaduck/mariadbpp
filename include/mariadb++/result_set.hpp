@@ -83,7 +83,7 @@ class result_set : public last_error {
      *
      * @return Count of columns
      */
-    u64 column_count() const;
+    u32 column_count() const;
 
     /**
      * Get the index of a column by column-name (case sensitive)
