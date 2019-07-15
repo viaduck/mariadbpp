@@ -5,7 +5,7 @@
 
 # variables for running tests
 set(TEST_HOSTNAME "localhost" CACHE STRING "Hostname for mariadbpp tests")
-set(TEST_PORT 3306 CACHE INTEGER "Port for mariadbpp tests")
+set(TEST_PORT 3306 CACHE STRING "Port for mariadbpp tests")
 set(TEST_UNIXSOCKET "" CACHE STRING "Unix socket for mariadbpp tests")
 set(TEST_USERNAME "testuser" CACHE STRING "Database username for mariadbpp tests")
 set(TEST_PASSWORD "bockwurst" CACHE STRING "Database username's password for mariadbpp tests")
