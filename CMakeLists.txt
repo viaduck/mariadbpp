@@ -18,6 +18,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # dependencies
 find_package(MariaDBClient REQUIRED)
+find_package(Threads REQUIRED)
 
 # find files
 file(GLOB mariadbclientpp_PUBLIC_HEADERS include/mariadb++/*)
@@ -28,7 +29,7 @@ file(GLOB mariadbclientpp_SOURCES src/*.cpp)
 add_library(mariadbclientpp ${mariadbclientpp_SOURCES} ${mariadbclientpp_PUBLIC_HEADERS} ${mariadbclientpp_PRIVATE_HEADERS})
 
 # target options
-target_link_libraries(mariadbclientpp ${MariaDBClient_LIBRARIES} pthread)
+target_link_libraries(mariadbclientpp ${MariaDBClient_LIBRARIES} Threads::Threads)
 target_include_directories(mariadbclientpp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${MariaDBClient_INCLUDE_DIRS})
 target_compile_options(mariadbclientpp PRIVATE -Wall -Wextra)
 
