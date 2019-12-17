@@ -47,6 +47,8 @@ TEST_F(ParameterizedQueryTest, bindAnyDataType) {
     mariadb::statement_ref testQuery;
     mariadb::result_set_ref queryResult;
 
+    m_con->create_statement("SET sql_mode = 'STRICT_TRANS_TABLES';")->execute();
+
 #define ParamTest_TEST(call, call2, name, value)                                                  \
     errorQuery = m_con->create_statement("UPDATE " + m_table_name + " SET " + name + "= ?;");     \
     call;                                                                                         \
