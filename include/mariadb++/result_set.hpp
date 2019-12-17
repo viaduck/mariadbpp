@@ -177,7 +177,7 @@ class result_set : public last_error {
     /**
      * Create result_set from statement
      */
-    explicit result_set(const statement_data_ref& stmt);
+    explicit result_set(connection* conn, const statement_data_ref& stmt);
 
     /**
      * Throws if the result set was created, but no row was ever fetched (using next())

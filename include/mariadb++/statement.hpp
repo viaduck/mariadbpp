@@ -42,6 +42,8 @@ class statement : public last_error {
     friend class worker;
 
    public:
+    statement() = delete;
+
     /**
              * Execute the query and return the number of rows affected
              *
@@ -98,6 +100,8 @@ class statement : public last_error {
    private:
     // reference to parent connection
     connection_ref m_connection;
+    // non-owning pointer to parent connection
+    connection *m_parent;
     // reference to internal data, shared with all results
     statement_data_ref m_data;
 };

@@ -18,8 +18,8 @@
 
 using namespace mariadb;
 
-result_set::result_set(connection *connection)
-    : m_result_set(mysql_store_result(connection->m_mysql)),
+result_set::result_set(connection *conn)
+    : m_result_set((conn->account()->store_result() ? mysql_store_result : mysql_use_result)(conn->m_mysql)),
       m_fields(nullptr),
       m_row(nullptr),
       m_raw_binds(nullptr),
@@ -36,7 +36,7 @@ result_set::result_set(connection *connection)
     }
 }
 
-result_set::result_set(const statement_data_ref &stmt_data)
+result_set::result_set(connection* conn, const statement_data_ref &stmt_data)
     : m_result_set(nullptr),
       m_fields(nullptr),
       m_row(nullptr),
@@ -49,7 +49,7 @@ result_set::result_set(const statement_data_ref &stmt_data)
     int max_length = 1;
     mysql_stmt_attr_set(stmt_data->m_statement, STMT_ATTR_UPDATE_MAX_LENGTH, &max_length);
 
-    if (mysql_stmt_store_result(stmt_data->m_statement))
+    if (conn->account()->store_result() && mysql_stmt_store_result(stmt_data->m_statement))
         STMT_ERROR(stmt_data->m_statement)
     else {
         m_field_count = mysql_stmt_field_count(stmt_data->m_statement);

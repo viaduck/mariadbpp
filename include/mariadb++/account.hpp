@@ -138,6 +138,20 @@ class account {
     void set_auto_commit(bool auto_commit);
 
     /**
+     * Gets the current state of the store_result option. When set, the connection uses buffered store
+     * (mysql_store_result) instead of unbuffered store (mysql_use_result). This option is turned on by default.
+     *
+     * Note: Unbuffered store has some restrictions and might lead to unexpected behavior. See the documentation
+     * (https://mariadb.com/kb/en/library/mysql_use_result/) for more information.
+     */
+    bool store_result() const;
+
+    /**
+     * Sets the state of the store_result option.
+     */
+    void set_store_result(bool store_result);
+
+    /**
      * Gets the current value of any named option that was previously set
      *
      * @return Value of the found option or empty string if not found
@@ -205,6 +219,7 @@ class account {
             const std::string &schema, u32 port, const std::string &unix_sock);
 
     bool m_auto_commit = true;
+    bool m_store_result = true;
     u32 m_port;
     std::string m_host_name;
     std::string m_user_name;

@@ -24,7 +24,7 @@ using namespace mariadb;
     }
 
 statement::statement(connection* conn, const std::string& query)
-    : m_data(statement_data_ref(new statement_data(mysql_stmt_init(conn->m_mysql)))) {
+    : m_parent(conn), m_data(statement_data_ref(new statement_data(mysql_stmt_init(conn->m_mysql)))) {
     if (!m_data->m_statement)
         MYSQL_ERROR(conn->m_mysql)
     else if (mysql_stmt_prepare(m_data->m_statement, query.c_str(), query.size()))
@@ -69,7 +69,7 @@ result_set_ref statement::query() {
 
     if (mysql_stmt_execute(m_data->m_statement)) STMT_ERROR_RETURN_RS(m_data->m_statement);
 
-    rs.reset(new result_set(m_data));
+    rs.reset(new result_set(m_parent, m_data));
     return rs;
 }
 
