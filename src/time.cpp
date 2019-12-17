@@ -23,14 +23,6 @@
 #define MS_PER_HOUR (MS_PER_MIN * 60)
 #define MS_PER_DAY (MS_PER_HOUR * 24)
 
-#define THROW_EXCEPTION(_hour, _minute, _second, _millisecond)                                \
-    {                                                                                         \
-        std::cerr << "MariaDB Invalid time: hour - " << _hour << ", minute - " << _minute     \
-                  << ", second - " << _second << ", millisecond - " << _millisecond           \
-                  << "\nIn function: " << __FUNCTION__ << '\n';                               \
-        MARIADB_ERROR_THROW_TIME(_hour, _minute, _second, _millisecond)                       \
-    }
-
 mariadb::time::time(u8 hour, u8 minute, u8 second, u16 millisecond) {
     set(hour, minute, second, millisecond);
 }
@@ -87,7 +79,7 @@ bool mariadb::time::operator>=(const time& t) const { return compare(t) >= 0; }
 
 bool mariadb::time::set(u8 hour, u8 minute, u8 second, u16 millisecond) {
     if (hour > 23 || minute > 59 || second > 61 || millisecond > 999)
-        THROW_EXCEPTION(hour, minute, second, millisecond);
+        MARIADB_ERROR_THROW_TIME(hour, minute, second, millisecond);
 
     m_hour = hour;
     m_minute = minute;
@@ -99,7 +91,8 @@ bool mariadb::time::set(u8 hour, u8 minute, u8 second, u16 millisecond) {
 mariadb::u8 mariadb::time::hour() const { return m_hour; }
 
 mariadb::u8 mariadb::time::hour(u8 hour) {
-    if (hour > 23) THROW_EXCEPTION(hour, minute(), second(), millisecond());
+    if (hour > 23)
+        MARIADB_ERROR_THROW_TIME(hour, minute(), second(), millisecond());
 
     m_hour = hour;
 
@@ -109,7 +102,8 @@ mariadb::u8 mariadb::time::hour(u8 hour) {
 mariadb::u8 mariadb::time::minute() const { return m_minute; }
 
 mariadb::u8 mariadb::time::minute(u8 minute) {
-    if (minute > 59) THROW_EXCEPTION(hour(), minute, second(), millisecond());
+    if (minute > 59)
+        MARIADB_ERROR_THROW_TIME(hour(), minute, second(), millisecond());
 
     m_minute = minute;
 
@@ -119,7 +113,8 @@ mariadb::u8 mariadb::time::minute(u8 minute) {
 mariadb::u8 mariadb::time::second() const { return m_second; }
 
 mariadb::u8 mariadb::time::second(u8 second) {
-    if (second > 61) THROW_EXCEPTION(hour(), minute(), second, millisecond());
+    if (second > 61)
+        MARIADB_ERROR_THROW_TIME(hour(), minute(), second, millisecond());
 
     m_second = second;
 
@@ -129,7 +124,8 @@ mariadb::u8 mariadb::time::second(u8 second) {
 mariadb::u16 mariadb::time::millisecond() const { return m_millisecond; }
 
 mariadb::u16 mariadb::time::millisecond(u16 millisecond) {
-    if (millisecond > 999) THROW_EXCEPTION(hour(), minute(), second(), millisecond);
+    if (millisecond > 999)
+        MARIADB_ERROR_THROW_TIME(hour(), minute(), second(), millisecond);
 
     m_millisecond = millisecond;
 

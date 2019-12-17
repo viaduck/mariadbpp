@@ -28,15 +28,6 @@ const u8 g_month_lengths[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 #define MS_PER_HOUR (MS_PER_MIN * 60)
 #define MS_PER_DAY (MS_PER_HOUR * 24)
 
-#define THROW_EXCEPTION(_year, _month, _day, _hour, _minute, _second, _millisecond)              \
-    {                                                                                            \
-        std::cerr << "MariaDB Invalid date time: year - " << _year << ", month - " << _month     \
-                  << ", day - " << _day << ", hour - " << _hour << ", minute - " << _minute      \
-                  << ", second - " << _second << ", millisecond - " << _millisecond              \
-                  << "\nIn function: " << __FUNCTION__ << '\n';                                  \
-        MARIADB_ERROR_THROW_DATE(_year, _month, _day, _hour, _minute, _second, _millisecond)     \
-    }
-
 date_time::date_time(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u16 millisecond) : time() {
     set(year, month, day, hour, minute, second, millisecond);
 }
@@ -100,7 +91,8 @@ bool date_time::operator>(const date_time& dt) const { return compare(dt) > 0; }
 bool date_time::operator>=(const date_time& dt) const { return compare(dt) >= 0; }
 
 bool date_time::set(u16 year, u8 month, u8 day) {
-    if (!valid_date(year, month, day)) THROW_EXCEPTION(year, month, day, 0, 0, 0, 0);
+    if (!valid_date(year, month, day))
+        MARIADB_ERROR_THROW_DATE(year, month, day, 0, 0, 0, 0);
 
     m_year = year;
     m_month = month;
@@ -111,7 +103,7 @@ bool date_time::set(u16 year, u8 month, u8 day) {
 bool date_time::set(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u16 millisecond) {
     if (!valid_date(year, month, day) || hour >= 24 || minute >= 60 || second >= 60 ||
         millisecond >= 1000)
-        THROW_EXCEPTION(year, month, day, hour, minute, second, millisecond);
+        MARIADB_ERROR_THROW_DATE(year, month, day, hour, minute, second, millisecond);
 
     m_year = year;
     m_month = month;
@@ -123,7 +115,8 @@ bool date_time::set(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u
 u16 date_time::year() const { return m_year; }
 
 u16 date_time::year(u16 year) {
-    if (year == 0) THROW_EXCEPTION(year, month(), day(), hour(), minute(), second(), millisecond());
+    if (year == 0)
+        MARIADB_ERROR_THROW_DATE(year, month(), day(), hour(), minute(), second(), millisecond());
 
     m_year = year;
 
@@ -139,7 +132,7 @@ u8 date_time::month() const { return m_month; }
 
 u8 date_time::month(u8 month) {
     if (month == 0 || month > 12)
-        THROW_EXCEPTION(year(), month, day(), hour(), minute(), second(), millisecond());
+        MARIADB_ERROR_THROW_DATE(year(), month, day(), hour(), minute(), second(), millisecond());
 
     m_month = month;
 
@@ -156,7 +149,7 @@ u8 date_time::day(u8 day) {
     u8 days_inmonth = days_in_month(year(), month());
 
     if (day == 0 || day > days_inmonth)
-        THROW_EXCEPTION(year(), month(), day, hour(), minute(), second(), millisecond());
+        MARIADB_ERROR_THROW_DATE(year(), month(), day, hour(), minute(), second(), millisecond());
 
     m_day = day;
 
