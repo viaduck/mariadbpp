@@ -7,8 +7,8 @@ cmake_minimum_required(VERSION 3.1)
 project(mariadbclientpp LANGUAGES CXX)
 
 include(GNUInstallDirs)
-option(MARIADBPP_TEST "Build mariadbpp tests" ON)
-option(MARIADBPP_DOC "Build mariadbpp docs" ON)
+option(MARIADBPP_TEST "Build mariadbpp tests" OFF)
+option(MARIADBPP_DOC "Build mariadbpp docs" OFF)
 
 # add additional cmake modules
 list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
