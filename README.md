@@ -9,9 +9,25 @@ C++ client library for MariaDB. Uses the C connector.
 * Exceptions
 
 ## Setup
-1. Initialize Git submodules: `git submodule update --init`
-2. Install `mariadbclient` or `mysqlclient` libraries.
-3. Link against the `mariadbclientpp` CMake target in your project.
+1. Install `mariadbclient` or `mysqlclient` libraries.
+2. Build and install. E.g.
+
+```shell
+# In this project directory
+mkdir build
+cd build
+cmake ..
+make install
+```
+
+3. Use CMake to declare the dependency to `mariadbclientpp`:
+
+```cmake
+# CMakeLists.txt of your project
+find_package(mariadbclientpp REQUIRED)
+...
+target_link_libraries(yourtarget PUBLIC mariadbclientpp::mariadbclientpp)
+```
 
 ### Building tests
 Create database and user according to the information in [test/CMakeLists.txt](test/CMakeLists.txt) or adjust these values.
