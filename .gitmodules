@@ -1,3 +1,0 @@
-[submodule "external/cmake-modules"]
-	path = external/cmake-modules
-	url = ../cmake-modules.git
