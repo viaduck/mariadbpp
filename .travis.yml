@@ -23,7 +23,7 @@ matrix:
         - cd ../../
         # now build mariadbpp
         - mkdir build && cd build
-        - cmake ../ -DGTEST_SRC_DIR=/usr/src/gtest/ -DCMAKE_BUILD_TYPE=Debug -DTEST_USERNAME=$MYSQL_USER -DTEST_PASSWORD=$MYSQL_PASSWORD -DTEST_PORT=3306 -DTEST_DATABASE=$MYSQL_DATABASE && cmake --build .
+        - cmake ../ -DMARIADBPP_DOC=ON -DMARIADBPP_TEST=ON -DGTEST_SRC_DIR=/usr/src/gtest/ -DCMAKE_BUILD_TYPE=Debug -DTEST_USERNAME=$MYSQL_USER -DTEST_PASSWORD=$MYSQL_PASSWORD -DTEST_PORT=3306 -DTEST_DATABASE=$MYSQL_DATABASE && cmake --build .
         - test/mariadbpp_tests
 
       env:
@@ -57,5 +57,5 @@ before_install:
 
 script:
   - mkdir build && cd build
-  - cmake ../ -DGTEST_SRC_DIR=/usr/src/gtest/ -DCMAKE_BUILD_TYPE=Debug -DTEST_USERNAME=$MYSQL_USER -DTEST_PASSWORD=$MYSQL_PASSWORD -DTEST_PORT=3306 -DTEST_DATABASE=$MYSQL_DATABASE && cmake --build .
+  - cmake ../ -DMARIADBPP_DOC=ON -DMARIADBPP_TEST=ON -DGTEST_SRC_DIR=/usr/src/gtest/ -DCMAKE_BUILD_TYPE=Debug -DTEST_USERNAME=$MYSQL_USER -DTEST_PASSWORD=$MYSQL_PASSWORD -DTEST_PORT=3306 -DTEST_DATABASE=$MYSQL_DATABASE && cmake --build .
   - test/mariadbpp_tests
