@@ -4,17 +4,14 @@
 #          http://www.boost.org/LICENSE_1_0.txt)
 
 cmake_minimum_required(VERSION 3.1)
-project(mariadbclientpp)
+project(mariadbclientpp LANGUAGES CXX)
 
-option(MARIADBPP_TEST "Build mariadbpp tests" ON)
-option(MARIADBPP_DOC "Build mariadbpp docs" ON)
+include(GNUInstallDirs)
+option(MARIADBPP_TEST "Build mariadbpp tests" OFF)
+option(MARIADBPP_DOC "Build mariadbpp docs" OFF)
 
 # add additional cmake modules
 list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake-modules")
-
-# c++ standard
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # dependencies
 find_package(MariaDBClient REQUIRED)
@@ -29,17 +26,43 @@ file(GLOB mariadbclientpp_SOURCES src/*.cpp)
 add_library(mariadbclientpp ${mariadbclientpp_SOURCES} ${mariadbclientpp_PUBLIC_HEADERS} ${mariadbclientpp_PRIVATE_HEADERS})
 
 # target options
-target_link_libraries(mariadbclientpp ${MariaDBClient_LIBRARIES} Threads::Threads)
-target_include_directories(mariadbclientpp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${MariaDBClient_INCLUDE_DIRS})
+target_link_libraries(mariadbclientpp MariaDBClient::MariaDBClient Threads::Threads)
+
+target_include_directories(
+	mariadbclientpp
+	PUBLIC
+	"$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+	"$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
+
+target_compile_features(mariadbclientpp
+	PUBLIC cxx_std_11)
+
 target_compile_options(mariadbclientpp PRIVATE -Wall -Wextra)
 
 # install configuration
 install(FILES ${mariadbclientpp_PUBLIC_HEADERS} DESTINATION include/mariadb++)
 install(TARGETS mariadbclientpp
+	EXPORT mariadbclientpp_export
 	ARCHIVE DESTINATION lib
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib
 )
+
+configure_file("cmake/mariadbclientpp-config.cmake.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/mariadbclientpp-config.cmake" @ONLY)
+
+install(
+	EXPORT mariadbclientpp_export
+	DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/mariadbclientpp"
+	NAMESPACE "mariadbclientpp::"
+	# In this CMake config file no dependencies are considered. But since we
+	# do not use any `find_package` call here this approach is sufficient.
+	FILE mariadbclientpp-targets.cmake
+)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/mariadbclientpp-config.cmake"
+	"${PROJECT_SOURCE_DIR}/external/cmake-modules/FindMariaDBClient.cmake"
+	DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/mariadbclientpp")
 
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MariaDB++")
 SET(CPACK_PACKAGE_VENDOR "ViaDuck")
