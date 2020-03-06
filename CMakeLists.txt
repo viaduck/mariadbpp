@@ -3,7 +3,7 @@
 #    (See accompanying file LICENSE or copy at
 #          http://www.boost.org/LICENSE_1_0.txt)
 
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.8)
 project(mariadbclientpp LANGUAGES CXX)
 
 include(GNUInstallDirs)
