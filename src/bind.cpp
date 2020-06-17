@@ -97,6 +97,10 @@ void bind::set(enum_field_types type, const char* buffer, unsigned long length, 
         case MYSQL_TYPE_VARCHAR:
         case MYSQL_TYPE_VAR_STRING:
         case MYSQL_TYPE_STRING:
+            if (length == 0) {
+                m_bind->buffer_length = 1;
+                break;
+            }
             m_data = data_ref(new data<char>(length));
             m_bind->buffer = m_data->get();
             m_bind->buffer_length = m_data->size();
