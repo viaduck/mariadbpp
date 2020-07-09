@@ -40,12 +40,12 @@ target_compile_features(mariadbclientpp
 target_compile_options(mariadbclientpp PRIVATE -Wall -Wextra)
 
 # install configuration
-install(FILES ${mariadbclientpp_PUBLIC_HEADERS} DESTINATION include/mariadb++)
+install(FILES ${mariadbclientpp_PUBLIC_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mariadb++)
 install(TARGETS mariadbclientpp
 	EXPORT mariadbclientpp_export
-	ARCHIVE DESTINATION lib
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 configure_file("cmake/mariadbclientpp-config.cmake.in"
