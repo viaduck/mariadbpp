@@ -82,6 +82,10 @@ stmt->insert();
 ```
 More usage examples can be found in the `test/` directory.
 
+## History
+This library was originally developed on [Launchpad](https://launchpad.net/mariadb++).
+It has since been forked and is now being actively maintained [here](https://github.com/viaduck/mariadbpp).
+
 ## License
 This library is subject to the Boost Software License. See accompanying
 [LICENSE](LICENSE) file.
