@@ -247,10 +247,10 @@ class time {
     time_t mktime() const;
 
     /**
- * Calculates the time difference using ::difftime.
- * Calculates (this - t)
- *
- * @return Difference in seconds as double
+     * Calculates the time difference using ::difftime.
+     * Calculates (this - t)
+     *
+     * @return Difference in seconds as double
      */
     double diff_time(const time& t) const;
 

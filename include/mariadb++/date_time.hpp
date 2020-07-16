@@ -106,8 +106,8 @@ class date_time : public time {
 
     /**
      * Get currently set month
-             *
-             * @return Current month
+     *
+     * @return Current month
      */
     u8 month() const;
 
@@ -121,8 +121,8 @@ class date_time : public time {
 
     /**
      * Get currently set day of month
-             *
-             * @return Current day
+     *
+     * @return Current day
      */
     u8 day() const;
 
@@ -159,17 +159,17 @@ class date_time : public time {
     bool set(u16 year, u8 month, u8 day);
 
     /**
-             * Set date and time part. Invalid dates will throw an exception
-             *
-             * @param year Year to set.
-             * @param month Month to set. [1-12]
-             * @param day Day to set. [1-28/29/30/31]
+     * Set date and time part. Invalid dates will throw an exception
+     *
+     * @param year Year to set.
+     * @param month Month to set. [1-12]
+     * @param day Day to set. [1-28/29/30/31]
      * @param hour The hour to set. [0-23}
-             * @param minute The minute to set. [0-59]
-             * @param second The second to set. [0-60]
-             * @param millisecond The millisecond to set. [0-999]
-             * @return True on success
-             */
+     * @param minute The minute to set. [0-59]
+     * @param second The second to set. [0-60]
+     * @param millisecond The millisecond to set. [0-999]
+     * @return True on success
+     */
     bool set(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u16 millisecond);
 
     /**
@@ -190,50 +190,50 @@ class date_time : public time {
     date_time add_years(s32 years) const;
 
     /**
-             * Add months to current date with year wrapping.
-             *
-             * @param months Number of months to add
-             * @return Newly created date_time containing result
-             */
+     * Add months to current date with year wrapping.
+     *
+     * @param months Number of months to add
+     * @return Newly created date_time containing result
+     */
     date_time add_months(s32 months) const;
 
     /**
-             * Add days to current date with month wrapping.
-             *
-             * @param days Number of days to add
-             * @return Newly created date_time containing result
-             */
+     * Add days to current date with month wrapping.
+     *
+     * @param days Number of days to add
+     * @return Newly created date_time containing result
+     */
     date_time add_days(s32 days) const;
 
     /**
-             * Add hours to current date with day wrapping.
-             *
-             * @param hours Number of hours to add
-             * @return Newly created date_time containing result
-             */
+     * Add hours to current date with day wrapping.
+     *
+     * @param hours Number of hours to add
+     * @return Newly created date_time containing result
+     */
     date_time add_hours(s32 hours) const;
 
     /**
      * Add minutes to current date with hour wrapping.
-             *
-             * @param minutes Number of minutes to add
-             * @return Newly created date_time containing result
+     *
+     * @param minutes Number of minutes to add
+     * @return Newly created date_time containing result
      */
     date_time add_minutes(s32 minutes) const;
 
     /**
      * Add seconds to current date with minute wrapping.
-             *
-             * @param seconds Number of seconds to add
-             * @return Newly created date_time containing result
+     *
+     * @param seconds Number of seconds to add
+     * @return Newly created date_time containing result
      */
     date_time add_seconds(s32 seconds) const;
 
     /**
      * Add milliseconds to current date with second wrapping.
-             *
-             * @param milliseconds Number of milliseconds to add
-             * @return Newly created date_time containing result
+     *
+     * @param milliseconds Number of milliseconds to add
+     * @return Newly created date_time containing result
      */
     date_time add_milliseconds(s32 milliseconds) const;
 
