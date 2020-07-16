@@ -3,7 +3,7 @@
 //
 //          Copyright Sylvain Rochette Langlois 2013,
 //                    Frantisek Boranek 2015,
-//                    The ViaDuck Project 2016 - 2018.
+//                    The ViaDuck Project 2016 - 2020.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -78,9 +78,6 @@ bool mariadb::time::operator>(const time& t) const { return compare(t) > 0; }
 bool mariadb::time::operator>=(const time& t) const { return compare(t) >= 0; }
 
 bool mariadb::time::set(u8 hour, u8 minute, u8 second, u16 millisecond) {
-    if (hour > 23 || minute > 59 || second > 61 || millisecond > 999)
-        MARIADB_ERROR_THROW_TIME(hour, minute, second, millisecond);
-
     m_hour = hour;
     m_minute = minute;
     m_second = second;
@@ -291,6 +288,15 @@ double mariadb::time::diff_time(const time& t) const {
     time_t t_time_val = t.mktime();
 
     return ::difftime(time_val, t_time_val);
+}
+
+bool mariadb::time::is_valid() const {
+    return time::valid_time(hour(), minute(), second(), millisecond());
+}
+
+bool mariadb::time::valid_time(u8 hour, u8 minute, u8 second, u16 millisecond) {
+    // seconds go up to 61 to allow for leap seconds
+    return hour < 24 && minute < 60 && second <= 61 && millisecond < 1000;
 }
 
 mariadb::time mariadb::time::now() {

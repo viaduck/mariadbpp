@@ -1,12 +1,17 @@
 //
 //  M A R I A D B + +
 //
-//          Copyright The ViaDuck Project 2016 - 2018.
+//          Copyright The ViaDuck Project 2016 - 2020.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
 #include "TimeTest.h"
+
+#define EXPECT_INVALID(t, x...) do {    \
+    t d(x);                             \
+    EXPECT_FALSE(d.is_valid());         \
+} while(false)
 
 TEST_F(TimeTest, testConstructors) {
     // valid times
@@ -15,10 +20,11 @@ TEST_F(TimeTest, testConstructors) {
     mariadb::time c(b);
 
     // invalid times
-    EXPECT_ANY_THROW(mariadb::time d(static_cast<u8>(24)));
-    EXPECT_ANY_THROW(mariadb::time d(23u, 60u));
-    EXPECT_ANY_THROW(mariadb::time d(23u, 59u, 62u));
-    EXPECT_ANY_THROW(mariadb::time d(23u, 59u, 59u, 1000u));
+    EXPECT_INVALID(mariadb::time, static_cast<u8>(24));
+    EXPECT_INVALID(mariadb::time, static_cast<u8>(24));
+    EXPECT_INVALID(mariadb::time, 23u, 60u);
+    EXPECT_INVALID(mariadb::time, 23u, 59u, 62u);
+    EXPECT_INVALID(mariadb::time, 23u, 59u, 59u, 1000u);
 
     // test time.h constructors
     tm sometime;
@@ -32,7 +38,7 @@ TEST_F(TimeTest, testConstructors) {
     time_t someothertime = ::time(nullptr);
 
     mariadb::time e(sometime);
-    EXPECT_ANY_THROW(mariadb::time d(invtime));
+    EXPECT_INVALID(mariadb::time, invtime);
 
     mariadb::time f(someothertime);
 
@@ -46,9 +52,9 @@ TEST_F(TimeTest, testConstructors) {
     EXPECT_ANY_THROW(mariadb::time d("24"));
     EXPECT_ANY_THROW(mariadb::time d("23:60"));
     EXPECT_ANY_THROW(mariadb::time d("23:59:62"));
-    EXPECT_ANY_THROW(mariadb::time d("23:59:59.1000"));
     EXPECT_ANY_THROW(mariadb::time d("23:59:a59.1000"));
     EXPECT_ANY_THROW(mariadb::time m("859"));
+    EXPECT_INVALID(mariadb::time, "23:59:59.1000");
 
     EXPECT_NE(a, b);
     EXPECT_EQ(b, c);
@@ -210,9 +216,9 @@ TEST_F(TimeTest, testDateTime) {
     date_time b(2012, 12, 21, 13, 37, 42, 007);
     date_time before(2012, 12, 19, 13, 37, 42, 007);
     date_time c(2008, 2, 29);
-    EXPECT_ANY_THROW(date_time d(2009, 2, 29));
-    EXPECT_ANY_THROW(date_time d(2009, 1, 0));
-    EXPECT_ANY_THROW(date_time d(2009, 4, 31));
+    EXPECT_INVALID(date_time, 2009, 2, 29);
+    EXPECT_INVALID(date_time, 2009, 1, 0);
+    EXPECT_INVALID(date_time, 2009, 4, 31);
     date_time e(c);
 
     date_time f(1900, 1, 1, 13, 37, 42);
@@ -241,7 +247,7 @@ TEST_F(TimeTest, testDateTime) {
     time_t someothertime = ::time(nullptr);
 
     date_time h(sometime);
-    EXPECT_ANY_THROW(date_time d(invtime));
+    EXPECT_INVALID(date_time, invtime);
 
     date_time i(someothertime);
 
@@ -250,13 +256,13 @@ TEST_F(TimeTest, testDateTime) {
 
     date_time aa("2012-12-21 13:37:42.007");
     date_time ba("2008-02-29 13:37:42.007");
-    EXPECT_ANY_THROW(date_time ca("2007-02-29 13:37:42.007"));
-    EXPECT_ANY_THROW(date_time ca("2007-02-29 a13:37:42.007"));
-    EXPECT_ANY_THROW(date_time ca("2007-02-29 13:37:a42.007"));
-    EXPECT_ANY_THROW(date_time ca("2007-02-29 13:37:42.007"));
-    EXPECT_ANY_THROW(date_time ca("2007-02-29 113:37:42.007"));
-    EXPECT_ANY_THROW(date_time ca("2007-02-29 13:37:42.a007"));
-    EXPECT_ANY_THROW(date_time ca("2007-a02-29 13:37:42.007"));
+    EXPECT_ANY_THROW(date_time d("2007-02-29 a13:37:42.007"));
+    EXPECT_ANY_THROW(date_time d("2007-a02-29 13:37:42.007"));
+    EXPECT_ANY_THROW(date_time d("2007-02-29 13:37:a42.007"));
+    EXPECT_ANY_THROW(date_time d("2007-02-29 113:37:42.007"));
+    EXPECT_ANY_THROW(date_time d("2007-02-29 13:37:42.a007"));
+    EXPECT_INVALID(date_time, "2007-02-29 13:37:42.007");
+    EXPECT_INVALID(date_time, "2007-02-29 13:37:42.007");
 
     EXPECT_EQ(b, aa);
 

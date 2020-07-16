@@ -3,7 +3,7 @@
 //
 //          Copyright Sylvain Rochette Langlois 2013,
 //                    Frantisek Boranek 2015,
-//                    The ViaDuck Project 2016 - 2018.
+//                    The ViaDuck Project 2016 - 2020.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -91,9 +91,6 @@ bool date_time::operator>(const date_time& dt) const { return compare(dt) > 0; }
 bool date_time::operator>=(const date_time& dt) const { return compare(dt) >= 0; }
 
 bool date_time::set(u16 year, u8 month, u8 day) {
-    if (!valid_date(year, month, day))
-        MARIADB_ERROR_THROW_DATE(year, month, day, 0, 0, 0, 0);
-
     m_year = year;
     m_month = month;
     m_day = day;
@@ -101,10 +98,6 @@ bool date_time::set(u16 year, u8 month, u8 day) {
 }
 
 bool date_time::set(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u16 millisecond) {
-    if (!valid_date(year, month, day) || hour >= 24 || minute >= 60 || second >= 60 ||
-        millisecond >= 1000)
-        MARIADB_ERROR_THROW_DATE(year, month, day, hour, minute, second, millisecond);
-
     m_year = year;
     m_month = month;
     m_day = day;
@@ -414,6 +407,10 @@ time_span date_time::time_between(const date_time& dt) const {
     }*/
 
     return time_span(totaldays, hours, minutes, seconds, milliseconds, false);
+}
+
+bool date_time::is_valid() const {
+    return valid_date(year(), month(), day()) && time::is_valid();
 }
 
 bool date_time::is_leap_year(u16 year) {

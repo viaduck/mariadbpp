@@ -3,7 +3,7 @@
 //
 //          Copyright Sylvain Rochette Langlois 2013,
 //                    Frantisek Boranek 2015,
-//                    The ViaDuck Project 2016 - 2018.
+//                    The ViaDuck Project 2016 - 2020.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -253,6 +253,24 @@ class time {
      * @return Difference in seconds as double
      */
     double diff_time(const time& t) const;
+
+    /**
+     * Indicates whether this time is considered valid
+     *
+     * @return True if time is valid
+     */
+    virtual bool is_valid() const;
+
+    /**
+     * Indicates whether a given time is valid in terms of limits. Accounts for leap seconds
+     *
+     * @param hour Hour to check
+     * @param minute Minute to check
+     * @param second Second to check
+     * @param millisecond Milliseconds to check
+     * @return True if valid
+     */
+    static bool valid_time(u8 hour, u8 minute, u8 second, u16 millisecond);
 
     /**
      * Converts the time to MySQL time representation. Note that MySQL time does not support

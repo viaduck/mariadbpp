@@ -2,7 +2,7 @@
 //  M A R I A D B + +
 //
 //          Copyright Sylvain Rochette Langlois 2013,
-//                    The ViaDuck Project 2016 - 2018.
+//                    The ViaDuck Project 2016 - 2020.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -277,6 +277,13 @@ class date_time : public time {
      * @return Timespan representing the time between this and dt
      */
     time_span time_between(const date_time& dt) const;
+
+    /**
+     * Indicates whether this date is considered valid
+     *
+     * @return True if date is valid
+     */
+    bool is_valid() const override;
 
     /**
      * Indicates whether a given year is leap according to gregorian calendar

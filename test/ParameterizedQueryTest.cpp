@@ -1,7 +1,7 @@
 //
 //  M A R I A D B + +
 //
-//          Copyright The ViaDuck Project 2016 - 2018.
+//          Copyright The ViaDuck Project 2016 - 2020.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -60,7 +60,7 @@ TEST_F(ParameterizedQueryTest, bindAnyDataType) {
     ASSERT_EQ(call2, value);
 
     decimal d = decimal("0.02");
-    mariadb::date_time t(mariadb::date_time::now());
+    mariadb::date_time t(mariadb::date_time::now()), z(0, 0, 0);
     mariadb::time ti(mariadb::time::now());
 
     ParamTest_TEST(errorQuery->set_unsigned32(0, (unsigned int)299), queryResult->get_unsigned32(0),
@@ -76,6 +76,7 @@ TEST_F(ParameterizedQueryTest, bindAnyDataType) {
     ParamTest_TEST(errorQuery->set_double(0, -0.03), queryResult->get_double(0), "dd", -0.03);
     ParamTest_TEST(errorQuery->set_signed32(0, 100), queryResult->get_signed32(0), "preis", 100);
     ParamTest_TEST(errorQuery->set_date_time(0, t), queryResult->get_date_time(0), "tim", t);
+    ParamTest_TEST(errorQuery->set_date_time(0, z), queryResult->get_date_time(0), "tim", z);
     ParamTest_TEST(errorQuery->set_time(0, ti), queryResult->get_time(0), "tiim", ti);
     ParamTest_TEST(errorQuery->set_decimal(0, d), queryResult->get_decimal(0).str(), "d", "0.02");
     ParamTest_TEST(errorQuery->set_null(0), queryResult->get_is_null(0), "nul", true);
