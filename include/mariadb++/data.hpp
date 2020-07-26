@@ -97,7 +97,7 @@ class data {
     //
     std::string string() const {
         std::string str;
-        if (m_size) str.append((const char*)m_data, m_size);
+        if (m_size) str.append(reinterpret_cast<const char*>(m_data), m_size);
         return str;
     }
 

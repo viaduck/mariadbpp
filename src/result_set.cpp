@@ -196,15 +196,15 @@ bool result_set::next() {
 }
 
 u64 result_set::row_index() const {
-    if (m_stmt_data) return (u64)mysql_stmt_row_tell(m_stmt_data->m_statement);
+    if (m_stmt_data) return reinterpret_cast<u64>(mysql_stmt_row_tell(m_stmt_data->m_statement));
 
-    return (u64)mysql_row_tell(m_result_set);
+    return reinterpret_cast<u64>(mysql_row_tell(m_result_set));
 }
 
 u64 result_set::row_count() const {
-    if (m_stmt_data) return (u64)mysql_stmt_num_rows(m_stmt_data->m_statement);
+    if (m_stmt_data) return mysql_stmt_num_rows(m_stmt_data->m_statement);
 
-    return (u64)mysql_num_rows(m_result_set);
+    return mysql_num_rows(m_result_set);
 }
 
 void result_set::check_row_fetched() const {
@@ -268,7 +268,7 @@ void result_set::check_type(u32 index, value::type requested) const {
     }
 
     if (type_error) {
-        printf("requested type %d does not match actual type %d", (int)requested, (int)actual);
+        printf("requested type %d does not match actual type %d", +requested, +actual);
         MARIADB_ERROR_THROW_CONNECTION(12, "type error");
     }
 }

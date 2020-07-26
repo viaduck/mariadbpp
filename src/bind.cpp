@@ -34,7 +34,7 @@ bind::bind(MYSQL_BIND* b, MYSQL_FIELD* f) : bind(b) {
 char* bind::buffer() const {
     if (m_data) return m_data->get();
 
-    return (char*)&m_unsigned64;
+    return const_cast<char*>(reinterpret_cast<const char*>(&m_unsigned64));
 }
 
 unsigned long bind::length() const { return m_bind->buffer_length; }
