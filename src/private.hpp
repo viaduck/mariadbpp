@@ -48,11 +48,16 @@ inline int gmtime_safe(struct tm* _tm, const time_t* _time) {
 #define MARIADB_ERROR_THROW_TIME(_hour, _minute, _second, _millisecond) \
     throw exception::time(_hour, _minute, _second, _millisecond);
 
+#if defined(MARIADB_CERR_OUTPUT) && MARIADB_CERR_OUTPUT
 #define MARIADB_ERROR(error_id, error)                                                             \
     std::cerr << "MariaDB Error(" << error_id << "): " << error                                    \
               << "\nIn function: " << __FUNCTION__ << "\nIn file " << __FILE__ << "\nOn line "     \
               << __LINE__ << '\n';                                                                 \
     MARIADB_ERROR_THROW_CONNECTION(error_id, error)
+#else
+#define MARIADB_ERROR(error_id, error) \
+    MARIADB_ERROR_THROW_CONNECTION(error_id, error)
+#endif
 
 #define MYSQL_ERROR_NO_BRAKET(mysql)      \
     m_last_error_no = mysql_errno(mysql); \

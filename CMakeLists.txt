@@ -7,8 +7,10 @@ cmake_minimum_required(VERSION 3.8)
 project(mariadbclientpp LANGUAGES CXX)
 
 include(GNUInstallDirs)
+cmake_policy(SET CMP0077 NEW) # set() overrides option()
 option(MARIADBPP_TEST "Build mariadbpp tests" OFF)
 option(MARIADBPP_DOC "Build mariadbpp docs" OFF)
+option(MARIADBPP_CERR_OUTPUT "Enable print to error output" ON)
 
 # add additional cmake modules
 list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake-modules")
@@ -16,6 +18,14 @@ list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake-modu
 # dependencies
 find_package(MariaDBClient REQUIRED)
 find_package(Threads REQUIRED)
+
+#options
+
+if(MARIADBPP_CERR_OUTPUT)
+	add_compile_definitions(MARIADB_CERR_OUTPUT=1)
+else()
+	add_compile_definitions(MARIADB_CERR_OUTPUT=0)
+endif()
 
 # find files
 file(GLOB mariadbclientpp_PUBLIC_HEADERS include/mariadb++/*)
