@@ -37,7 +37,11 @@ target_include_directories(
 target_compile_features(mariadbclientpp
 	PUBLIC cxx_std_11)
 
-target_compile_options(mariadbclientpp PRIVATE -Wall -Wextra)
+if (MSVC)
+    target_compile_options(mariadbclientpp PRIVATE /W4)
+else()
+    target_compile_options(mariadbclientpp PRIVATE -Wall -Wextra)
+endif()
 
 # install configuration
 install(FILES ${mariadbclientpp_PUBLIC_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/mariadb++)
