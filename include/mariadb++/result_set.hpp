@@ -19,20 +19,29 @@
 #include <mariadb++/decimal.hpp>
 #include <mariadb++/last_error.hpp>
 
-#define MAKE_GETTER_SIG_STR(nm, rtype, fq) rtype fq get_##nm(const std::string& name) const
-#define MAKE_GETTER_SIG_INT(nm, rtype, fq) rtype fq get_##nm(u32 index) const
+#define MAKE_GETTER_SIG_STR(nm, rtype, fq) rtype fq get_##nm(const std::string &name) const
+#define MAKE_GETTER_SIG_NUM(nm, rtype, fq) rtype fq get_##nm(u32 index) const
+#define MAKE_GETTER_SIG_INT(nm, rtype, fq) rtype fq _get_body_##nm(u32 index) const
 
 #define MAKE_GETTER_DECL(nm, rtype)   \
     MAKE_GETTER_SIG_STR(nm, rtype, ); \
+    MAKE_GETTER_SIG_NUM(nm, rtype, ); \
     MAKE_GETTER_SIG_INT(nm, rtype, )
 
-#define MAKE_GETTER(nm, rtype, vtype)                                                     \
-    MAKE_GETTER_SIG_STR(nm, rtype, result_set::) { return get_##nm(column_index(name)); } \
-    MAKE_GETTER_SIG_INT(nm, rtype, result_set::) {                                        \
-        check_row_fetched();                                                              \
-        check_type(index, vtype);                                                         \
-                                                                                          \
-        if (index >= m_field_count) throw std::out_of_range("Column index out of range");
+#define MAKE_GETTER(nm, rtype, vtype)                             \
+    MAKE_GETTER_SIG_STR(nm, rtype, result_set::) {                \
+        return get_##nm(column_index(name));                      \
+    }                                                             \
+    MAKE_GETTER_SIG_NUM(nm, rtype, result_set::) {                \
+        check_row_fetched();                                      \
+        check_type(index, vtype);                                 \
+                                                                  \
+        if (index >= m_field_count)                               \
+            throw std::out_of_range("Column index out of range"); \
+                                                                  \
+        return _get_body_##nm(index);                             \
+    }                                                             \
+    MAKE_GETTER_SIG_INT(nm, rtype, result_set::)
 
 namespace mariadb {
 class connection;
@@ -47,16 +56,16 @@ class statement;
  * A shared_ptr is used to keep the data alive in the statement and the result_set.
  */
 struct statement_data {
-    explicit statement_data(MYSQL_STMT* stmt) : m_statement(stmt) {}
+    explicit statement_data(MYSQL_STMT *stmt) : m_statement(stmt) {}
 
     ~statement_data();
 
     // number of binds in this query
     unsigned long m_bind_count = 0;
     // pointer to underlying statement
-    MYSQL_STMT* m_statement;
+    MYSQL_STMT *m_statement;
     // pointer to raw binds
-    MYSQL_BIND* m_raw_binds = nullptr;
+    MYSQL_BIND *m_raw_binds = nullptr;
     // pointer to managed binds
     std::vector<bind_ref> m_binds;
 };
@@ -72,7 +81,7 @@ class result_set : public last_error {
 
     typedef std::map<std::string, u32> map_indexes_t;
 
-   public:
+public:
     /**
      * Destructs the result_set and frees all result data
      */
@@ -91,7 +100,7 @@ class result_set : public last_error {
      * @param name Name of column to look up
      * @return Index of column if found, maximum uint32 if not found
      */
-    u32 column_index(const std::string& name) const;
+    u32 column_index(const std::string &name) const;
 
     /**
      * Gets the type of a column by index
@@ -168,16 +177,16 @@ class result_set : public last_error {
     MAKE_GETTER_DECL(double, f64);
     MAKE_GETTER_DECL(is_null, bool);
 
-   private:
+private:
     /**
      * Create result_set from connection
      */
-    explicit result_set(connection* conn);
+    explicit result_set(connection *conn);
 
     /**
      * Create result_set from statement
      */
-    explicit result_set(connection* conn, const statement_data_ref& stmt);
+    explicit result_set(connection *conn, const statement_data_ref &stmt);
 
     /**
      * Throws if the result set was created, but no row was ever fetched (using next())
@@ -193,13 +202,13 @@ class result_set : public last_error {
     void check_type(u32 index, value::type requested) const;
 
     // pointer to result set
-    MYSQL_RES* m_result_set;
+    MYSQL_RES *m_result_set;
     // pointer to array of fields
-    MYSQL_FIELD* m_fields;
+    MYSQL_FIELD *m_fields;
     // pointer to current row
     MYSQL_ROW m_row;
     // pointer to raw binds
-    MYSQL_BIND* m_raw_binds;
+    MYSQL_BIND *m_raw_binds;
 
     // vector of managed binds
     std::vector<bind_ref> m_binds;
@@ -208,7 +217,7 @@ class result_set : public last_error {
     // map caching column name by index
     map_indexes_t m_indexes;
     // array of content lengths for the columns of current row
-    long unsigned int* m_lengths;
+    long unsigned int *m_lengths;
 
     // count of fields per row
     u32 m_field_count;
@@ -217,6 +226,6 @@ class result_set : public last_error {
 };
 
 typedef std::shared_ptr<result_set> result_set_ref;
-}
+}  // namespace mariadb
 
 #endif

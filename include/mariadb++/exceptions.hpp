@@ -17,16 +17,15 @@
 namespace mariadb {
 namespace exception {
 class base : public std::exception {
-   public:
+public:
     //
     // Constructor
     //
     base() throw() : std::exception(), m_error_id(0), m_error("Exception not defined") {}
 
-    base(u32 error_id, const std::string& error) throw()
-        : std::exception(), m_error_id(error_id), m_error(error) {}
+    base(u32 error_id, const std::string &error) throw() : std::exception(), m_error_id(error_id), m_error(error) {}
 
-    base(const std::string& error) throw() : std::exception(), m_error_id(0), m_error(error) {}
+    base(const std::string &error) throw() : std::exception(), m_error_id(0), m_error(error) {}
 
     //
     // Destructor
@@ -36,17 +35,21 @@ class base : public std::exception {
     //
     // Methods
     //
-    virtual const char* what() const throw() { return m_error.c_str(); }
+    virtual const char *what() const throw() {
+        return m_error.c_str();
+    }
 
-    u32 error_id() const throw() { return m_error_id; }
+    u32 error_id() const throw() {
+        return m_error_id;
+    }
 
-   protected:
+protected:
     u32 m_error_id;
     std::string m_error;
 };
 
 class date_time : public base {
-   public:
+public:
     //
     // Constructors
     //
@@ -54,7 +57,7 @@ class date_time : public base {
 };
 
 class time : public base {
-   public:
+public:
     //
     // Constructors
     //
@@ -62,21 +65,21 @@ class time : public base {
 };
 
 class connection : public base {
-   public:
+public:
     //
     // Constructor
     //
-    connection(u32 error_id, const std::string& error) throw() : base(error_id, error) {}
+    connection(u32 error_id, const std::string &error) throw() : base(error_id, error) {}
 };
 
 class statement : public base {
-   public:
+public:
     //
     // Constructor
     //
-    statement(u32 error_id, const std::string& error) throw() : base(error_id, error) {}
+    statement(u32 error_id, const std::string &error) throw() : base(error_id, error) {}
 };
-}
-}
+}  // namespace exception
+}  // namespace mariadb
 
 #endif

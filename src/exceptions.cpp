@@ -17,26 +17,20 @@ using namespace mariadb;
 //
 // Constructors
 //
-exception::date_time::date_time(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second,
-                                u16 millisecond) throw() : base() {
+exception::date_time::date_time(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u16 millisecond) throw()
+    : base() {
     std::ostringstream oss;
-    oss << "Invalid date time: " << std::setfill('0') << std::setw(4) << year
-        << "-" << std::setw(2) << int(month)
-        << "-" << std::setw(2) << int(day)
-        << "T" << std::setw(2) << int(hour)
-        << ":" << std::setw(2) << int(minute)
-        << ":" << std::setw(2) << int(second)
-        << "." << std::setw(3) << millisecond;
+    oss << "Invalid date time: " << std::setfill('0') << std::setw(4) << year << "-" << std::setw(2) << int(month)
+        << "-" << std::setw(2) << int(day) << "T" << std::setw(2) << int(hour) << ":" << std::setw(2) << int(minute)
+        << ":" << std::setw(2) << int(second) << "." << std::setw(3) << millisecond;
 
     m_error = oss.str();
 }
 
 exception::time::time(u8 hour, u8 minute, u8 second, u16 millisecond) throw() : base() {
     std::ostringstream oss;
-    oss << "Invalid time: " << std::setfill('0') << std::setw(2) << int(hour)
-            << ":" << std::setw(2) << int(minute)
-            << ":" << std::setw(2) << int(second)
-            << "." << std::setw(3) << millisecond;
+    oss << "Invalid time: " << std::setfill('0') << std::setw(2) << int(hour) << ":" << std::setw(2) << int(minute)
+        << ":" << std::setw(2) << int(second) << "." << std::setw(3) << millisecond;
 
     m_error = oss.str();
 }

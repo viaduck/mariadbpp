@@ -32,63 +32,83 @@ date_time::date_time(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, 
     set(year, month, day, hour, minute, second, millisecond);
 }
 
-date_time::date_time(const date_time& dt) : time() {
+date_time::date_time(const date_time &dt) : time() {
     set(dt.year(), dt.month(), dt.day(), dt.hour(), dt.minute(), dt.second(), dt.millisecond());
 }
 
-date_time::date_time(const time& t) : time() {
+date_time::date_time(const time &t) : time() {
     set(1900, 1, 1, t.hour(), t.minute(), t.second(), t.millisecond());
 }
 
-date_time::date_time(const tm& t) : time() {
+date_time::date_time(const tm &t) : time() {
     set(t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, 0);
 }
 
-date_time::date_time(const time_t& time) : mariadb::time() {
+date_time::date_time(const time_t &time) : mariadb::time() {
     tm t;
     localtime_safe(&t, &time);
 
     set(t.tm_year + 1900, t.tm_mon + 1, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec, 0);
 }
 
-date_time::date_time(const MYSQL_TIME& t) : time() {
+date_time::date_time(const MYSQL_TIME &t) : time() {
     set(t.year, t.month, t.day, t.hour, t.minute, t.second, t.second_part / 1000);
 }
 
-date_time::date_time(const std::string& dt) : time() { set(dt); }
+date_time::date_time(const std::string &dt) : time() {
+    set(dt);
+}
 
-int date_time::compare(const date_time& dt) const {
-    if (year() < dt.year()) return -1;
+int date_time::compare(const date_time &dt) const {
+    if (year() < dt.year())
+        return -1;
 
-    if (year() > dt.year()) return 1;
+    if (year() > dt.year())
+        return 1;
 
-    if (month() < dt.month()) return -1;
+    if (month() < dt.month())
+        return -1;
 
-    if (month() > dt.month()) return 1;
+    if (month() > dt.month())
+        return 1;
 
-    if (day() < dt.day()) return -1;
+    if (day() < dt.day())
+        return -1;
 
-    if (day() > dt.day()) return 1;
+    if (day() > dt.day())
+        return 1;
 
     return time::compare(dt);
 }
 
-date_time& date_time::operator=(const date_time& dt) {
+date_time &date_time::operator=(const date_time &dt) {
     set(dt.year(), dt.month(), dt.day(), dt.hour(), dt.minute(), dt.second(), dt.millisecond());
     return *this;
 }
 
-bool date_time::operator==(const date_time& dt) const { return compare(dt) == 0; }
+bool date_time::operator==(const date_time &dt) const {
+    return compare(dt) == 0;
+}
 
-bool date_time::operator!=(const date_time& dt) const { return compare(dt) != 0; }
+bool date_time::operator!=(const date_time &dt) const {
+    return compare(dt) != 0;
+}
 
-bool date_time::operator<(const date_time& dt) const { return compare(dt) < 0; }
+bool date_time::operator<(const date_time &dt) const {
+    return compare(dt) < 0;
+}
 
-bool date_time::operator<=(const date_time& dt) const { return compare(dt) <= 0; }
+bool date_time::operator<=(const date_time &dt) const {
+    return compare(dt) <= 0;
+}
 
-bool date_time::operator>(const date_time& dt) const { return compare(dt) > 0; }
+bool date_time::operator>(const date_time &dt) const {
+    return compare(dt) > 0;
+}
 
-bool date_time::operator>=(const date_time& dt) const { return compare(dt) >= 0; }
+bool date_time::operator>=(const date_time &dt) const {
+    return compare(dt) >= 0;
+}
 
 bool date_time::set(u16 year, u8 month, u8 day) {
     m_year = year;
@@ -105,11 +125,12 @@ bool date_time::set(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u
     return time::set(hour, minute, second, millisecond);
 }
 
-u16 date_time::year() const { return m_year; }
+u16 date_time::year() const {
+    return m_year;
+}
 
 u16 date_time::year(u16 year) {
-    MARIADB_THROW_IF(year == 0, exception::date_time,
-                     year, month(), day(), hour(), minute(), second(), millisecond());
+    MARIADB_THROW_IF(year == 0, exception::date_time, year, month(), day(), hour(), minute(), second(), millisecond());
 
     m_year = year;
 
@@ -121,35 +142,42 @@ u16 date_time::year(u16 year) {
     return m_year;
 }
 
-u8 date_time::month() const { return m_month; }
+u8 date_time::month() const {
+    return m_month;
+}
 
 u8 date_time::month(u8 month) {
-    MARIADB_THROW_IF(month == 0 || month > 12, exception::date_time,
-                     year(), month, day(), hour(), minute(), second(), millisecond());
+    MARIADB_THROW_IF(month == 0 || month > 12, exception::date_time, year(), month, day(), hour(), minute(), second(),
+                     millisecond());
 
     m_month = month;
 
     u8 days_inmonth = days_in_month(year(), month);
 
-    if (day() > days_inmonth) m_day = 1;
+    if (day() > days_inmonth)
+        m_day = 1;
 
     return m_month;
 }
 
-u8 date_time::day() const { return m_day; }
+u8 date_time::day() const {
+    return m_day;
+}
 
 u8 date_time::day(u8 day) {
     u8 days_inmonth = days_in_month(year(), month());
 
-    MARIADB_THROW_IF(day == 0 || day > days_inmonth, exception::date_time,
-                     year(), month(), day, hour(), minute(), second(), millisecond());
+    MARIADB_THROW_IF(day == 0 || day > days_inmonth, exception::date_time, year(), month(), day, hour(), minute(),
+                     second(), millisecond());
 
     m_day = day;
 
     return m_day;
 }
 
-u16 date_time::day_of_year() const { return day_of_year(year(), month(), day()); }
+u16 date_time::day_of_year() const {
+    return day_of_year(year(), month(), day());
+}
 
 u16 date_time::day_of_year(u16 day_of_year) {
     date_time new_date = reverse_day_of_year(year(), day_of_year);
@@ -163,7 +191,8 @@ u16 date_time::day_of_year(u16 day_of_year) {
 date_time date_time::add_years(s32 years) const {
     date_time tmp = *this;
 
-    if (!years) return tmp;
+    if (!years)
+        return tmp;
 
     tmp.year(m_year + years);
     return tmp;
@@ -172,7 +201,8 @@ date_time date_time::add_years(s32 years) const {
 date_time date_time::add_months(s32 months) const {
     date_time tmp = *this;
 
-    if (!months) return tmp;
+    if (!months)
+        return tmp;
 
     s32 years = months / 12;
 
@@ -186,7 +216,8 @@ date_time date_time::add_months(s32 months) const {
         months = 12 - months;
     }
 
-    if (years) tmp = tmp.add_years(years);
+    if (years)
+        tmp = tmp.add_years(years);
 
     tmp.month(months);
     return tmp;
@@ -195,7 +226,8 @@ date_time date_time::add_months(s32 months) const {
 date_time date_time::add_days(s32 days) const {
     date_time tmp = *this;
 
-    if (!days) return tmp;
+    if (!days)
+        return tmp;
 
     s32 dir = days > 0 ? 1 : -1;
     u16 y = year();
@@ -216,7 +248,8 @@ date_time date_time::add_days(s32 days) const {
 date_time date_time::add_hours(s32 hours) const {
     date_time tmp = *this;
 
-    if (!hours) return tmp;
+    if (!hours)
+        return tmp;
 
     s32 days = hours / 24;
 
@@ -230,7 +263,8 @@ date_time date_time::add_hours(s32 hours) const {
         hours = 24 - hours;
     }
 
-    if (days) tmp = tmp.add_days(days);
+    if (days)
+        tmp = tmp.add_days(days);
 
     tmp.hour(hours);
     return tmp;
@@ -239,7 +273,8 @@ date_time date_time::add_hours(s32 hours) const {
 date_time date_time::add_minutes(s32 minutes) const {
     date_time tmp = *this;
 
-    if (!minutes) return tmp;
+    if (!minutes)
+        return tmp;
 
     s32 hours = minutes / 60;
 
@@ -253,7 +288,8 @@ date_time date_time::add_minutes(s32 minutes) const {
         minutes = 60 - minutes;
     }
 
-    if (hours > 0) tmp = tmp.add_hours(hours);
+    if (hours > 0)
+        tmp = tmp.add_hours(hours);
 
     tmp.minute(minutes);
     return tmp;
@@ -262,7 +298,8 @@ date_time date_time::add_minutes(s32 minutes) const {
 date_time date_time::add_seconds(s32 seconds) const {
     date_time tmp = *this;
 
-    if (!seconds) return tmp;
+    if (!seconds)
+        return tmp;
 
     s32 minutes = seconds / 60;
 
@@ -276,7 +313,8 @@ date_time date_time::add_seconds(s32 seconds) const {
         seconds = 60 - seconds;
     }
 
-    if (minutes > 0) tmp = tmp.add_minutes(minutes);
+    if (minutes > 0)
+        tmp = tmp.add_minutes(minutes);
 
     tmp.second(seconds);
     return tmp;
@@ -285,7 +323,8 @@ date_time date_time::add_seconds(s32 seconds) const {
 date_time date_time::add_milliseconds(s32 milliseconds) const {
     date_time tmp = *this;
 
-    if (!milliseconds) return tmp;
+    if (!milliseconds)
+        return tmp;
 
     s32 seconds = milliseconds / 1000;
 
@@ -299,13 +338,14 @@ date_time date_time::add_milliseconds(s32 milliseconds) const {
         milliseconds = 1000 - milliseconds;
     }
 
-    if (seconds > 0) tmp = tmp.add_seconds(seconds);
+    if (seconds > 0)
+        tmp = tmp.add_seconds(seconds);
 
     tmp.millisecond(milliseconds);
     return tmp;
 }
 
-date_time date_time::subtract(const time_span& dur) const {
+date_time date_time::subtract(const time_span &dur) const {
     bool negative = !dur.negative();
 
     time_span tmp = dur;
@@ -313,7 +353,7 @@ date_time date_time::subtract(const time_span& dur) const {
     return add(tmp);
 }
 
-date_time date_time::add(const time_span& dur) const {
+date_time date_time::add(const time_span &dur) const {
     s32 negate = dur.negative() ? -1 : 1;
     date_time tmp = *this;
 
@@ -325,7 +365,7 @@ date_time date_time::add(const time_span& dur) const {
     return tmp;
 }
 
-date_time date_time::add(const time& t) const {
+date_time date_time::add(const time &t) const {
     date_time tmp = *this;
 
     tmp = tmp.add_hours(t.hour());
@@ -335,7 +375,7 @@ date_time date_time::add(const time& t) const {
     return tmp;
 }
 
-date_time date_time::substract(const time& t) const {
+date_time date_time::substract(const time &t) const {
     date_time tmp = *this;
 
     tmp = tmp.add_hours(-1 * t.hour());
@@ -345,8 +385,9 @@ date_time date_time::substract(const time& t) const {
     return tmp;
 }
 
-time_span date_time::time_between(const date_time& dt) const {
-    if (dt == *this) return time_span();
+time_span date_time::time_between(const date_time &dt) const {
+    if (dt == *this)
+        return time_span();
 
     if (dt > *this) {
         time_span dur = dt.time_between(*this);
@@ -354,10 +395,8 @@ time_span date_time::time_between(const date_time& dt) const {
         return dur;
     }
 
-    s64 ms =
-        (hour() * MS_PER_HOUR) + (minute() * MS_PER_MIN) + (second() * MS_PER_SEC) + millisecond();
-    s64 dt_ms = (dt.hour() * MS_PER_HOUR) + (dt.minute() * MS_PER_MIN) +
-                (dt.second() * MS_PER_SEC) + dt.millisecond();
+    s64 ms = (hour() * MS_PER_HOUR) + (minute() * MS_PER_MIN) + (second() * MS_PER_SEC) + millisecond();
+    s64 dt_ms = (dt.hour() * MS_PER_HOUR) + (dt.minute() * MS_PER_MIN) + (dt.second() * MS_PER_SEC) + dt.millisecond();
     s64 total_ms = 0;
     date_time stop_date_time;
 
@@ -423,19 +462,24 @@ bool date_time::is_leap_year(u16 year) {
 }
 
 bool date_time::valid_date(u16 year, u8 month, u8 day) {
-    if (year == 0 || month == 0 || day == 0) return false;
+    if (year == 0 || month == 0 || day == 0)
+        return false;
 
-    if (month > 12) return false;
+    if (month > 12)
+        return false;
 
     return day <= days_in_month(year, month);
 }
 
-u16 date_time::days_in_year(u16 year) { return is_leap_year(year) ? u16(366) : u16(365); }
+u16 date_time::days_in_year(u16 year) {
+    return is_leap_year(year) ? u16(366) : u16(365);
+}
 
 u8 date_time::days_in_month(u16 year, u8 month) {
     u8 days_in_month = g_month_lengths[month - 1];
 
-    if (month == 2 && is_leap_year(year)) days_in_month++;
+    if (month == 2 && is_leap_year(year))
+        days_in_month++;
 
     return days_in_month;
 }
@@ -443,8 +487,7 @@ u8 date_time::days_in_month(u16 year, u8 month) {
 u16 date_time::day_of_year(u16 year, u8 _month, u8 day) {
     u16 day_of_year = 0;
 
-    for (u8 month = 1; month < _month; month++)
-        day_of_year += date_time::days_in_month(year, month);
+    for (u8 month = 1; month < _month; month++) day_of_year += date_time::days_in_month(year, month);
 
     day_of_year += day;
 
@@ -457,7 +500,8 @@ date_time date_time::reverse_day_of_year(u16 year, u16 day_of_year) {
     for (month = 1; month < 12; month++) {
         u32 days = date_time::days_in_month(year, month);
 
-        if (days >= day_of_year) break;
+        if (days >= day_of_year)
+            break;
 
         day_of_year -= days;
     }
@@ -489,20 +533,21 @@ MYSQL_TIME date_time::mysql_time() const {
     t.second = second();
     t.second_part = millisecond() * 1000u;
     t.neg = false;
-    t.time_type =
-        !t.hour && !t.minute && !t.second ? MYSQL_TIMESTAMP_DATE : MYSQL_TIMESTAMP_DATETIME;
+    t.time_type = !t.hour && !t.minute && !t.second ? MYSQL_TIMESTAMP_DATE : MYSQL_TIMESTAMP_DATETIME;
 
     return t;
 }
 
-double date_time::diff_time(const date_time& dt) const {
+double date_time::diff_time(const date_time &dt) const {
     time_t time_val = mktime();
     time_t dt_time_val = dt.mktime();
 
     return ::difftime(time_val, dt_time_val);
 }
 
-date_time date_time::date() const { return date_time(year(), month(), day()); }
+date_time date_time::date() const {
+    return date_time(year(), month(), day());
+}
 
 date_time date_time::now() {
     using namespace std::chrono;
@@ -528,7 +573,7 @@ date_time date_time::now_utc() {
     return date_time(ts).add_milliseconds(static_cast<s32>(millis));
 }
 
-bool date_time::set(const std::string& dt) {
+bool date_time::set(const std::string &dt) {
     std::stringstream stream(dt);
 
     u8 m, d;
@@ -537,17 +582,20 @@ bool date_time::set(const std::string& dt) {
 
     // read formatted years, check overflow before cast
     if (stream >> s_y) {
-        if (stream.eof()) return set(s_y, 0, 0);
+        if (stream.eof())
+            return set(s_y, 0, 0);
 
         // read formatted months, check overflow before cast
         if (stream >> delim && stream >> s_m && s_m < 13) {
             m = static_cast<u8>(s_m);
-            if (stream.eof()) return set(s_y, m, 0);
+            if (stream.eof())
+                return set(s_y, m, 0);
 
             // read formatted days, check overflow before cast
             if (stream >> delim && stream >> s_d && s_d < 32) {
                 d = static_cast<u8>(s_d);
-                if (stream.eof()) return set(s_y, m, d);
+                if (stream.eof())
+                    return set(s_y, m, d);
 
                 // extract remaining string
                 std::string rest;
@@ -575,16 +623,15 @@ const std::string date_time::str_date() const {
     stream.fill('0');
 
     /*
-    * Note: the magic unary + forces conversion of unsigned char (u8) to a numeric printing type,
-    * otherwise it will
-    * be printed as char
-    */
-    stream << std::setw(4) << year() << "-" << std::setw(2) << +month() << "-" << std::setw(2)
-           << +day();
+     * Note: the magic unary + forces conversion of unsigned char (u8) to a numeric printing type,
+     * otherwise it will
+     * be printed as char
+     */
+    stream << std::setw(4) << year() << "-" << std::setw(2) << +month() << "-" << std::setw(2) << +day();
     return stream.str();
 }
 
-std::ostream& mariadb::operator<<(std::ostream& os, const date_time& dt) {
+std::ostream &mariadb::operator<<(std::ostream &os, const date_time &dt) {
     os << dt.str(true);
     return os;
 }

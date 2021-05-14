@@ -21,7 +21,7 @@ class bind {
     friend class statement;
     friend class result_set;
 
-   public:
+public:
     /**
      * Construct a parameter bind
      */
@@ -41,16 +41,16 @@ class bind {
     bind &operator=(const bind &) = delete;
     bind &operator=(bind &&) = delete;
 
-    char* buffer() const;
+    char *buffer() const;
 
     long unsigned int length() const;
 
     bool is_null() const;
 
-    void set(enum_field_types type, const char* buffer = nullptr, unsigned long length = 0, bool us = false);
+    void set(enum_field_types type, const char *buffer = nullptr, unsigned long length = 0, bool us = false);
 
-   private:
-    MYSQL_BIND* m_bind;
+private:
+    MYSQL_BIND *m_bind;
     MYSQL_TIME m_time;
 
     my_bool m_is_null;
@@ -64,11 +64,11 @@ class bind {
         s32 m_signed32[2];
         f64 m_double64;
         f32 m_float32[2];
-        u8  m_uchar8[4];
+        u8 m_uchar8[4];
     };
 };
 
-    using bind_ref = std::unique_ptr<bind>;
-}
+using bind_ref = std::unique_ptr<bind>;
+}  // namespace mariadb
 
 #endif

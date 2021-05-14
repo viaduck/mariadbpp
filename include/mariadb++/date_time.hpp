@@ -18,7 +18,7 @@ namespace mariadb {
  * Class used to represent SQL date_time
  */
 class date_time : public time {
-   public:
+public:
     /**
      * Construct date_time from given data. An exception will be thrown on invalid data.
      *
@@ -38,21 +38,21 @@ class date_time : public time {
      *
      * @param dt Datetime to copy from
      */
-    date_time(const date_time& dt);
+    date_time(const date_time &dt);
 
     /**
      * Construct date_time with given time. Sets the date to Jan, 1st of 1900
      *
      * @param t Time to copy from
      */
-    date_time(const time& t);
+    date_time(const time &t);
 
     /**
      * Construct date_time from tm struct. Since tm cannot represent milliseconds, none will be set.
      *
      * @param time_struct Struct to copy from
      */
-    date_time(const tm& time_struct);
+    date_time(const tm &time_struct);
 
     /**
      * Construct date_time from given time_t. Converts the time to local timezone before setting it.
@@ -60,14 +60,14 @@ class date_time : public time {
      *
      * @param time Timetype to set.
      */
-    date_time(const time_t& time);
+    date_time(const time_t &time);
 
     /**
      * Construct date_time from MYSQL_TIME. No milliseconds will be set.
      *
      * @param time MYSQL_TIME to copy from.
      */
-    date_time(const MYSQL_TIME& time);
+    date_time(const MYSQL_TIME &time);
 
     /**
      * Construct date_time from ISO yyyy-mm-dd hh:mm:ss.nnn date format. Throws an exception on
@@ -75,19 +75,19 @@ class date_time : public time {
      *
      * @param dt String containing ISO date
      */
-    date_time(const std::string& dt);
+    date_time(const std::string &dt);
 
     //
     // Operators
     //
-    int compare(const date_time& dt) const;
-    date_time& operator=(const date_time& dt);
-    bool operator==(const date_time& dt) const;
-    bool operator!=(const date_time& dt) const;
-    bool operator<(const date_time& dt) const;
-    bool operator<=(const date_time& dt) const;
-    bool operator>(const date_time& dt) const;
-    bool operator>=(const date_time& dt) const;
+    int compare(const date_time &dt) const;
+    date_time &operator=(const date_time &dt);
+    bool operator==(const date_time &dt) const;
+    bool operator!=(const date_time &dt) const;
+    bool operator<(const date_time &dt) const;
+    bool operator<=(const date_time &dt) const;
+    bool operator>(const date_time &dt) const;
+    bool operator>=(const date_time &dt) const;
 
     /**
      * Get currently set year
@@ -179,7 +179,7 @@ class date_time : public time {
      * @param dt String containing ISO date
      * @return True on success
      */
-    bool set(const std::string& dt) override;
+    bool set(const std::string &dt) override;
 
     /**
      * Add years to current date.
@@ -243,7 +243,7 @@ class date_time : public time {
      * @param dur The duration to add
      * @return Newly created date_time containing result
      */
-    date_time add(const time_span& dur) const;
+    date_time add(const time_span &dur) const;
 
     /**
      * Subtracts a timespan from the date_time.
@@ -251,7 +251,7 @@ class date_time : public time {
      * @param dur The duration to subtract
      * @return Newly created date_time containing result
      */
-    date_time subtract(const time_span& dur) const;
+    date_time subtract(const time_span &dur) const;
 
     /**
      * Adds a mariadb::time to the date_time.
@@ -259,7 +259,7 @@ class date_time : public time {
      * @param t Time to add
      * @return Newly created date_time containing result
      */
-    date_time add(const time& t) const;
+    date_time add(const time &t) const;
 
     /**
      * Substract a mariadb::time from the date_time.
@@ -267,7 +267,7 @@ class date_time : public time {
      * @param t Time to subtract
      * @return Newly created date_time containing result
      */
-    date_time substract(const time& t) const;
+    date_time substract(const time &t) const;
 
     /**
      * Calculates the time_span between this date_time and dt. If dt > this the time_span will be
@@ -276,7 +276,7 @@ class date_time : public time {
      * @param dt Datetime to calculate the timespan to
      * @return Timespan representing the time between this and dt
      */
-    time_span time_between(const date_time& dt) const;
+    time_span time_between(const date_time &dt) const;
 
     /**
      * Indicates whether this date is considered valid
@@ -353,7 +353,7 @@ class date_time : public time {
      * @param dt Datetime to calculate difference to
      * @return Number of seconds with fractions between the two dates
      */
-    double diff_time(const date_time& dt) const;
+    double diff_time(const date_time &dt) const;
 
     /**
      * Gets only the date part of this date_time
@@ -398,13 +398,13 @@ class date_time : public time {
      */
     const std::string str_date() const;
 
-   private:
+private:
     u16 m_year;
     u8 m_month;
     u8 m_day;
 };
 
-std::ostream& operator<<(std::ostream& os, const date_time& ddt);
-}
+std::ostream &operator<<(std::ostream &os, const date_time &ddt);
+}  // namespace mariadb
 
 #endif

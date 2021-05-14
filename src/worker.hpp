@@ -25,15 +25,13 @@ enum type { execute, insert, query };
 // Worker entity used by concurrency namespace
 //
 class worker {
-   public:
+public:
     //
     // Constructor
     //
     worker();
-    worker(account_ref& account, handle hnd, bool keep_handle, command::type command,
-           const std::string& query);
-    worker(account_ref& account, handle hnd, bool keep_handle, command::type command,
-           statement_ref& statement);
+    worker(account_ref &account, handle hnd, bool keep_handle, command::type command, const std::string &query);
+    worker(account_ref &account, handle hnd, bool keep_handle, command::type command, statement_ref &statement);
 
     //
     // Get informations
@@ -53,7 +51,7 @@ class worker {
     //
     void execute();
 
-   private:
+private:
     bool m_keep_handle;
     handle m_handle;
     status::type m_status;
@@ -64,6 +62,6 @@ class worker {
     result_set_ref m_result_set;
     statement_ref m_statement;
 };
-}
+}  // namespace mariadb
 
 #endif

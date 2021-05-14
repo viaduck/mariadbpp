@@ -16,19 +16,23 @@
 
 namespace mariadb {
 #if _WIN32
-inline int localtime_safe(struct tm* _tm, const time_t* _time) { return localtime_s(_tm, _time); }
+inline int localtime_safe(struct tm *_tm, const time_t *_time) {
+    return localtime_s(_tm, _time);
+}
 
-inline int gmtime_safe(struct tm* _tm, const time_t* _time) { return gmtime_s(_tm, _time); }
+inline int gmtime_safe(struct tm *_tm, const time_t *_time) {
+    return gmtime_s(_tm, _time);
+}
 #else
-inline int localtime_safe(struct tm* _tm, const time_t* _time) {
+inline int localtime_safe(struct tm *_tm, const time_t *_time) {
     return localtime_r(_time, _tm) ? 0 : -1;
 }
 
-inline int gmtime_safe(struct tm* _tm, const time_t* _time) {
+inline int gmtime_safe(struct tm *_tm, const time_t *_time) {
     return gmtime_r(_time, _tm) ? 0 : -1;
 }
 #endif
-}
+}  // namespace mariadb
 #if _WIN32
 
 #if __MINGW32__
@@ -41,43 +45,47 @@ inline int gmtime_safe(struct tm* _tm, const time_t* _time) {
 
 #endif
 
-#define MARIADB_THROW(error, ...) \
-    throw error(__VA_ARGS__)
-#define MARIADB_THROW_IF(x, error, ...) do {                                                       \
-    if ((x)) { MARIADB_THROW(error, __VA_ARGS__); }                                                \
-} while (0)
+#define MARIADB_THROW(error, ...) throw error(__VA_ARGS__)
+#define MARIADB_THROW_IF(x, error, ...)        \
+    do {                                       \
+        if ((x)) {                             \
+            MARIADB_THROW(error, __VA_ARGS__); \
+        }                                      \
+    } while (0)
 
-#define MARIADB_ERROR_QUIET(error, error_id, error_desc) \
-    MARIADB_THROW(error, error_id, error_desc)
-#define MARIADB_ERROR_VERBOSE(error, error_id, error_desc) do {                                    \
-    std::cerr << "MariaDB Error(" << (error_id) << "): " << (error_desc)                           \
-              << "\nIn function: " << __FUNCTION__ << "\nIn file " << __FILE__ << "\nOn line "     \
-              << __LINE__ << '\n';                                                                 \
-    MARIADB_ERROR_QUIET(error, error_id, error_desc);                                              \
-} while (0)
+#define MARIADB_ERROR_QUIET(error, error_id, error_desc) MARIADB_THROW(error, error_id, error_desc)
+#define MARIADB_ERROR_VERBOSE(error, error_id, error_desc)                                                        \
+    do {                                                                                                          \
+        std::cerr << "MariaDB Error(" << (error_id) << "): " << (error_desc) << "\nIn function: " << __FUNCTION__ \
+                  << "\nIn file " << __FILE__ << "\nOn line " << __LINE__ << '\n';                                \
+        MARIADB_ERROR_QUIET(error, error_id, error_desc);                                                         \
+    } while (0)
 
 #if MARIADB_QUIET
-    #define MARIADB_ERROR MARIADB_ERROR_QUIET
+#define MARIADB_ERROR MARIADB_ERROR_QUIET
 #else
-    #define MARIADB_ERROR MARIADB_ERROR_VERBOSE
+#define MARIADB_ERROR MARIADB_ERROR_VERBOSE
 #endif
 
-#define MARIADB_CONN_ERROR(conn) do {                                                              \
-    m_last_error_no = mysql_errno(conn);                                                           \
-    m_last_error = mysql_error(conn);                                                              \
-    MARIADB_ERROR(exception::connection, m_last_error_no, m_last_error);                           \
-} while (0)
-#define MARIADB_CONN_CLOSE_ERROR(conn) do {                                                        \
-    m_last_error_no = mysql_errno(conn);                                                           \
-    m_last_error = mysql_error(conn);                                                              \
-    disconnect();                                                                                  \
-    MARIADB_ERROR(exception::connection, m_last_error_no, m_last_error);                           \
-} while (0)
+#define MARIADB_CONN_ERROR(conn)                                             \
+    do {                                                                     \
+        m_last_error_no = mysql_errno(conn);                                 \
+        m_last_error = mysql_error(conn);                                    \
+        MARIADB_ERROR(exception::connection, m_last_error_no, m_last_error); \
+    } while (0)
+#define MARIADB_CONN_CLOSE_ERROR(conn)                                       \
+    do {                                                                     \
+        m_last_error_no = mysql_errno(conn);                                 \
+        m_last_error = mysql_error(conn);                                    \
+        disconnect();                                                        \
+        MARIADB_ERROR(exception::connection, m_last_error_no, m_last_error); \
+    } while (0)
 
-#define MARIADB_STMT_ERROR(stmt) do {                                                              \
-    m_last_error_no = mysql_stmt_errno(stmt);                                                      \
-    m_last_error = mysql_stmt_error(stmt);                                                         \
-    MARIADB_ERROR(exception::statement, m_last_error_no, m_last_error);                            \
-} while (0)
+#define MARIADB_STMT_ERROR(stmt)                                            \
+    do {                                                                    \
+        m_last_error_no = mysql_stmt_errno(stmt);                           \
+        m_last_error = mysql_stmt_error(stmt);                              \
+        MARIADB_ERROR(exception::statement, m_last_error_no, m_last_error); \
+    } while (0)
 
 #endif

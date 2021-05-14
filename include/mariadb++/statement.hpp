@@ -15,17 +15,21 @@
 #include <mariadb++/result_set.hpp>
 
 #define MAKE_SETTER_SIG(nm, type, fq) void fq set_##nm(u32 index, type value)
+#define MAKE_SETTER_INT(nm, type, fq) void fq _set_body_##nm(bind &bind, type value)
 
-#define MAKE_SETTER_DECL(nm, type) MAKE_SETTER_SIG(nm, type, )
+#define MAKE_SETTER_DECL(nm, type) \
+    MAKE_SETTER_SIG(nm, type, );   \
+    MAKE_SETTER_INT(nm, type, )
 
-#define MAKE_SETTER_BODY                                                                    \
-    if (index >= m_data->m_bind_count) throw std::out_of_range("Field index out of range"); \
-                                                                                            \
-    bind& bind = *m_data->m_binds.at(index);
-
-#define MAKE_SETTER(nm, type)                \
-    MAKE_SETTER_SIG(nm, type, statement::) { \
-        MAKE_SETTER_BODY
+#define MAKE_SETTER(nm, type)                                    \
+    MAKE_SETTER_SIG(nm, type, statement::) {                     \
+        if (index >= m_data->m_bind_count)                       \
+            throw std::out_of_range("Field index out of range"); \
+                                                                 \
+        bind &bind = *m_data->m_binds.at(index);                 \
+        _set_body_##nm(bind, value);                             \
+    }                                                            \
+    MAKE_SETTER_INT(nm, type, statement::)
 
 namespace mariadb {
 class connection;
@@ -41,14 +45,14 @@ class statement : public last_error {
     friend class result_set;
     friend class worker;
 
-   public:
+public:
     statement() = delete;
 
     /**
-             * Execute the query and return the number of rows affected
-             *
-             * @return Number of rows affected or zero on error
-             */
+     * Execute the query and return the number of rows affected
+     *
+     * @return Number of rows affected or zero on error
+     */
     u64 execute();
 
     /**
@@ -68,16 +72,16 @@ class statement : public last_error {
     /**
      * Set connection ref, used by concurrency
      */
-    void set_connection(connection_ref& connection);
+    void set_connection(connection_ref &connection);
 
     // declare all setters
     MAKE_SETTER_DECL(blob, stream_ref);
-    MAKE_SETTER_DECL(date_time, const date_time&);
-    MAKE_SETTER_DECL(date, const date_time&);
-    MAKE_SETTER_DECL(time, const time&);
-    MAKE_SETTER_DECL(data, const data_ref&);
-    MAKE_SETTER_DECL(decimal, const decimal&);
-    MAKE_SETTER_DECL(string, const std::string&);
+    MAKE_SETTER_DECL(date_time, const date_time &);
+    MAKE_SETTER_DECL(date, const date_time &);
+    MAKE_SETTER_DECL(time, const time &);
+    MAKE_SETTER_DECL(data, const data_ref &);
+    MAKE_SETTER_DECL(decimal, const decimal &);
+    MAKE_SETTER_DECL(string, const std::string &);
     MAKE_SETTER_DECL(boolean, bool);
     MAKE_SETTER_DECL(unsigned8, u8);
     MAKE_SETTER_DECL(signed8, s8);
@@ -91,13 +95,12 @@ class statement : public last_error {
     MAKE_SETTER_DECL(double, f64);
     void set_null(u32 index);
 
-   private:
+private:
     /**
      * Private constructor used by connection
      */
-    statement(connection* conn, const std::string& query);
+    statement(connection *conn, const std::string &query);
 
-   private:
     // reference to parent connection
     connection_ref m_connection;
     // non-owning pointer to parent connection
@@ -107,6 +110,6 @@ class statement : public last_error {
 };
 
 typedef std::shared_ptr<statement> statement_ref;
-}
+}  // namespace mariadb
 
 #endif

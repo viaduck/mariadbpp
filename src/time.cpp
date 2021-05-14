@@ -27,55 +27,82 @@ mariadb::time::time(u8 hour, u8 minute, u8 second, u16 millisecond) {
     set(hour, minute, second, millisecond);
 }
 
-mariadb::time::time(const time& t) { set(t.hour(), t.minute(), t.second(), t.millisecond()); }
+mariadb::time::time(const time &t) {
+    set(t.hour(), t.minute(), t.second(), t.millisecond());
+}
 
-mariadb::time::time(const tm& t) { set(t.tm_hour, t.tm_min, t.tm_sec, 0); }
+mariadb::time::time(const tm &t) {
+    set(t.tm_hour, t.tm_min, t.tm_sec, 0);
+}
 
-mariadb::time::time(const time_t& t) {
+mariadb::time::time(const time_t &t) {
     tm ts;
     localtime_safe(&ts, &t);
 
     set(ts.tm_hour, ts.tm_min, ts.tm_sec, 0);
 }
 
-mariadb::time::time(const MYSQL_TIME& t) { set(t.hour, t.minute, t.second, t.second_part / 1000); }
+mariadb::time::time(const MYSQL_TIME &t) {
+    set(t.hour, t.minute, t.second, t.second_part / 1000);
+}
 
-mariadb::time::time(const std::string& t) { set(t); }
+mariadb::time::time(const std::string &t) {
+    set(t);
+}
 
-int mariadb::time::compare(const time& t) const {
-    if (hour() < t.hour()) return -1;
+int mariadb::time::compare(const time &t) const {
+    if (hour() < t.hour())
+        return -1;
 
-    if (hour() > t.hour()) return 1;
+    if (hour() > t.hour())
+        return 1;
 
-    if (minute() < t.minute()) return -1;
+    if (minute() < t.minute())
+        return -1;
 
-    if (minute() > t.minute()) return 1;
+    if (minute() > t.minute())
+        return 1;
 
-    if (second() < t.second()) return -1;
+    if (second() < t.second())
+        return -1;
 
-    if (second() > t.second()) return 1;
+    if (second() > t.second())
+        return 1;
 
-    if (millisecond() < t.millisecond()) return -1;
+    if (millisecond() < t.millisecond())
+        return -1;
 
     return millisecond() == t.millisecond() ? 0 : 1;
 }
 
-mariadb::time& mariadb::time::operator=(const time& t) {
+mariadb::time &mariadb::time::operator=(const time &t) {
     set(t.hour(), t.minute(), t.second(), t.millisecond());
     return *this;
 }
 
-bool mariadb::time::operator==(const time& t) const { return compare(t) == 0; }
+bool mariadb::time::operator==(const time &t) const {
+    return compare(t) == 0;
+}
 
-bool mariadb::time::operator!=(const time& t) const { return compare(t) != 0; }
+bool mariadb::time::operator!=(const time &t) const {
+    return compare(t) != 0;
+}
 
-bool mariadb::time::operator<(const time& t) const { return compare(t) < 0; }
+bool mariadb::time::operator<(const time &t) const {
+    return compare(t) < 0;
+}
 
-bool mariadb::time::operator<=(const time& t) const { return compare(t) <= 0; }
+bool mariadb::time::operator<=(const time &t) const {
+    return compare(t) <= 0;
+}
 
-bool mariadb::time::operator>(const time& t) const { return compare(t) > 0; }
+bool mariadb::time::operator>(const time &t) const {
+    return compare(t) > 0;
+}
 
-bool mariadb::time::operator>=(const time& t) const { return compare(t) >= 0; }
+bool mariadb::time::operator>=(const time &t) const {
+    return compare(t) >= 0;
+}
 
 bool mariadb::time::set(u8 hour, u8 minute, u8 second, u16 millisecond) {
     m_hour = hour;
@@ -85,7 +112,9 @@ bool mariadb::time::set(u8 hour, u8 minute, u8 second, u16 millisecond) {
     return true;
 }
 
-mariadb::u8 mariadb::time::hour() const { return m_hour; }
+mariadb::u8 mariadb::time::hour() const {
+    return m_hour;
+}
 
 mariadb::u8 mariadb::time::hour(u8 hour) {
     MARIADB_THROW_IF(hour > 23, exception::time, hour, minute(), second(), millisecond());
@@ -95,7 +124,9 @@ mariadb::u8 mariadb::time::hour(u8 hour) {
     return m_hour;
 }
 
-mariadb::u8 mariadb::time::minute() const { return m_minute; }
+mariadb::u8 mariadb::time::minute() const {
+    return m_minute;
+}
 
 mariadb::u8 mariadb::time::minute(u8 minute) {
     MARIADB_THROW_IF(minute > 59, exception::time, hour(), minute, second(), millisecond());
@@ -105,7 +136,9 @@ mariadb::u8 mariadb::time::minute(u8 minute) {
     return m_minute;
 }
 
-mariadb::u8 mariadb::time::second() const { return m_second; }
+mariadb::u8 mariadb::time::second() const {
+    return m_second;
+}
 
 mariadb::u8 mariadb::time::second(u8 second) {
     // Allow seconds to go up to 61 to allow MySQL < 5.0.74 (2008) leap seconds
@@ -117,7 +150,9 @@ mariadb::u8 mariadb::time::second(u8 second) {
     return m_second;
 }
 
-mariadb::u16 mariadb::time::millisecond() const { return m_millisecond; }
+mariadb::u16 mariadb::time::millisecond() const {
+    return m_millisecond;
+}
 
 mariadb::u16 mariadb::time::millisecond(u16 millisecond) {
     MARIADB_THROW_IF(millisecond > 999, exception::time, hour(), minute(), second(), millisecond);
@@ -130,7 +165,8 @@ mariadb::u16 mariadb::time::millisecond(u16 millisecond) {
 mariadb::time mariadb::time::add_hours(s32 hours) const {
     mariadb::time tmp = *this;
 
-    if (hours == 0) return tmp;
+    if (hours == 0)
+        return tmp;
 
     // hour overflow does not matter, as we dont care about days
     hours = (hours + hour() + 24) % 24;
@@ -141,7 +177,8 @@ mariadb::time mariadb::time::add_hours(s32 hours) const {
 mariadb::time mariadb::time::add_minutes(s32 minutes) const {
     mariadb::time tmp = *this;
 
-    if (minutes == 0) return tmp;
+    if (minutes == 0)
+        return tmp;
 
     s32 hours = minutes / 60;
     minutes = (minutes % 60) + minute();
@@ -151,7 +188,8 @@ mariadb::time mariadb::time::add_minutes(s32 minutes) const {
     else if (minutes < 0)
         --hours;
 
-    if (hours != 0) tmp = tmp.add_hours(hours);
+    if (hours != 0)
+        tmp = tmp.add_hours(hours);
 
     tmp.minute((minutes + 60) % 60);
     return tmp;
@@ -160,7 +198,8 @@ mariadb::time mariadb::time::add_minutes(s32 minutes) const {
 mariadb::time mariadb::time::add_seconds(s32 seconds) const {
     mariadb::time tmp = *this;
 
-    if (seconds == 0) return tmp;
+    if (seconds == 0)
+        return tmp;
 
     s32 minutes = seconds / 60;
     seconds = (seconds % 60) + second();
@@ -170,7 +209,8 @@ mariadb::time mariadb::time::add_seconds(s32 seconds) const {
     else if (seconds < 0)
         --minutes;
 
-    if (minutes != 0) tmp = tmp.add_minutes(minutes);
+    if (minutes != 0)
+        tmp = tmp.add_minutes(minutes);
 
     tmp.second((seconds + 60) % 60);
     return tmp;
@@ -179,7 +219,8 @@ mariadb::time mariadb::time::add_seconds(s32 seconds) const {
 mariadb::time mariadb::time::add_milliseconds(s32 milliseconds) const {
     mariadb::time tmp = *this;
 
-    if (milliseconds == 0) return tmp;
+    if (milliseconds == 0)
+        return tmp;
 
     s32 seconds = milliseconds / 1000;
     milliseconds = (milliseconds % 1000) + millisecond();
@@ -189,13 +230,14 @@ mariadb::time mariadb::time::add_milliseconds(s32 milliseconds) const {
     else if (milliseconds < 0)
         --seconds;
 
-    if (seconds != 0) tmp = tmp.add_seconds(seconds);
+    if (seconds != 0)
+        tmp = tmp.add_seconds(seconds);
 
     tmp.millisecond((milliseconds + 1000) % 1000);
     return tmp;
 }
 
-mariadb::time mariadb::time::subtract(const time_span& dur) const {
+mariadb::time mariadb::time::subtract(const time_span &dur) const {
     // copy and negate timespan
     time_span tmp = dur;
     tmp.negative(!dur.negative());
@@ -204,7 +246,7 @@ mariadb::time mariadb::time::subtract(const time_span& dur) const {
     return add(tmp);
 }
 
-mariadb::time mariadb::time::add(const time_span& dur) const {
+mariadb::time mariadb::time::add(const time_span &dur) const {
     // negate if needed
     s32 negative = dur.negative() ? -1 : 1;
     time tmp = *this;
@@ -216,9 +258,10 @@ mariadb::time mariadb::time::add(const time_span& dur) const {
     return tmp;
 }
 
-mariadb::time_span mariadb::time::time_between(const time& t) const {
+mariadb::time_span mariadb::time::time_between(const time &t) const {
     // equal
-    if (t == *this) return time_span(0, 0, 0, 0, 0);
+    if (t == *this)
+        return time_span(0, 0, 0, 0, 0);
 
     // recursive call with negation
     if (t > *this) {
@@ -228,10 +271,8 @@ mariadb::time_span mariadb::time::time_between(const time& t) const {
     }
 
     // calculate the ms representation of both
-    s64 ms =
-        (hour() * MS_PER_HOUR) + (minute() * MS_PER_MIN) + (second() * MS_PER_SEC) + millisecond();
-    s64 t_ms = (t.hour() * MS_PER_HOUR) + (t.minute() * MS_PER_MIN) + (t.second() * MS_PER_SEC) +
-               t.millisecond();
+    s64 ms = (hour() * MS_PER_HOUR) + (minute() * MS_PER_MIN) + (second() * MS_PER_SEC) + millisecond();
+    s64 t_ms = (t.hour() * MS_PER_HOUR) + (t.minute() * MS_PER_MIN) + (t.second() * MS_PER_SEC) + t.millisecond();
     s64 total_ms = 0;
 
     // subtract the lesser from greater // TODO: is this case ever reached since we have recusive
@@ -281,7 +322,7 @@ MYSQL_TIME mariadb::time::mysql_time() const {
     return t;
 }
 
-double mariadb::time::diff_time(const time& t) const {
+double mariadb::time::diff_time(const time &t) const {
     time_t time_val = mktime();
     time_t t_time_val = t.mktime();
 
@@ -321,7 +362,7 @@ mariadb::time mariadb::time::now_utc() {
     return mariadb::time(ts).add_milliseconds(static_cast<s32>(millis));
 }
 
-bool mariadb::time::set(const std::string& t) {
+bool mariadb::time::set(const std::string &t) {
     std::stringstream stream(t);
 
     u8 h, m, s;
@@ -331,20 +372,24 @@ bool mariadb::time::set(const std::string& t) {
     // read formatted hours, check overflow before cast
     if (stream >> s_h && s_h < 24) {
         h = static_cast<u8>(s_h);
-        if (stream.eof()) return set(h, 0, 0, 0);
+        if (stream.eof())
+            return set(h, 0, 0, 0);
 
         // read formatted minutes, check overflow before cast
         if (stream >> delim && stream >> s_m && s_m < 60) {
             m = static_cast<u8>(s_m);
-            if (stream.eof()) return set(h, m, 0, 0);
+            if (stream.eof())
+                return set(h, m, 0, 0);
 
             // read formatted seconds, check overflow before cast
             if (stream >> delim && stream >> s_s && s_s < 62) {
                 s = static_cast<u8>(s_s);
-                if (stream.eof()) return set(h, m, s, 0);
+                if (stream.eof())
+                    return set(h, m, s, 0);
 
                 // read formatted millis
-                if (stream >> delim && stream >> s_ms) return set(h, m, s, s_ms);
+                if (stream >> delim && stream >> s_ms)
+                    return set(h, m, s, s_ms);
             }
         }
     }
@@ -361,15 +406,15 @@ const std::string mariadb::time::str_time(bool with_millisecond) const {
      * otherwise it will
      * be printed as char
      */
-    stream << std::setw(2) << +hour() << ":" << std::setw(2) << +minute() << ":" << std::setw(2)
-           << +second();
+    stream << std::setw(2) << +hour() << ":" << std::setw(2) << +minute() << ":" << std::setw(2) << +second();
 
-    if (with_millisecond) stream << "." << std::setw(3) << millisecond();
+    if (with_millisecond)
+        stream << "." << std::setw(3) << millisecond();
 
     return stream.str();
 }
 
-std::ostream& mariadb::operator<<(std::ostream& os, const time& t) {
+std::ostream &mariadb::operator<<(std::ostream &os, const time &t) {
     os << t.str_time(true);
     return os;
 }

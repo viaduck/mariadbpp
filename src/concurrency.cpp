@@ -27,11 +27,11 @@ namespace {
 handle g_next_handle(0);
 account_ref g_account;
 std::mutex g_mutex;
-std::vector<worker*> g_querys_in;
-std::map<handle, worker*> g_querys_out;
+std::vector<worker *> g_querys_in;
+std::map<handle, worker *> g_querys_out;
 bool g_thread_running(false);
 
-typedef std::map<handle, worker*> map_t;
+typedef std::map<handle, worker *> map_t;
 
 //
 // Worker thread
@@ -43,11 +43,12 @@ void worker_thread() {
 
     // breaking in infinite loop because checking g_querys_in would result in a race condition
     while (true) {
-        worker* w = NULL;
+        worker *w = NULL;
         {
             LOCK_MUTEX();
             auto possible_w = g_querys_in.begin();
-            if (possible_w == g_querys_in.end()) break;
+            if (possible_w == g_querys_in.end())
+                break;
 
             w = *possible_w;
             g_querys_in.erase(possible_w);
@@ -55,7 +56,8 @@ void worker_thread() {
 
         w->execute();
 
-        if (!w->keep_handle()) delete w;
+        if (!w->keep_handle())
+            delete w;
     }
 
     g_thread_running = false;
@@ -75,11 +77,12 @@ void start_thread() {
 //
 // Get worker from handle
 //
-const worker& get_worker(handle h) {
+const worker &get_worker(handle h) {
     LOCK_MUTEX();
     const map_t::const_iterator w = g_querys_out.find(h);
 
-    if (w != g_querys_out.end()) return *w->second;
+    if (w != g_querys_out.end())
+        return *w->second;
 
     static worker removed;
     return removed;
@@ -88,41 +91,45 @@ const worker& get_worker(handle h) {
 //
 // Add / remove a new query / command to the thread
 //
-handle add(const std::string& query, command::type command, bool keep_handle) {
+handle add(const std::string &query, command::type command, bool keep_handle) {
     LOCK_MUTEX();
-    worker* w = new worker(g_account, ++g_next_handle, keep_handle, command, query);
+    worker *w = new worker(g_account, ++g_next_handle, keep_handle, command, query);
     g_querys_in.push_back(w);
 
-    if (keep_handle) g_querys_out[g_next_handle] = w;
+    if (keep_handle)
+        g_querys_out[g_next_handle] = w;
 
     start_thread();
 
     return g_next_handle;
 }
 
-handle add(statement_ref& statement, command::type command, bool keep_handle) {
+handle add(statement_ref &statement, command::type command, bool keep_handle) {
     LOCK_MUTEX();
-    worker* w = new worker(g_account, ++g_next_handle, keep_handle, command, statement);
+    worker *w = new worker(g_account, ++g_next_handle, keep_handle, command, statement);
     g_querys_in.push_back(w);
 
-    if (keep_handle) g_querys_out[g_next_handle] = w;
+    if (keep_handle)
+        g_querys_out[g_next_handle] = w;
 
     start_thread();
 
     return g_next_handle;
 }
-}
+}  // namespace
 
 //
 // Set account for connection
 //
-void concurrency::set_account(account_ref& account) { g_account = account; }
+void concurrency::set_account(account_ref &account) {
+    g_account = account;
+}
 
 //
 // Query status
 //
 status::type concurrency::worker_status(handle h) {
-    const worker& w = get_worker(h);
+    const worker &w = get_worker(h);
     return w.status();
 }
 
@@ -130,54 +137,54 @@ status::type concurrency::worker_status(handle h) {
 // Query executed, result ready to be used
 //
 u64 concurrency::get_execute_result(handle h) {
-    const worker& w = get_worker(h);
+    const worker &w = get_worker(h);
     return w.status() == status::removed ? 0 : w.result();
 }
 
 u64 concurrency::get_insert_result(handle h) {
-    const worker& w = get_worker(h);
+    const worker &w = get_worker(h);
     return w.status() == status::removed ? 0 : w.result();
 }
 
 result_set_ref concurrency::get_query_result(handle h) {
-    const worker& w = get_worker(h);
+    const worker &w = get_worker(h);
     return w.status() == status::removed ? result_set_ref() : w.result_set();
 }
 
 //
 // Execute a query
 //
-handle concurrency::execute(const std::string& query, bool keep_handle) {
+handle concurrency::execute(const std::string &query, bool keep_handle) {
     return add(query, command::execute, keep_handle);
 }
 
-handle concurrency::insert(const std::string& query, bool keep_handle) {
+handle concurrency::insert(const std::string &query, bool keep_handle) {
     return add(query, command::insert, keep_handle);
 }
 
-handle concurrency::query(const std::string& query, bool keep_handle) {
+handle concurrency::query(const std::string &query, bool keep_handle) {
     return add(query, command::query, keep_handle);
 }
 
 //
 // Execute a query using a statement
 //
-statement_ref concurrency::create_statement(const std::string& query) {
+statement_ref concurrency::create_statement(const std::string &query) {
     connection_ref connection = connection::create(g_account);
     statement_ref statement = connection->create_statement(query);
     statement->set_connection(connection);
     return statement;
 }
 
-handle concurrency::execute(statement_ref& statement, bool keep_handle) {
+handle concurrency::execute(statement_ref &statement, bool keep_handle) {
     return add(statement, command::execute, keep_handle);
 }
 
-handle concurrency::insert(statement_ref& statement, bool keep_handle) {
+handle concurrency::insert(statement_ref &statement, bool keep_handle) {
     return add(statement, command::insert, keep_handle);
 }
 
-handle concurrency::query(statement_ref& statement, bool keep_handle) {
+handle concurrency::query(statement_ref &statement, bool keep_handle) {
     return add(statement, command::query, keep_handle);
 }
 
@@ -190,7 +197,8 @@ void concurrency::release_handle(handle h) {
     LOCK_MUTEX();
     map_t::iterator w = g_querys_out.find(h);
 
-    if (w == g_querys_out.end()) return;
+    if (w == g_querys_out.end())
+        return;
 
     delete w->second;
     g_querys_out.erase(w);

@@ -21,7 +21,7 @@ namespace mariadb {
  * Class representing SQL time
  */
 class time {
-   public:
+public:
     /**
      * Construct time using given values
      *
@@ -37,28 +37,28 @@ class time {
      *
      * @param t Time to copy from
      */
-    time(const time& t);
+    time(const time &t);
 
     /**
      * Construct time from time.h functions
      *
      * @param time_struct Timestruct to copy from
      */
-    time(const tm& time_struct);
+    time(const tm &time_struct);
 
     /**
      * Construct time from time.h functions
      *
      * @param time Timestruct to copy from
      */
-    time(const time_t& time);
+    time(const time_t &time);
 
     /**
      * Construct time from SQL time
      *
      * @param time SQL time to copy from
      */
-    time(const MYSQL_TIME& time);
+    time(const MYSQL_TIME &time);
 
     /**
      * Construct time from string
@@ -67,7 +67,7 @@ class time {
      *
      * @param t String containing time representation
      */
-    time(const std::string& t);
+    time(const std::string &t);
 
     /**
      * Allow proper destruction in derived classes
@@ -80,42 +80,42 @@ class time {
      * @param t Time to compare to
      * @return 1 if this instance is greater, -1 if t is greater, 0 on equality
      */
-    int compare(const time& t) const;
+    int compare(const time &t) const;
 
     /**
      * Assigns a value to this instance
      */
-    time& operator=(const time& t);
+    time &operator=(const time &t);
 
     /**
      * Checks for equality
      */
-    bool operator==(const time& t) const;
+    bool operator==(const time &t) const;
 
     /**
      * Checks for unequality
      */
-    bool operator!=(const time& t) const;
+    bool operator!=(const time &t) const;
 
     /**
      * Checks if this instance is lesser than t
      */
-    bool operator<(const time& t) const;
+    bool operator<(const time &t) const;
 
     /**
      * Checks if this instance is lesser or equal to t
      */
-    bool operator<=(const time& t) const;
+    bool operator<=(const time &t) const;
 
     /**
      * Checks if this instance is greater than t
      */
-    bool operator>(const time& t) const;
+    bool operator>(const time &t) const;
 
     /**
      * Checks if this instance is greater or equal to t
      */
-    bool operator>=(const time& t) const;
+    bool operator>=(const time &t) const;
 
     /**
      * Get the current hour 0-23
@@ -169,7 +169,7 @@ class time {
      *
      * @return True on success
      */
-    virtual bool set(const std::string& t);
+    virtual bool set(const std::string &t);
 
     /**
      * Set the time from given values
@@ -221,7 +221,7 @@ class time {
      * @param dur A duration to subtract
      * @return Time containing result
      */
-    time subtract(const time_span& dur) const;
+    time subtract(const time_span &dur) const;
 
     /**
      * Adds the given timespan to the current time
@@ -229,7 +229,7 @@ class time {
      * @param dur A duration to add
      * @return Time containing sum
      */
-    time add(const time_span& dur) const;
+    time add(const time_span &dur) const;
 
     /**
      * Calculates the timespan between the current time instance and given instance t
@@ -237,7 +237,7 @@ class time {
      * @param t Time to calculate the duration between
      * @return Timespan containing the duration
      */
-    time_span time_between(const time& t) const;
+    time_span time_between(const time &t) const;
 
     /**
      * Converts the time to time_t (time.h representation)
@@ -252,7 +252,7 @@ class time {
      *
      * @return Difference in seconds as double
      */
-    double diff_time(const time& t) const;
+    double diff_time(const time &t) const;
 
     /**
      * Indicates whether this time is considered valid
@@ -303,14 +303,14 @@ class time {
      */
     static time now_utc();
 
-   protected:
+protected:
     u8 m_hour;
     u8 m_minute;
     u8 m_second;
     u16 m_millisecond;
 };
 
-std::ostream& operator<<(std::ostream& os, const time& t);
-}
+std::ostream &operator<<(std::ostream &os, const time &t);
+}  // namespace mariadb
 
 #endif

@@ -14,7 +14,7 @@
 
 using namespace mariadb;
 
-bind::bind(MYSQL_BIND* b) : m_bind(b), m_is_null(0), m_error(0) {
+bind::bind(MYSQL_BIND *b) : m_bind(b), m_is_null(0), m_error(0) {
     // clear bind
     memset(b, 0, sizeof(MYSQL_BIND));
 
@@ -27,21 +27,26 @@ bind::bind(MYSQL_BIND* b) : m_bind(b), m_is_null(0), m_error(0) {
     m_bind->length = &m_bind->buffer_length;
 }
 
-bind::bind(MYSQL_BIND* b, MYSQL_FIELD* f) : bind(b) {
+bind::bind(MYSQL_BIND *b, MYSQL_FIELD *f) : bind(b) {
     set(f->type, nullptr, f->max_length, (f->flags & UNSIGNED_FLAG) == UNSIGNED_FLAG);
 }
 
-char* bind::buffer() const {
-    if (m_data) return m_data->get();
+char *bind::buffer() const {
+    if (m_data)
+        return m_data->get();
 
-    return const_cast<char*>(reinterpret_cast<const char*>(&m_unsigned64));
+    return const_cast<char *>(reinterpret_cast<const char *>(&m_unsigned64));
 }
 
-unsigned long bind::length() const { return m_bind->buffer_length; }
+unsigned long bind::length() const {
+    return m_bind->buffer_length;
+}
 
-bool bind::is_null() const { return (m_is_null != 0); }
+bool bind::is_null() const {
+    return (m_is_null != 0);
+}
 
-void bind::set(enum_field_types type, const char* buffer, unsigned long length, bool us) {
+void bind::set(enum_field_types type, const char *buffer, unsigned long length, bool us) {
     m_bind->buffer_type = type;
     m_bind->is_unsigned = us ? 1 : 0;
 
@@ -101,7 +106,8 @@ void bind::set(enum_field_types type, const char* buffer, unsigned long length, 
             m_bind->buffer = m_data->get();
             m_bind->buffer_length = m_data->size();
 
-            if (buffer) memcpy(m_bind->buffer, buffer, length);
+            if (buffer)
+                memcpy(m_bind->buffer, buffer, length);
             break;
     }
 }

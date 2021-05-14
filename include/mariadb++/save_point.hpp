@@ -23,7 +23,7 @@ class save_point {
     friend class connection;
     friend class transaction;
 
-   public:
+public:
     /**
      * Destructor initiates automatic rollback if changes were not committed
      */
@@ -34,20 +34,19 @@ class save_point {
      */
     void commit();
 
-   private:
+private:
     /**
      * Create save_point with given transaction
      */
-    save_point(transaction* trans);
+    save_point(transaction *trans);
 
-   private:
     // internal transaction pointer
-    transaction* m_transaction;
+    transaction *m_transaction;
     // distinct name of the current save_pointS
     std::string m_name;
 };
 
 typedef std::shared_ptr<save_point> save_point_ref;
-}
+}  // namespace mariadb
 
 #endif

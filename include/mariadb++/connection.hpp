@@ -30,7 +30,7 @@ class connection : public last_error {
     friend class transaction;
     friend class save_point;
 
-   public:
+public:
     /**
      * Destroys connection and automatically disconnects
      */
@@ -68,7 +68,7 @@ class connection : public last_error {
      *
      * @return String containing the schema
      */
-    const std::string& schema() const;
+    const std::string &schema() const;
 
     /**
      * Sets the schema (database name).
@@ -77,14 +77,14 @@ class connection : public last_error {
      * @param schema The new schema name
      * @return True on success
      */
-    bool set_schema(const std::string& schema);
+    bool set_schema(const std::string &schema);
 
     /**
      * Gets the charset associated with this connection
      *
      * @return String containg the charset (see documentation of MariaDB for possible values)
      */
-    const std::string& charset() const;
+    const std::string &charset() const;
 
     /**
      * Sets the charset.
@@ -93,7 +93,7 @@ class connection : public last_error {
      * @param value The new charset
      * @return True on success
      */
-    bool set_charset(const std::string& value);
+    bool set_charset(const std::string &value);
 
     /**
      * Execute a query without interest in a result.
@@ -102,7 +102,7 @@ class connection : public last_error {
      * @param query SQL query to execute
      * @return The number of actually affected rows. 0 on error
      */
-    u64 execute(const std::string& query);
+    u64 execute(const std::string &query);
 
     /**
      * Execute a query (usually, but not limited to INSERT) with interest for the last row id.
@@ -111,7 +111,7 @@ class connection : public last_error {
      * @param query SQL query to execute
      * @return Last row id of the inserted row. 0 on error
      */
-    u64 insert(const std::string& query);
+    u64 insert(const std::string &query);
 
     /**
      * Execute a query with an result (if no result is returned, the result_set will be empty).
@@ -121,7 +121,7 @@ class connection : public last_error {
      * @param query SQL query to execute
      * @return Result of the query as result_set.
      */
-    result_set_ref query(const std::string& query);
+    result_set_ref query(const std::string &query);
 
     /**
      * Gets the status of the auto_commit setting.
@@ -153,7 +153,7 @@ class connection : public last_error {
      *
      * @return Reference to the created statement.
      */
-    statement_ref create_statement(const std::string& query);
+    statement_ref create_statement(const std::string &query);
 
     /**
      * Create a transaction. Any change to the database will be held back until you COMMIT the
@@ -178,17 +178,17 @@ class connection : public last_error {
      * @param account The account used to provide the connection information
      * @return Reference to the newly created connection
      */
-    static connection_ref create(const account_ref& account);
+    static connection_ref create(const account_ref &account);
 
-   private:
+private:
     /**
      * Private constructor used to create a connection with the given account
      */
-    connection(const account_ref& account);
+    connection(const account_ref &account);
 
-   private:
+private:
     // internal database connection pointer
-    MYSQL* m_mysql;
+    MYSQL *m_mysql;
 
     // state of auto_commit setting
     bool m_auto_commit;
@@ -199,6 +199,6 @@ class connection : public last_error {
     // currently used account
     account_ref m_account;
 };
-}
+}  // namespace mariadb
 
 #endif

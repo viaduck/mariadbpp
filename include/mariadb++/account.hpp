@@ -20,19 +20,22 @@ class account;
 typedef std::shared_ptr<account> account_ref;
 
 class option_arg {
-   public:
+public:
     virtual ~option_arg() = default;
     virtual const void *value() = 0;
 };
 
-#define MAKE_OPTION_ARG(name, type, return_value)                   \
-class option_arg_##name : public option_arg {                       \
-   public:                                                          \
-    explicit option_arg_##name(const type &arg) : m_value(arg) { }  \
-    const void *value() override { return return_value; }           \
-   protected:                                                       \
-    type m_value;                                                   \
-}
+#define MAKE_OPTION_ARG(name, type, return_value)                     \
+    class option_arg_##name : public option_arg {                     \
+    public:                                                           \
+        explicit option_arg_##name(const type &arg) : m_value(arg) {} \
+        const void *value() override {                                \
+            return return_value;                                      \
+        }                                                             \
+                                                                      \
+    protected:                                                        \
+        type m_value;                                                 \
+    }
 
 MAKE_OPTION_ARG(bool, bool, &m_value);
 MAKE_OPTION_ARG(int, int, &m_value);
@@ -44,11 +47,10 @@ MAKE_OPTION_ARG(string, std::string, m_value.c_str());
  * Note that modifying an account after the connection was established is useless.
  */
 class account {
-   public:
+public:
     typedef std::map<std::string, std::string> map_options_t;
     typedef std::map<mysql_option, std::unique_ptr<option_arg>> map_connect_options_t;
 
-   public:
     /**
      * Destructs the account
      */
@@ -207,11 +209,10 @@ class account {
      * @param unix_sock Path of unix socket to connect to. If specified, host and port will be
      * ignored
      */
-    static account_ref create(const std::string &host_name, const std::string &user_name,
-                              const std::string &password, const std::string &schema = "",
-                              u32 port = 3306, const std::string &unix_socket = "");
+    static account_ref create(const std::string &host_name, const std::string &user_name, const std::string &password,
+                              const std::string &schema = "", u32 port = 3306, const std::string &unix_socket = "");
 
-   private:
+private:
     /**
      * Private account constructor
      */
@@ -234,6 +235,6 @@ class account {
     map_options_t m_options;
     map_connect_options_t m_connect_options;
 };
-}
+}  // namespace mariadb
 
 #endif

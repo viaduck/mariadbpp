@@ -18,7 +18,7 @@
 namespace mariadb {
 template <typename Type>
 class data {
-   public:
+public:
     typedef Type char_type;
 
     //
@@ -26,26 +26,32 @@ class data {
     //
     data() : m_count(0), m_size(0), m_data(0) {}
 
-    data(u32 count) : m_count(0), m_size(0), m_data(0) { create(count); }
+    data(u32 count) : m_count(0), m_size(0), m_data(0) {
+        create(count);
+    }
 
-    data(const Type* data, size_t count) : m_count(0), m_size(0), m_data(0) {
+    data(const Type *data, size_t count) : m_count(0), m_size(0), m_data(0) {
         create(data, static_cast<u32>(count));
     }
 
     //
     // Destructor
     //
-    virtual ~data() { destroy(); }
+    virtual ~data() {
+        destroy();
+    }
 
     //
     // Create the data
     //
     bool create(u32 count) {
-        if (m_data) destroy();
+        if (m_data)
+            destroy();
 
         m_data = new Type[count];
 
-        if (m_data == 0) return false;
+        if (m_data == 0)
+            return false;
 
         m_count = count;
         m_size = sizeof(Type) * count;
@@ -54,7 +60,7 @@ class data {
         return true;
     }
 
-    bool create(const Type* data, u32 count) {
+    bool create(const Type *data, u32 count) {
         if (create(count)) {
             memcpy(m_data, data, m_size);
             return true;
@@ -65,9 +71,10 @@ class data {
 
     bool resize(u32 count) {
         if (count > m_count) {
-            Type* data = new Type[count];
+            Type *data = new Type[count];
 
-            if (data == 0) return false;
+            if (data == 0)
+                return false;
 
             memcpy(data, m_data, m_size);
             delete[] m_data;
@@ -84,7 +91,8 @@ class data {
     // Destroy
     //
     void destroy() {
-        if (m_data) delete[] m_data;
+        if (m_data)
+            delete[] m_data;
 
         m_data = NULL;
         m_size = 0;
@@ -97,26 +105,35 @@ class data {
     //
     std::string string() const {
         std::string str;
-        if (m_size) str.append(reinterpret_cast<const char*>(m_data), m_size);
+        if (m_size)
+            str.append(reinterpret_cast<const char *>(m_data), m_size);
         return str;
     }
 
     //
     // Get data / size
     //
-    inline u32 size() const { return m_size; }
-    inline Type* get() const { return m_data; }
+    inline u32 size() const {
+        return m_size;
+    }
+    inline Type *get() const {
+        return m_data;
+    }
 
     //
     // Operator to access the base directly
     //
-    inline operator Type*() { return m_data; }
-    inline operator Type*() const { return m_data; }
+    inline operator Type *() {
+        return m_data;
+    }
+    inline operator Type *() const {
+        return m_data;
+    }
 
     //
     // Stream methods
     //
-    std::streamsize read(char_type* buffer, std::streamsize size) {
+    std::streamsize read(char_type *buffer, std::streamsize size) {
         const std::streamsize amount = static_cast<std::streamsize>(m_size - m_position);
         const std::streamsize result = std::min(size, amount);
 
@@ -129,7 +146,7 @@ class data {
         return size ? -1 : 0;
     }
 
-    std::streamsize write(char_type* buffer, std::streamsize size) {
+    std::streamsize write(char_type *buffer, std::streamsize size) {
         const std::streamsize amount = static_cast<std::streamsize>(m_size - m_position);
         const std::streamsize result = std::min(size, amount);
 
@@ -154,21 +171,22 @@ class data {
         else
             throw std::ios_base::failure("Bad seek direction");
 
-        if (pos < 0 || pos > m_size) throw std::ios_base::failure("Bad seek offset");
+        if (pos < 0 || pos > m_size)
+            throw std::ios_base::failure("Bad seek offset");
 
         m_position = static_cast<u32>(pos);
         return pos;
     }
 
-   protected:
+protected:
     u32 m_count;
     u32 m_size;
     u32 m_position;
-    Type* m_data;
+    Type *m_data;
 };
 
 typedef std::shared_ptr< ::mariadb::data<char> > data_ref;
 typedef std::basic_iostream< ::mariadb::data<char> > data_stream;
-}
+}  // namespace mariadb
 
 #endif

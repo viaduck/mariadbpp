@@ -14,32 +14,41 @@
 
 using namespace mariadb;
 
-connection::connection(const account_ref& account)
-    : m_mysql(NULL), m_auto_commit(true), m_account(account) {}
+connection::connection(const account_ref &account) : m_mysql(NULL), m_auto_commit(true), m_account(account) {}
 
-connection_ref connection::create(const account_ref& account) {
+connection_ref connection::create(const account_ref &account) {
     return connection_ref(new connection(account));
 }
 
-connection::~connection() { disconnect(); }
+connection::~connection() {
+    disconnect();
+}
 
-const std::string& connection::schema() const { return m_schema; }
+const std::string &connection::schema() const {
+    return m_schema;
+}
 
-bool connection::set_schema(const std::string& schema) {
-    if (!connect()) return false;
+bool connection::set_schema(const std::string &schema) {
+    if (!connect())
+        return false;
 
-    if (mysql_select_db(m_mysql, schema.c_str())) MARIADB_CONN_ERROR(m_mysql);
+    if (mysql_select_db(m_mysql, schema.c_str()))
+        MARIADB_CONN_ERROR(m_mysql);
 
     m_schema = schema;
     return true;
 }
 
-const std::string& connection::charset() const { return m_charset; }
+const std::string &connection::charset() const {
+    return m_charset;
+}
 
-bool connection::set_charset(const std::string& value) {
-    if (!connect()) return false;
+bool connection::set_charset(const std::string &value) {
+    if (!connect())
+        return false;
 
-    if (mysql_set_character_set(m_mysql, value.c_str())) MARIADB_CONN_ERROR(m_mysql);
+    if (mysql_set_character_set(m_mysql, value.c_str()))
+        MARIADB_CONN_ERROR(m_mysql);
 
     m_charset = value;
     return true;
@@ -52,23 +61,31 @@ bool connection::connected() const {
         return !mysql_ping(m_mysql);
 }
 
-account_ref connection::account() const { return m_account; }
+account_ref connection::account() const {
+    return m_account;
+}
 
-bool connection::auto_commit() const { return m_auto_commit; }
+bool connection::auto_commit() const {
+    return m_auto_commit;
+}
 
 bool connection::set_auto_commit(bool auto_commit) {
-    if (m_auto_commit == auto_commit) return true;
+    if (m_auto_commit == auto_commit)
+        return true;
 
-    if (!connect()) return false;
+    if (!connect())
+        return false;
 
-    if (mysql_autocommit(m_mysql, auto_commit)) MARIADB_CONN_ERROR(m_mysql);
+    if (mysql_autocommit(m_mysql, auto_commit))
+        MARIADB_CONN_ERROR(m_mysql);
 
     m_auto_commit = auto_commit;
     return true;
 }
 
 bool connection::connect() {
-    if (connected()) return true;
+    if (connected())
+        return true;
 
     if (m_mysql == nullptr) {
         m_mysql = mysql_init(nullptr);
@@ -78,37 +95,38 @@ bool connection::connect() {
     }
 
     if (!m_account->ssl_key().empty()) {
-        if (mysql_ssl_set(m_mysql, m_account->ssl_key().c_str(),
-                          m_account->ssl_certificate().c_str(), m_account->ssl_ca().c_str(),
-                          m_account->ssl_ca_path().c_str(), m_account->ssl_cipher().c_str()))
+        if (mysql_ssl_set(m_mysql, m_account->ssl_key().c_str(), m_account->ssl_certificate().c_str(),
+                          m_account->ssl_ca().c_str(), m_account->ssl_ca_path().c_str(),
+                          m_account->ssl_cipher().c_str()))
             MARIADB_CONN_ERROR(m_mysql);
     }
 
     //
     // set connect options
     //
-    for (auto& pair : m_account->connect_options()) {
+    for (auto &pair : m_account->connect_options()) {
         if (0 != mysql_options(m_mysql, pair.first, pair.second->value()))
             MARIADB_CONN_CLOSE_ERROR(m_mysql);
     }
 
-    if (!mysql_real_connect(
-            m_mysql, m_account->host_name().c_str(), m_account->user_name().c_str(),
-            m_account->password().c_str(), nullptr, m_account->port(),
-            m_account->unix_socket().empty() ? nullptr : m_account->unix_socket().c_str(),
-            CLIENT_MULTI_STATEMENTS))
+    if (!mysql_real_connect(m_mysql, m_account->host_name().c_str(), m_account->user_name().c_str(),
+                            m_account->password().c_str(), nullptr, m_account->port(),
+                            m_account->unix_socket().empty() ? nullptr : m_account->unix_socket().c_str(),
+                            CLIENT_MULTI_STATEMENTS))
         MARIADB_CONN_ERROR(m_mysql);
 
-    if (!set_auto_commit(m_account->auto_commit())) MARIADB_CONN_CLOSE_ERROR(m_mysql);
+    if (!set_auto_commit(m_account->auto_commit()))
+        MARIADB_CONN_CLOSE_ERROR(m_mysql);
 
     if (!m_account->schema().empty()) {
-        if (!set_schema(m_account->schema().c_str())) MARIADB_CONN_CLOSE_ERROR(m_mysql);
+        if (!set_schema(m_account->schema().c_str()))
+            MARIADB_CONN_CLOSE_ERROR(m_mysql);
     }
 
     //
     // Set options
     //
-    for (auto& pair : m_account->options()) {
+    for (auto &pair : m_account->options()) {
         if (1 != execute("SET OPTION " + pair.first + "=" + pair.second))
             MARIADB_CONN_CLOSE_ERROR(m_mysql);
     }
@@ -117,7 +135,8 @@ bool connection::connect() {
 }
 
 void connection::disconnect() {
-    if (!m_mysql) return;
+    if (!m_mysql)
+        return;
 
     mysql_close(m_mysql);
     mysql_thread_end();  // mysql_init() call mysql_thread_init therefor it needed to clear memory
@@ -125,10 +144,11 @@ void connection::disconnect() {
     m_mysql = nullptr;
 }
 
-result_set_ref connection::query(const std::string& query) {
+result_set_ref connection::query(const std::string &query) {
     result_set_ref rs;
 
-    if (!connect()) return rs;
+    if (!connect())
+        return rs;
 
     if (mysql_real_query(m_mysql, query.c_str(), query.size()))
         MARIADB_CONN_ERROR(m_mysql);
@@ -137,8 +157,9 @@ result_set_ref connection::query(const std::string& query) {
     return rs;
 }
 
-u64 connection::execute(const std::string& query) {
-    if (!connect()) return 0;
+u64 connection::execute(const std::string &query) {
+    if (!connect())
+        return 0;
 
     u64 affected_rows = 0;
 
@@ -147,7 +168,7 @@ u64 connection::execute(const std::string& query) {
 
     int status;
     do {
-        MYSQL_RES* result = mysql_store_result(m_mysql);
+        MYSQL_RES *result = mysql_store_result(m_mysql);
 
         if (result)
             mysql_free_result(result);
@@ -164,8 +185,9 @@ u64 connection::execute(const std::string& query) {
     return affected_rows;
 }
 
-u64 connection::insert(const std::string& query) {
-    if (!connect()) return 0;
+u64 connection::insert(const std::string &query) {
+    if (!connect())
+        return 0;
 
     if (mysql_real_query(m_mysql, query.c_str(), query.size()))
         MARIADB_CONN_ERROR(m_mysql);
@@ -173,14 +195,16 @@ u64 connection::insert(const std::string& query) {
     return mysql_insert_id(m_mysql);
 }
 
-statement_ref connection::create_statement(const std::string& query) {
-    if (!connect()) return statement_ref();
+statement_ref connection::create_statement(const std::string &query) {
+    if (!connect())
+        return statement_ref();
 
     return statement_ref(new statement(this, query));
 }
 
 transaction_ref connection::create_transaction(isolation::level level, bool consistent_snapshot) {
-    if (!connect()) return transaction_ref();
+    if (!connect())
+        return transaction_ref();
 
     return transaction_ref(new transaction(this, level, consistent_snapshot));
 }

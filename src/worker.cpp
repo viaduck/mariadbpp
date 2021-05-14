@@ -18,14 +18,9 @@ using namespace mariadb::concurrency;
 // Constructors
 //
 worker::worker()
-    : m_keep_handle(false),
-      m_handle(0),
-      m_status(status::removed),
-      m_command(command::query),
-      m_result(0) {}
+    : m_keep_handle(false), m_handle(0), m_status(status::removed), m_command(command::query), m_result(0) {}
 
-worker::worker(account_ref& account, handle handle, bool keep_handle, command::type command,
-               const std::string& query)
+worker::worker(account_ref &account, handle handle, bool keep_handle, command::type command, const std::string &query)
     : m_keep_handle(keep_handle),
       m_handle(handle),
       m_status(handle > 0 ? status::waiting : status::removed),
@@ -34,8 +29,7 @@ worker::worker(account_ref& account, handle handle, bool keep_handle, command::t
       m_query(query),
       m_account(account) {}
 
-worker::worker(account_ref& account, handle handle, bool keep_handle, command::type command,
-               statement_ref& statement)
+worker::worker(account_ref &account, handle handle, bool keep_handle, command::type command, statement_ref &statement)
     : m_keep_handle(keep_handle),
       m_handle(handle),
       m_status(handle > 0 ? status::waiting : status::removed),
@@ -47,18 +41,28 @@ worker::worker(account_ref& account, handle handle, bool keep_handle, command::t
 //
 // Get informations
 //
-status::type worker::status() const { return m_status; }
+status::type worker::status() const {
+    return m_status;
+}
 
-bool worker::keep_handle() const { return m_keep_handle; }
+bool worker::keep_handle() const {
+    return m_keep_handle;
+}
 
-mariadb::handle worker::get_handle() const { return m_handle; }
+mariadb::handle worker::get_handle() const {
+    return m_handle;
+}
 
 //
 // Get result / result_set
 //
-u64 worker::result() const { return m_result; }
+u64 worker::result() const {
+    return m_result;
+}
 
-result_set_ref worker::result_set() const { return m_result_set; }
+result_set_ref worker::result_set() const {
+    return m_result_set;
+}
 
 //
 // Do the actual job
@@ -67,8 +71,7 @@ void worker::execute() {
     m_status = status::executing;
 
     try {
-        connection_ref connection =
-            m_statement ? m_statement->m_connection : connection::create(m_account);
+        connection_ref connection = m_statement ? m_statement->m_connection : connection::create(m_account);
 
         //
         // Make sure auto commit mode is on before continuing...
@@ -100,7 +103,7 @@ void worker::execute() {
         }
 
         m_status = status::succeed;
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
         m_status = status::failed;
     }

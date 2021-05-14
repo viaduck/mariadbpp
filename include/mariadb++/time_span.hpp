@@ -15,7 +15,7 @@
 
 namespace mariadb {
 class time_span {
-   public:
+public:
     /**
      * Construct time_span from given data. Note that a time_span can span one day at most.
      *
@@ -25,15 +25,14 @@ class time_span {
      * @param milliseconds Number of milliseconds 0-999
      * @param negative Indicates negative timespan
      */
-    time_span(u32 days = 0, u8 hours = 0, u8 minutes = 0, u8 seconds = 0, u16 milliseconds = 0,
-              bool negative = false);
+    time_span(u32 days = 0, u8 hours = 0, u8 minutes = 0, u8 seconds = 0, u16 milliseconds = 0, bool negative = false);
 
     /**
      * Copy constructor
      *
      * @param dur Timespan to copy from
      */
-    time_span(const time_span& dur);
+    time_span(const time_span &dur);
 
     /**
      * Compares this timespan with the given timespan.
@@ -41,15 +40,15 @@ class time_span {
      * @param rhs Timespan to compare this to
      * @return 1 if this is greater, 0 if equal, -1 if this is smaller
      */
-    int compare(const time_span& rhs) const;
+    int compare(const time_span &rhs) const;
 
-    time_span& operator=(const time_span& rhs);
-    bool operator==(const time_span& rhs) const;
-    bool operator!=(const time_span& rhs) const;
-    bool operator<(const time_span& rhs) const;
-    bool operator<=(const time_span& rhs) const;
-    bool operator>(const time_span& rhs) const;
-    bool operator>=(const time_span& rhs) const;
+    time_span &operator=(const time_span &rhs);
+    bool operator==(const time_span &rhs) const;
+    bool operator!=(const time_span &rhs) const;
+    bool operator<(const time_span &rhs) const;
+    bool operator<=(const time_span &rhs) const;
+    bool operator>(const time_span &rhs) const;
+    bool operator>=(const time_span &rhs) const;
 
     /**
      * Set the value of this time_span to given values
@@ -61,8 +60,7 @@ class time_span {
      * @param milliseconds Number of milliseconds 0-999
      * @param negative Indicates negative timespan
      */
-    void set(u32 days = 0, u8 hours = 0, u8 minutes = 0, u8 seconds = 0, u16 milliseconds = 0,
-             bool negative = false);
+    void set(u32 days = 0, u8 hours = 0, u8 minutes = 0, u8 seconds = 0, u16 milliseconds = 0, bool negative = false);
 
     /**
      * Indicates whether this time_span is zero. That is only true if all components are zero
@@ -189,7 +187,7 @@ class time_span {
      */
     u64 total_milliseconds() const;
 
-   private:
+private:
     bool m_negative = false;
     u32 m_days = 0;
     u8 m_hours = 0;
@@ -198,7 +196,7 @@ class time_span {
     u16 m_milliseconds = 0;
 };
 
-std::ostream& operator<<(std::ostream& os, const time_span& ts);
-}
+std::ostream &operator<<(std::ostream &os, const time_span &ts);
+}  // namespace mariadb
 
 #endif

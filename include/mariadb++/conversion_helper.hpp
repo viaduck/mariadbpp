@@ -19,7 +19,8 @@
 
 template <typename T, typename K>
 inline T checked_cast(K value) {
-    if (value < std::numeric_limits<T>::lowest() || value > std::numeric_limits<T>::max()) return T();
+    if (value < std::numeric_limits<T>::lowest() || value > std::numeric_limits<T>::max())
+        return T();
 
     return static_cast<T>(value);
 }
@@ -29,7 +30,8 @@ inline T string_cast(const std::string &str) {
     size_t endPos;
     int parsedNumber = std::stoi(str, &endPos);
 
-    if (endPos != str.size()) return T();
+    if (endPos != str.size())
+        return T();
 
     return checked_cast<T>(parsedNumber);
 }
@@ -39,7 +41,8 @@ inline unsigned long string_cast(const std::string &str) {
     size_t endPos;
     unsigned long parsedNumber = std::stoul(str, &endPos);
 
-    if (endPos != str.size()) return 0;
+    if (endPos != str.size())
+        return 0;
 
     return parsedNumber;
 }
@@ -56,7 +59,8 @@ inline unsigned long long string_cast(const std::string &str) {
     size_t endPos;
     unsigned long long parsedNumber = std::stoull(str, &endPos);
 
-    if (endPos != str.size()) return 0;
+    if (endPos != str.size())
+        return 0;
 
     return parsedNumber;
 }
@@ -66,7 +70,8 @@ inline long long string_cast(const std::string &str) {
     size_t endPos;
     long long parsedNumber = std::stoll(str, &endPos);
 
-    if (endPos != str.size()) return 0;
+    if (endPos != str.size())
+        return 0;
 
     return parsedNumber;
 }
@@ -77,7 +82,8 @@ inline double string_cast(const std::string &str) {
     try {
         double parsedNumber = std::stod(str, &endPos);
 
-        if (endPos != str.size()) return 0;
+        if (endPos != str.size())
+            return 0;
 
         return parsedNumber;
     } catch (std::out_of_range &) {
@@ -92,7 +98,8 @@ inline float string_cast(const std::string &str) {
     try {
         float parsedNumber = std::stof(str, &endPos);
 
-        if (endPos != str.size()) return 0;
+        if (endPos != str.size())
+            return 0;
 
         return parsedNumber;
     } catch (std::out_of_range &) {
