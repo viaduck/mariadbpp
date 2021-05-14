@@ -108,6 +108,8 @@ mariadb::u8 mariadb::time::minute(u8 minute) {
 mariadb::u8 mariadb::time::second() const { return m_second; }
 
 mariadb::u8 mariadb::time::second(u8 second) {
+    // Allow seconds to go up to 61 to allow MySQL < 5.0.74 (2008) leap seconds
+    // See https://docs.oracle.com/cd/E17952_01/mysql-5.0-en/time-zone-leap-seconds.html
     MARIADB_THROW_IF(second > 61, exception::time, hour(), minute(), second, millisecond());
 
     m_second = second;
@@ -291,7 +293,7 @@ bool mariadb::time::is_valid() const {
 }
 
 bool mariadb::time::valid_time(u8 hour, u8 minute, u8 second, u16 millisecond) {
-    // seconds go up to 61 to allow for leap seconds
+    // seconds go up to 61 to allow for leap seconds (see time::second)
     return hour < 24 && minute < 60 && second <= 61 && millisecond < 1000;
 }
 
