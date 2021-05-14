@@ -3,7 +3,7 @@
 //
 //          Copyright Sylvain Rochette Langlois 2013,
 //                    Frantisek Boranek 2015,
-//                    The ViaDuck Project 2016 - 2020.
+//                    The ViaDuck Project 2016 - 2021.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -88,8 +88,7 @@ bool mariadb::time::set(u8 hour, u8 minute, u8 second, u16 millisecond) {
 mariadb::u8 mariadb::time::hour() const { return m_hour; }
 
 mariadb::u8 mariadb::time::hour(u8 hour) {
-    if (hour > 23)
-        MARIADB_ERROR_THROW_TIME(hour, minute(), second(), millisecond());
+    MARIADB_THROW_IF(hour > 23, exception::time, hour, minute(), second(), millisecond());
 
     m_hour = hour;
 
@@ -99,8 +98,7 @@ mariadb::u8 mariadb::time::hour(u8 hour) {
 mariadb::u8 mariadb::time::minute() const { return m_minute; }
 
 mariadb::u8 mariadb::time::minute(u8 minute) {
-    if (minute > 59)
-        MARIADB_ERROR_THROW_TIME(hour(), minute, second(), millisecond());
+    MARIADB_THROW_IF(minute > 59, exception::time, hour(), minute, second(), millisecond());
 
     m_minute = minute;
 
@@ -110,8 +108,7 @@ mariadb::u8 mariadb::time::minute(u8 minute) {
 mariadb::u8 mariadb::time::second() const { return m_second; }
 
 mariadb::u8 mariadb::time::second(u8 second) {
-    if (second > 61)
-        MARIADB_ERROR_THROW_TIME(hour(), minute(), second, millisecond());
+    MARIADB_THROW_IF(second > 61, exception::time, hour(), minute(), second, millisecond());
 
     m_second = second;
 
@@ -121,8 +118,7 @@ mariadb::u8 mariadb::time::second(u8 second) {
 mariadb::u16 mariadb::time::millisecond() const { return m_millisecond; }
 
 mariadb::u16 mariadb::time::millisecond(u16 millisecond) {
-    if (millisecond > 999)
-        MARIADB_ERROR_THROW_TIME(hour(), minute(), second(), millisecond);
+    MARIADB_THROW_IF(millisecond > 999, exception::time, hour(), minute(), second(), millisecond);
 
     m_millisecond = millisecond;
 

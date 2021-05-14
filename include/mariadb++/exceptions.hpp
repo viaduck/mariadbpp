@@ -3,7 +3,7 @@
 //
 //          Copyright Sylvain Rochette Langlois 2013,
 //                    Frantisek Boranek 2015,
-//                    The ViaDuck Project 2016 - 2018.
+//                    The ViaDuck Project 2016 - 2021.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -67,6 +67,14 @@ class connection : public base {
     // Constructor
     //
     connection(u32 error_id, const std::string& error) throw() : base(error_id, error) {}
+};
+
+class statement : public base {
+   public:
+    //
+    // Constructor
+    //
+    statement(u32 error_id, const std::string& error) throw() : base(error_id, error) {}
 };
 }
 }

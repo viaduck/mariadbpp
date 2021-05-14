@@ -3,7 +3,7 @@
 //
 //          Copyright Sylvain Rochette Langlois 2013,
 //                    Frantisek Boranek 2015,
-//                    The ViaDuck Project 2016 - 2018.
+//                    The ViaDuck Project 2016 - 2021.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -18,17 +18,12 @@
 
 using namespace mariadb;
 
-#define STMT_ERROR_RETURN_RS(statement) \
-    {                                   \
-        STMT_ERROR_NO_BRAKET(statement) \
-    }
-
 statement::statement(connection* conn, const std::string& query)
     : m_parent(conn), m_data(statement_data_ref(new statement_data(mysql_stmt_init(conn->m_mysql)))) {
     if (!m_data->m_statement)
-        MYSQL_ERROR(conn->m_mysql)
+        MARIADB_CONN_ERROR(conn->m_mysql);
     else if (mysql_stmt_prepare(m_data->m_statement, query.c_str(), query.size()))
-        STMT_ERROR(m_data->m_statement)
+        MARIADB_STMT_ERROR(m_data->m_statement);
     else {
         m_data->m_bind_count = mysql_stmt_param_count(m_data->m_statement);
 
@@ -45,18 +40,18 @@ void statement::set_connection(connection_ref& connection) { m_connection = conn
 
 u64 statement::execute() {
     if (m_data->m_raw_binds && mysql_stmt_bind_param(m_data->m_statement, m_data->m_raw_binds))
-        STMT_ERROR(m_data->m_statement);
+        MARIADB_STMT_ERROR(m_data->m_statement);
 
-    if (mysql_stmt_execute(m_data->m_statement)) STMT_ERROR(m_data->m_statement);
+    if (mysql_stmt_execute(m_data->m_statement)) MARIADB_STMT_ERROR(m_data->m_statement);
 
     return mysql_stmt_affected_rows(m_data->m_statement);
 }
 
 u64 statement::insert() {
     if (m_data->m_raw_binds && mysql_stmt_bind_param(m_data->m_statement, m_data->m_raw_binds))
-        STMT_ERROR(m_data->m_statement);
+        MARIADB_STMT_ERROR(m_data->m_statement);
 
-    if (mysql_stmt_execute(m_data->m_statement)) STMT_ERROR(m_data->m_statement);
+    if (mysql_stmt_execute(m_data->m_statement)) MARIADB_STMT_ERROR(m_data->m_statement);
 
     return mysql_stmt_insert_id(m_data->m_statement);
 }
@@ -65,9 +60,9 @@ result_set_ref statement::query() {
     result_set_ref rs;
 
     if (m_data->m_raw_binds && mysql_stmt_bind_param(m_data->m_statement, m_data->m_raw_binds))
-        STMT_ERROR_RETURN_RS(m_data->m_statement);
+        MARIADB_STMT_ERROR(m_data->m_statement);
 
-    if (mysql_stmt_execute(m_data->m_statement)) STMT_ERROR_RETURN_RS(m_data->m_statement);
+    if (mysql_stmt_execute(m_data->m_statement)) MARIADB_STMT_ERROR(m_data->m_statement);
 
     rs.reset(new result_set(m_parent, m_data));
     return rs;

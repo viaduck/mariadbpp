@@ -3,7 +3,7 @@
 //
 //          Copyright Sylvain Rochette Langlois 2013,
 //                    Frantisek Boranek 2015,
-//                    The ViaDuck Project 2016 - 2020.
+//                    The ViaDuck Project 2016 - 2021.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -108,8 +108,8 @@ bool date_time::set(u16 year, u8 month, u8 day, u8 hour, u8 minute, u8 second, u
 u16 date_time::year() const { return m_year; }
 
 u16 date_time::year(u16 year) {
-    if (year == 0)
-        MARIADB_ERROR_THROW_DATE(year, month(), day(), hour(), minute(), second(), millisecond());
+    MARIADB_THROW_IF(year == 0, exception::date_time,
+                     year, month(), day(), hour(), minute(), second(), millisecond());
 
     m_year = year;
 
@@ -124,8 +124,8 @@ u16 date_time::year(u16 year) {
 u8 date_time::month() const { return m_month; }
 
 u8 date_time::month(u8 month) {
-    if (month == 0 || month > 12)
-        MARIADB_ERROR_THROW_DATE(year(), month, day(), hour(), minute(), second(), millisecond());
+    MARIADB_THROW_IF(month == 0 || month > 12, exception::date_time,
+                     year(), month, day(), hour(), minute(), second(), millisecond());
 
     m_month = month;
 
@@ -141,8 +141,8 @@ u8 date_time::day() const { return m_day; }
 u8 date_time::day(u8 day) {
     u8 days_inmonth = days_in_month(year(), month());
 
-    if (day == 0 || day > days_inmonth)
-        MARIADB_ERROR_THROW_DATE(year(), month(), day, hour(), minute(), second(), millisecond());
+    MARIADB_THROW_IF(day == 0 || day > days_inmonth, exception::date_time,
+                     year(), month(), day, hour(), minute(), second(), millisecond());
 
     m_day = day;
 

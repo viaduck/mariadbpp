@@ -3,7 +3,7 @@
 //
 //          Copyright Sylvain Rochette Langlois 2013,
 //                    Frantisek Boranek 2015,
-//                    The ViaDuck Project 2016 - 2018.
+//                    The ViaDuck Project 2016 - 2021.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -50,7 +50,7 @@ result_set::result_set(connection* conn, const statement_data_ref &stmt_data)
     mysql_stmt_attr_set(stmt_data->m_statement, STMT_ATTR_UPDATE_MAX_LENGTH, &max_length);
 
     if (conn->account()->store_result() && mysql_stmt_store_result(stmt_data->m_statement))
-        STMT_ERROR(stmt_data->m_statement)
+        MARIADB_STMT_ERROR(stmt_data->m_statement);
     else {
         m_field_count = mysql_stmt_field_count(stmt_data->m_statement);
         m_result_set = mysql_stmt_result_metadata(stmt_data->m_statement);
@@ -269,7 +269,7 @@ void result_set::check_type(u32 index, value::type requested) const {
 
     if (type_error) {
         printf("requested type %d does not match actual type %d", +requested, +actual);
-        MARIADB_ERROR_THROW_CONNECTION(12, "type error");
+        MARIADB_ERROR(exception::connection, 12, "type error");
     }
 }
 

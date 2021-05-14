@@ -3,7 +3,7 @@
 //
 //          Copyright Sylvain Rochette Langlois 2013,
 //                    Frantisek Boranek 2015,
-//                    The ViaDuck Project 2016 - 2018.
+//                    The ViaDuck Project 2016 - 2021.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -41,33 +41,43 @@ inline int gmtime_safe(struct tm* _tm, const time_t* _time) {
 
 #endif
 
-#define MARIADB_ERROR_THROW_CONNECTION(error_id, error) \
-    throw exception::connection(error_id, error);
-#define MARIADB_ERROR_THROW_DATE(_year, _month, _day, _hour, _minute, _second, _millisecond) \
-    throw exception::date_time(_year, _month, _day, _hour, _minute, _second, _millisecond);
-#define MARIADB_ERROR_THROW_TIME(_hour, _minute, _second, _millisecond) \
-    throw exception::time(_hour, _minute, _second, _millisecond);
+#define MARIADB_THROW(error, ...) \
+    throw error(__VA_ARGS__)
+#define MARIADB_THROW_IF(x, error, ...) do {                                                       \
+    if ((x)) { MARIADB_THROW(error, __VA_ARGS__); }                                                \
+} while (0)
 
-#define MARIADB_ERROR(error_id, error)                                                             \
-    std::cerr << "MariaDB Error(" << error_id << "): " << error                                    \
+#define MARIADB_ERROR_QUIET(error, error_id, error_desc) \
+    MARIADB_THROW(error, error_id, error_desc)
+#define MARIADB_ERROR_VERBOSE(error, error_id, error_desc) do {                                    \
+    std::cerr << "MariaDB Error(" << (error_id) << "): " << (error_desc)                           \
               << "\nIn function: " << __FUNCTION__ << "\nIn file " << __FILE__ << "\nOn line "     \
               << __LINE__ << '\n';                                                                 \
-    MARIADB_ERROR_THROW_CONNECTION(error_id, error)
+    MARIADB_ERROR_QUIET(error, error_id, error_desc);                                              \
+} while (0)
 
-#define MYSQL_ERROR_NO_BRAKET(mysql)      \
-    m_last_error_no = mysql_errno(mysql); \
-    m_last_error = mysql_error(mysql);    \
-    MARIADB_ERROR(m_last_error_no, m_last_error);
+#if MARIADB_QUIET
+    #define MARIADB_ERROR MARIADB_ERROR_QUIET
+#else
+    #define MARIADB_ERROR MARIADB_ERROR_VERBOSE
+#endif
 
-#define MYSQL_ERROR(mysql) \
-    { MYSQL_ERROR_NO_BRAKET(mysql) }
+#define MARIADB_CONN_ERROR(conn) do {                                                              \
+    m_last_error_no = mysql_errno(conn);                                                           \
+    m_last_error = mysql_error(conn);                                                              \
+    MARIADB_ERROR(exception::connection, m_last_error_no, m_last_error);                           \
+} while (0)
+#define MARIADB_CONN_CLOSE_ERROR(conn) do {                                                        \
+    m_last_error_no = mysql_errno(conn);                                                           \
+    m_last_error = mysql_error(conn);                                                              \
+    disconnect();                                                                                  \
+    MARIADB_ERROR(exception::connection, m_last_error_no, m_last_error);                           \
+} while (0)
 
-#define STMT_ERROR_NO_BRAKET(statement)            \
-    m_last_error_no = mysql_stmt_errno(statement); \
-    m_last_error = mysql_stmt_error(statement);    \
-    MARIADB_ERROR(m_last_error_no, m_last_error);
-
-#define STMT_ERROR(statement) \
-    { STMT_ERROR_NO_BRAKET(statement) }
+#define MARIADB_STMT_ERROR(stmt) do {                                                              \
+    m_last_error_no = mysql_stmt_errno(stmt);                                                      \
+    m_last_error = mysql_stmt_error(stmt);                                                         \
+    MARIADB_ERROR(exception::statement, m_last_error_no, m_last_error);                            \
+} while (0)
 
 #endif

@@ -1,4 +1,4 @@
-#          Copyright The ViaDuck Project 2016 - 2018.
+#          Copyright The ViaDuck Project 2016 - 2021.
 # Distributed under the Boost Software License, Version 1.0.
 #    (See accompanying file LICENSE or copy at
 #          http://www.boost.org/LICENSE_1_0.txt)
@@ -9,6 +9,7 @@ project(mariadbclientpp LANGUAGES CXX)
 include(GNUInstallDirs)
 option(MARIADBPP_TEST "Build mariadbpp tests" OFF)
 option(MARIADBPP_DOC "Build mariadbpp docs" OFF)
+option(MARIADBPP_QUIET "Turn off error logging" OFF)
 
 # add additional cmake modules
 list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake-modules")
@@ -34,8 +35,8 @@ target_include_directories(
 	"$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
 	"$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>")
 
-target_compile_features(mariadbclientpp
-	PUBLIC cxx_std_11)
+target_compile_features(mariadbclientpp PUBLIC cxx_std_11)
+target_compile_definitions(mariadbclientpp PUBLIC MARIADB_QUIET=$<BOOL:${MARIADBPP_QUIET}>)
 
 if (MSVC)
     target_compile_options(mariadbclientpp PRIVATE /W4)
