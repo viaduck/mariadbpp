@@ -276,10 +276,8 @@ void result_set::check_type(u32 index, value::type requested) const {
             type_error = false;
     }
 
-    if (type_error) {
-        printf("requested type %d does not match actual type %d", +requested, +actual);
-        MARIADB_ERROR(exception::connection, 12, "type error");
-    }
+    if (type_error)
+        MARIADB_ERROR(exception::connection, 12, "type error: requested type " + std::to_string(requested) + " does not match actual type " + std::to_string(actual));
 }
 
 MAKE_GETTER(blob, stream_ref, value::type::blob) {
