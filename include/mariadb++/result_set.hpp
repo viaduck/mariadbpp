@@ -189,6 +189,11 @@ private:
     explicit result_set(connection *conn, const statement_data_ref &stmt);
 
     /**
+     * Resizes bind buffers for truncated columns after a failed fetch and fetches them again
+     */
+    bool fetch_truncated();
+
+    /**
      * Throws if the result set was created, but no row was ever fetched (using next())
      */
     void check_row_fetched() const;

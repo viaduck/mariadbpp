@@ -47,6 +47,8 @@ public:
 
     bool is_null() const;
 
+    bool resize();
+
     void set(enum_field_types type, const char *buffer = nullptr, unsigned long length = 0, bool us = false);
 
 private:

@@ -46,6 +46,16 @@ bool bind::is_null() const {
     return (m_is_null != 0);
 }
 
+bool bind::resize() {
+    if (m_data && m_data->size() < m_bind->buffer_length) {
+        if (!m_data->resize(m_bind->buffer_length))
+            return false;
+        m_bind->buffer = m_data->get();
+        m_bind->buffer_length = m_data->size();
+    }
+    return true;
+}
+
 void bind::set(enum_field_types type, const char *buffer, unsigned long length, bool us) {
     m_bind->buffer_type = type;
     m_bind->is_unsigned = us ? 1 : 0;
