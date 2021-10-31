@@ -99,6 +99,7 @@ bool result_set::fetch_truncated() {
                 return false;
         }
     }
+    return true;
 }
 
 u32 result_set::column_count() const {
