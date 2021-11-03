@@ -9,7 +9,7 @@
 #include "GeneralTest.h"
 #include "mariadb++/concurrency.hpp"
 
-TEST_F(GeneralTest, testCreateFail) {
+TEST_P(GeneralTest, testCreateFail) {
     // intended syntax error
     ASSERT_ANY_THROW(m_con->execute("CREATE TAVBEL testtest ();"));
     ASSERT_ANY_THROW(m_con->execute("CREATE TABLE testtest (\");"));
@@ -17,7 +17,7 @@ TEST_F(GeneralTest, testCreateFail) {
     ASSERT_ANY_THROW(m_con->execute("CREATE TABLE ()"));
 }
 
-TEST_F(GeneralTest, testMissingConnection) {
+TEST_P(GeneralTest, testMissingConnection) {
     // create connection without connecting
     account_ref no_acc = account::create("0.0.0.0", "", "");
     connection_ref no_conn = connection::create(no_acc);
@@ -30,12 +30,12 @@ TEST_F(GeneralTest, testMissingConnection) {
     EXPECT_ANY_THROW(no_conn->create_statement("SELECT * FROM asdf;"));
 }
 
-TEST_F(GeneralTest, testDuplicateTable) {
+TEST_P(GeneralTest, testDuplicateTable) {
     EXPECT_ANY_THROW(m_con->execute("CREATE TABLE " + m_table_name +
                                     " (id INT AUTO_INCREMENT, PRIMARY KEY(id));"));
 }
 
-TEST_F(GeneralTest, testConcurrentInsert) {
+TEST_P(GeneralTest, testConcurrentInsert) {
     constexpr int num_results = 100;
 
     std::vector<handle> handles;
@@ -66,3 +66,5 @@ TEST_F(GeneralTest, testConcurrentInsert) {
 
     EXPECT_EQ(num_results, results.size());
 }
+
+INSTANTIATE_TEST_SUITE_P(BufUnbuf, GeneralTest, ::testing::Values(true, false));

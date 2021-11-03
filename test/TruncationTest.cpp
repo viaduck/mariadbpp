@@ -8,7 +8,7 @@
 
 #include "TruncationTest.h"
 
-TEST_F(TruncationTest, testUInt) {
+TEST_P(TruncationTest, testUInt) {
     uint32_t max = std::numeric_limits<uint32_t>::max();
 
     // insert max uint
@@ -29,3 +29,5 @@ TEST_F(TruncationTest, testUInt) {
     ASSERT_TRUE(stmt_res->next());
     ASSERT_EQ(max, stmt_res->get_unsigned32(0));
 }
+
+INSTANTIATE_TEST_SUITE_P(BufUnbuf, TruncationTest, ::testing::Values(true, false));

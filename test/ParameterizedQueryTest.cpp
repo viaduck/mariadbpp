@@ -8,7 +8,7 @@
 
 #include "ParameterizedQueryTest.h"
 
-TEST_F(ParameterizedQueryTest, bindNormal) {
+TEST_P(ParameterizedQueryTest, bindNormal) {
     mariadb::statement_ref selectQuery =
         m_con->create_statement("SELECT * FROM " + m_table_name + " WHERE 1=?;");
     selectQuery->set_unsigned32(0, 1);
@@ -19,7 +19,7 @@ TEST_F(ParameterizedQueryTest, bindNormal) {
     ASSERT_TRUE(queryResult->next());
 }
 
-TEST_F(ParameterizedQueryTest, emptyBind) {
+TEST_P(ParameterizedQueryTest, emptyBind) {
     mariadb::statement_ref emptyQuery =
         m_con->create_statement("SELECT * FROM " + m_table_name + " WHERE 1=?;");
 
@@ -29,12 +29,12 @@ TEST_F(ParameterizedQueryTest, emptyBind) {
     ASSERT_FALSE(queryResult->next());
 }
 
-TEST_F(ParameterizedQueryTest, emptyBindQuery) {
+TEST_P(ParameterizedQueryTest, emptyBindQuery) {
     // fixme: Invalid query object instead of exception maybe?
     EXPECT_ANY_THROW(mariadb::statement_ref emptyQuery = m_con->create_statement(""));
 }
 
-TEST_F(ParameterizedQueryTest, bindAfterQuery) {
+TEST_P(ParameterizedQueryTest, bindAfterQuery) {
     mariadb::statement_ref errorQuery =
         m_con->create_statement("SELECT * FROM " + m_table_name + " WHERE id = ?;");
     mariadb::result_set_ref queryResult = errorQuery->query();
@@ -42,7 +42,7 @@ TEST_F(ParameterizedQueryTest, bindAfterQuery) {
     EXPECT_NO_THROW(errorQuery->set_unsigned32(0, 1));
 }
 
-TEST_F(ParameterizedQueryTest, bindAnyDataType) {
+TEST_P(ParameterizedQueryTest, bindAnyDataType) {
     mariadb::statement_ref errorQuery;
     mariadb::statement_ref testQuery;
     mariadb::result_set_ref queryResult;
@@ -82,7 +82,7 @@ TEST_F(ParameterizedQueryTest, bindAnyDataType) {
     ParamTest_TEST(errorQuery->set_null(0), queryResult->get_is_null(0), "nul", true);
 }
 
-TEST_F(ParameterizedQueryTest, bindExecute) {
+TEST_P(ParameterizedQueryTest, bindExecute) {
     mariadb::statement_ref crashQuery =
         m_con->create_statement("INSERT INTO " + m_table_name + " (id, preis) VALUES (2, ?);");
     crashQuery->set_unsigned32(0, 1);
@@ -90,7 +90,7 @@ TEST_F(ParameterizedQueryTest, bindExecute) {
     crashQuery->query();
 }
 
-TEST_F(ParameterizedQueryTest, bindDataBlob) {
+TEST_P(ParameterizedQueryTest, bindDataBlob) {
     mariadb::statement_ref errorQuery =
         m_con->create_statement("SELECT * FROM " + m_table_name + " WHERE id = ?;");
 
@@ -114,19 +114,19 @@ TEST_F(ParameterizedQueryTest, bindDataBlob) {
     ASSERT_FALSE(queryResult->next());
 }
 
-TEST_F(ParameterizedQueryTest, bindDataBlobNullPtr) {
+TEST_P(ParameterizedQueryTest, bindDataBlobNullPtr) {
     mariadb::statement_ref errorQuery =
         m_con->create_statement("SELECT * FROM " + m_table_name + " WHERE id = ?;");
     errorQuery->set_data(0, nullptr);
 }
 
-TEST_F(ParameterizedQueryTest, bindWithoutParameters) {
+TEST_P(ParameterizedQueryTest, bindWithoutParameters) {
     mariadb::statement_ref errorQuery = m_con->create_statement("SELECT 1;");
 
     EXPECT_ANY_THROW(errorQuery->set_unsigned32(1, 100));
 }
 
-TEST_F(ParameterizedQueryTest, bindReuseSimple) {
+TEST_P(ParameterizedQueryTest, bindReuseSimple) {
     mariadb::statement_ref insertQuery = m_con->create_statement("INSERT INTO " + m_table_name + "(preis) VALUES(?);");
 
     // bind 1
@@ -164,7 +164,7 @@ TEST_F(ParameterizedQueryTest, bindReuseSimple) {
     EXPECT_EQ(1337u, result3->get_unsigned32(0));
 }
 
-TEST_F(ParameterizedQueryTest, bindReuseString) {
+TEST_P(ParameterizedQueryTest, bindReuseString) {
     mariadb::statement_ref insertQuery = m_con->create_statement("INSERT INTO " + m_table_name + "(str) VALUES(?);");
 
     // bind 1
@@ -202,3 +202,5 @@ TEST_F(ParameterizedQueryTest, bindReuseString) {
     ASSERT_TRUE(result3->next());
     EXPECT_EQ("", result3->get_string(0));
 }
+
+INSTANTIATE_TEST_SUITE_P(BufUnbuf, ParameterizedQueryTest, ::testing::Values(true, false));
