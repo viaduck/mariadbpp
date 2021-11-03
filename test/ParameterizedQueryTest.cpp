@@ -57,7 +57,8 @@ TEST_P(ParameterizedQueryTest, bindAnyDataType) {
                                         " WHERE id = 1;");                                        \
     queryResult = testQuery->query();                                                             \
     ASSERT_TRUE(queryResult->next());                                                             \
-    ASSERT_EQ(call2, value);
+    ASSERT_EQ(call2, value);                                                                      \
+    queryResult.reset();
 
     decimal d = decimal("0.02");
     mariadb::date_time t(mariadb::date_time::now()), z(0, 0, 0);

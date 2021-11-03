@@ -20,6 +20,7 @@ TEST_P(TruncationTest, testUInt) {
     ASSERT_TRUE(!!res);
     ASSERT_TRUE(res->next());
     ASSERT_EQ(max, res->get_unsigned32(0));
+    res.reset();
 
     // query as statement
     statement_ref stmt = m_con->create_statement("SELECT * FROM " + m_table_name + ";");
