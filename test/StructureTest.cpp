@@ -8,7 +8,7 @@
 
 #include "StructureTest.h"
 
-TEST_F(StructureTest, testDateTime) {
+TEST_P(StructureTest, testDateTime) {
     date_time dt("2000-01-02 03:04:05.666");
     date_time dt2(2000, 1, 2, 3, 4, 5, 666);
 
@@ -23,7 +23,7 @@ TEST_F(StructureTest, testDateTime) {
     EXPECT_EQ("2000-01-12 03:04:05.666", dt2.str(true));
 }
 
-TEST_F(StructureTest, testTime) {
+TEST_P(StructureTest, testTime) {
     mariadb::time t("03:04:05.666");
     mariadb::time t2(3, 4, 5, 666);
 
@@ -37,7 +37,7 @@ TEST_F(StructureTest, testTime) {
     EXPECT_EQ("08:04:05.666", t2.str_time(true));
 }
 
-TEST_F(StructureTest, testTimeSpan) {
+TEST_P(StructureTest, testTimeSpan) {
     date_time dt(2000, 1, 2, 3, 4, 5, 666);
     date_time dt2(2000, 1, 5, 5, 5, 5, 999);
 
@@ -48,9 +48,11 @@ TEST_F(StructureTest, testTimeSpan) {
     EXPECT_EQ(333, ts.milliseconds());
 }
 
-TEST_F(StructureTest, testDecimal) {
+TEST_P(StructureTest, testDecimal) {
     decimal d("24.1234");
 
     EXPECT_EQ(24.1234, d.double64());
     EXPECT_EQ("24.1234", d.str());
 }
+
+INSTANTIATE_TEST_SUITE_P(BufUnbuf, StructureTest, ::testing::Values(true, false));

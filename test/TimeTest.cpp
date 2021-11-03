@@ -13,7 +13,7 @@
     EXPECT_FALSE(d.is_valid());         \
 } while(false)
 
-TEST_F(TimeTest, testConstructors) {
+TEST_P(TimeTest, testConstructors) {
     // valid times
     mariadb::time a;
     mariadb::time b(13, 37, 42, 000);
@@ -72,7 +72,7 @@ TEST_F(TimeTest, testConstructors) {
     EXPECT_EQ("08:59:59", l.str_time());
 }
 
-TEST_F(TimeTest, testArithm) {
+TEST_P(TimeTest, testArithm) {
     // test ms
     mariadb::time a(13, 37);
     mariadb::time b(13, 36, 59, 999);
@@ -120,7 +120,7 @@ TEST_F(TimeTest, testArithm) {
     ASSERT_EQ(d, e.add_milliseconds(-1));
 }
 
-TEST_F(TimeTest, testDiff) {
+TEST_P(TimeTest, testDiff) {
     mariadb::time a(13, 37, 42, 007);
     mariadb::time b(12, 37, 42, 007);
     mariadb::time c(23, 37, 42, 007);
@@ -147,7 +147,7 @@ TEST_F(TimeTest, testDiff) {
     ASSERT_NE(s31.negative(), s13.negative());
 }
 
-TEST_F(TimeTest, testNow) {
+TEST_P(TimeTest, testNow) {
     mariadb::time n1 = time::now();
     mariadb::time n2 = time::now();
     mariadb::time n3 = time::now();
@@ -173,7 +173,7 @@ TEST_F(TimeTest, testNow) {
     ASSERT_NE(un1, un4);
 }
 
-TEST_F(TimeTest, testSpan) {
+TEST_P(TimeTest, testSpan) {
     time_span a;
     time_span b(1, 3, 37, 42, 007);
     time_span c(0, 3, 37, 42, 007, true);
@@ -211,7 +211,7 @@ void readdTest(date_time smaller, date_time bigger) {
     ASSERT_EQ(bigger, smaller.add(bigger.time_between(smaller)));
 }
 
-TEST_F(TimeTest, testDateTime) {
+TEST_P(TimeTest, testDateTime) {
     date_time a;
     date_time b(2012, 12, 21, 13, 37, 42, 007);
     date_time before(2012, 12, 19, 13, 37, 42, 007);
@@ -292,3 +292,5 @@ TEST_F(TimeTest, testDateTime) {
     EXPECT_EQ("2008-02-29 13:37:42", ba.str(false));
     EXPECT_EQ("2008-02-29", ba.str_date());
 }
+
+INSTANTIATE_TEST_SUITE_P(BufUnbuf, TimeTest, ::testing::Values(true, false));

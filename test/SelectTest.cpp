@@ -9,7 +9,7 @@
 #include "SelectTest.h"
 #include <cmath>
 
-TEST_F(SelectTest, SelectEmptyTable) {
+TEST_P(SelectTest, SelectEmptyTable) {
     m_con->execute("CREATE TABLE " + m_table_name +
                    " (id INT AUTO_INCREMENT, PRIMARY KEY (`id`));");
     result_set_ref res = m_con->query("SELECT * FROM " + m_table_name);
@@ -18,7 +18,7 @@ TEST_F(SelectTest, SelectEmptyTable) {
     ASSERT_FALSE(res->next());
 }
 
-TEST_F(SelectTest, IntegerLimits) {
+TEST_P(SelectTest, IntegerLimits) {
     m_con->execute("CREATE TABLE `" + m_table_name +
                    "` (\n"
                    "\t`seq` INT(11) NULL DEFAULT NULL,\n"
@@ -77,7 +77,7 @@ TEST_F(SelectTest, IntegerLimits) {
     EXPECT_EQ(18446744073709551615ULL, res->get_unsigned64(10));
 }
 
-TEST_F(SelectTest, RealLimits) {
+TEST_P(SelectTest, RealLimits) {
     m_con->execute("CREATE TABLE `" + m_table_name +
                    "` (\n"
                    "\t`seq` INT(11) NULL DEFAULT NULL,\n"
@@ -122,3 +122,5 @@ TEST_F(SelectTest, RealLimits) {
     EXPECT_FLOAT_EQ(0, res->get_float(3));
     EXPECT_FLOAT_EQ(0, res->get_double(4));
 }
+
+INSTANTIATE_TEST_SUITE_P(BufUnbuf, SelectTest, ::testing::Values(true, false));

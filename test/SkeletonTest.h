@@ -11,12 +11,13 @@
 
 #include <mariadb++/connection.hpp>
 #include <gtest/gtest.h>
+#include <algorithm>
 
 #include "test_config.h"
 
 using namespace mariadb;
 
-class SkeletonTest : public ::testing::Test {
+class SkeletonTest : public ::testing::TestWithParam<bool> {
    public:
     virtual void SetUp() override {
         // get test names and concatenate them
@@ -24,6 +25,7 @@ class SkeletonTest : public ::testing::Test {
             ::testing::UnitTest::GetInstance()->current_test_info();
         m_table_name =
             std::string(test_info->test_case_name()) + "_" + std::string(test_info->name());
+        std::replace(m_table_name.begin(), m_table_name.end(), '/', '_');
 
         // create user account
         using TestConfig = mariadb::testing::TestConfig;
@@ -32,6 +34,7 @@ class SkeletonTest : public ::testing::Test {
         ASSERT_TRUE(!!m_account_setup);
         m_account_setup->set_auto_commit(true);
         m_account_setup->set_connect_option(MYSQL_OPT_CONNECT_TIMEOUT, 10);
+        m_account_setup->set_store_result(GetParam());
         ASSERT_EQ(1u, m_account_setup->connect_options().size());
 
         // create database connection

@@ -8,7 +8,7 @@
 
 #include "RollbackTest.h"
 
-TEST_F(RollbackTest, testTransactCommit) {
+TEST_P(RollbackTest, testTransactCommit) {
     transaction_ref trx = m_con->create_transaction();
 
     u64 id = m_con->insert("INSERT INTO " + m_table_name + "(str) VALUES('test');");
@@ -21,7 +21,7 @@ TEST_F(RollbackTest, testTransactCommit) {
     EXPECT_EQ(1, rs->get_unsigned64(0));
 }
 
-TEST_F(RollbackTest, testTransactionRollback) {
+TEST_P(RollbackTest, testTransactionRollback) {
     // force transaction out of scope to destruct it and trigger automatic rollback
     {
         transaction_ref trx = m_con->create_transaction();
@@ -34,7 +34,7 @@ TEST_F(RollbackTest, testTransactionRollback) {
     EXPECT_EQ(0, rs->get_unsigned64(0));
 }
 
-TEST_F(RollbackTest, testSavePointCommit) {
+TEST_P(RollbackTest, testSavePointCommit) {
     transaction_ref trx = m_con->create_transaction();
     {
         save_point_ref sp = trx->create_save_point();
@@ -50,7 +50,7 @@ TEST_F(RollbackTest, testSavePointCommit) {
     EXPECT_EQ(1, rs->get_unsigned64(0));
 }
 
-TEST_F(RollbackTest, testSavePointNoCommit) {
+TEST_P(RollbackTest, testSavePointNoCommit) {
     transaction_ref trx = m_con->create_transaction();
     {
         save_point_ref sp = trx->create_save_point();
@@ -65,7 +65,7 @@ TEST_F(RollbackTest, testSavePointNoCommit) {
     EXPECT_EQ(0, rs->get_unsigned64(0));
 }
 
-TEST_F(RollbackTest, testMultiInsertIntegration) {
+TEST_P(RollbackTest, testMultiInsertIntegration) {
     std::string queries[] = {
         "INSERT INTO " + m_table_name + " (data) VALUES(?);",
         "INSERT INTO " + m_table_name + " (data, str) VALUES(?, ?);",
@@ -122,3 +122,5 @@ TEST_F(RollbackTest, testMultiInsertIntegration) {
     EXPECT_EQ("2000-01-02 03:04:05", rs->get_date_time("dt").str());
     EXPECT_EQ("11:22:33", rs->get_time("t").str_time());
 }
+
+INSTANTIATE_TEST_SUITE_P(BufUnbuf, RollbackTest, ::testing::Values(true, false));
