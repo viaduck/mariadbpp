@@ -6,10 +6,13 @@
 //    (See accompanying file LICENSE or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
+#include <chrono>
+#include <thread>
+
 #include "TimeTest.h"
 
-#define EXPECT_INVALID(t, x...) do {    \
-    t d(x);                             \
+#define EXPECT_INVALID(t, ...) do {    \
+    t d(__VA_ARGS__);                             \
     EXPECT_FALSE(d.is_valid());         \
 } while(false)
 
@@ -157,7 +160,7 @@ TEST_P(TimeTest, testNow) {
     mariadb::time un3 = time::now_utc();
 
     // make sure n4 and un4 are actually different
-    sleep(1);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     mariadb::time n4 = time::now();
     mariadb::time un4 = time::now_utc();
 
