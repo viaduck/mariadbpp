@@ -33,7 +33,7 @@ if (GTEST_FOUND)
     add_executable(mariadbpp_tests ${mariadbclientpp_SOURCES} ${mariadbclientpp_PUBLIC_HEADERS}
                                         ${mariadbpp_tests_HEADERS} ${mariadbpp_tests_SOURCES})
 
-    target_link_libraries(mariadbpp_tests mariadbclientpp gtest_main)
+    target_link_libraries(mariadbpp_tests mariadbclientpp gtest_main gtest)
 
     if (NOT WIN32 AND NOT ANDROID)
         include(CodeCoverage)
