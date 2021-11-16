@@ -89,6 +89,19 @@ result_set::~result_set() {
     }
 }
 
+bool result_set::fetch_truncated() {
+    for (u32 i = 0; i < m_field_count; ++i) {
+        if (m_binds[i]->m_error) {
+            if (!m_binds[i]->resize())
+                return false;
+            m_row[i] = m_binds[i]->buffer();
+            if (mysql_stmt_fetch_column(m_stmt_data->m_statement, m_binds[i]->m_bind, i, 0))
+                return false;
+        }
+    }
+    return true;
+}
+
 u32 result_set::column_count() const {
     return m_field_count;
 }
@@ -193,8 +206,12 @@ bool result_set::next() {
     if (!m_result_set)
         return (m_was_fetched = false);
 
-    if (m_stmt_data)
-        return (m_was_fetched = !mysql_stmt_fetch(m_stmt_data->m_statement));
+    if (m_stmt_data) {
+        int ret = mysql_stmt_fetch(m_stmt_data->m_statement);
+        if (ret == MYSQL_DATA_TRUNCATED)
+            return (m_was_fetched = fetch_truncated());
+        return (m_was_fetched = !ret);
+    }
 
     m_row = mysql_fetch_row(m_result_set);
     m_lengths = mysql_fetch_lengths(m_result_set);
