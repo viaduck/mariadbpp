@@ -109,8 +109,8 @@ bool connection::connect() {
             MARIADB_CONN_CLOSE_ERROR(m_mysql);
     }
 
-    if (!mysql_real_connect(m_mysql, m_account->host_name().c_str(), m_account->user_name().c_str(),
-                            m_account->password().c_str(), nullptr, m_account->port(),
+    if (!mysql_real_connect(m_mysql, m_account->unix_socket().empty() ? m_account->host_name().c_str() : nullptr,
+                            m_account->user_name().c_str(), m_account->password().c_str(), nullptr, m_account->port(),
                             m_account->unix_socket().empty() ? nullptr : m_account->unix_socket().c_str(),
                             CLIENT_MULTI_STATEMENTS))
         MARIADB_CONN_ERROR(m_mysql);
