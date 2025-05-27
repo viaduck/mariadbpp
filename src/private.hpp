@@ -45,6 +45,14 @@ inline int gmtime_safe(struct tm *_tm, const time_t *_time) {
 
 #endif
 
+inline int mysql_option_safe(MYSQL *mysql, const mysql_option option, const char *value) {
+#if MARIADB_HAS_OPTIONS_V
+    return mysql_optionsv(mysql, option, value);
+#else
+    return mysql_options(mysql, option, value);
+#endif
+}
+
 #define MARIADB_THROW(error, ...) throw error(__VA_ARGS__)
 #define MARIADB_THROW_IF(x, error, ...)        \
     do {                                       \

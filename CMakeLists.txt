@@ -18,6 +18,11 @@ list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/external/cmake-modu
 find_package(MariaDBClient REQUIRED)
 find_package(Threads REQUIRED)
 
+# check capabilities
+include(CheckSymbolExists)
+set(CMAKE_REQUIRED_LIBRARIES MariaDBClient::MariaDBClient)
+check_symbol_exists(mysql_optionsv mysql.h MARIADBPP_HAS_OPTIONS_V)
+
 # find files
 file(GLOB_RECURSE MARIADBPP_PUBLIC_HEADERS include/mariadb++/*)
 file(GLOB_RECURSE MARIADBPP_FILES src/*.hpp src/*.cpp)
@@ -32,7 +37,10 @@ target_include_directories(mariadbclientpp PUBLIC
 target_link_libraries(mariadbclientpp MariaDBClient::MariaDBClient Threads::Threads)
 # compile options
 target_compile_features(mariadbclientpp PUBLIC cxx_std_11)
-target_compile_definitions(mariadbclientpp PUBLIC MARIADB_QUIET=$<BOOL:${MARIADBPP_QUIET}>)
+target_compile_definitions(mariadbclientpp PUBLIC
+    MARIADB_QUIET=$<BOOL:${MARIADBPP_QUIET}>
+    MARIADB_HAS_OPTIONS_V=$<BOOL:${MARIADBPP_HAS_OPTIONS_V}>
+)
 
 if (MSVC)
     target_compile_options(mariadbclientpp PRIVATE /W4)
