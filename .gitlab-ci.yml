@@ -1,7 +1,3 @@
-image: viaduck/ci
-services:
-    - mariadb:latest
-    
 variables:
     GIT_SUBMODULE_STRATEGY: recursive
     MYSQL_DATABASE: "mariadbpptest"
@@ -12,11 +8,11 @@ variables:
 stages:
     - build         # contains build and test and deploy
 
-test:
+.test:
     script:
         - mkdir build
         - cd build
-        - cmake ../ -DMARIADBPP_DOC=ON -DMARIADBPP_TEST=ON -DTEST_HOSTNAME=mariadb -DTEST_USERNAME=$MYSQL_USER -DTEST_PASSWORD=$MYSQL_PASSWORD -DTEST_PORT=3306 -DTEST_DATABASE=$MYSQL_DATABASE -DGTEST_SRC_DIR=/usr/src/googletest/
+        - cmake ../ -DMARIADBPP_DOC=ON -DMARIADBPP_TEST=ON -DTEST_HOSTNAME=db -DTEST_USERNAME=$MYSQL_USER -DTEST_PASSWORD=$MYSQL_PASSWORD -DTEST_PORT=3306 -DTEST_DATABASE=$MYSQL_DATABASE -DGTEST_SRC_DIR=/usr/src/googletest/
         - make
         - test/mariadbpp_test            # runs gtest target
         - cmake . -DCMAKE_BUILD_TYPE=Debug -DVIADUCK_COVERAGE=ON
@@ -27,3 +23,19 @@ test:
         paths:
         - build/mariadbpp_test_coverage/           # coverage data
         - build/doc/html/                # doxygen documentation
+
+test mariadb:
+    extends: .test
+    image: viaduck/ci
+    services:
+        - name: mariadb:latest
+          alias: db
+
+test mysql:
+    extends: .test
+    image: ubuntu:22.04
+    services:
+        - name: mysql:latest
+          alias: db
+    before_script:
+        - apt-get -y update && apt-get -y install build-essential cmake mysql-server libmysqlclient-dev libgtest-dev python3 lcov doxygen graphviz
