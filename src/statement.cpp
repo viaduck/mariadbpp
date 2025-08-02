@@ -15,6 +15,7 @@
 #include <mariadb++/statement.hpp>
 #include <mariadb++/bind.hpp>
 #include "private.hpp"
+#include <cstdint>
 
 using namespace mariadb;
 
